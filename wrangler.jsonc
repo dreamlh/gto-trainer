@@ -1,0 +1,9 @@
+// Cloudflare Workers 静态资产部署配置（纯静态站点，无服务端代码）
+{
+  "name": "gto-trainer",
+  "compatibility_date": "2026-07-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  }
+}
