@@ -1,0 +1,5 @@
+node_modules/
+dist/
+gto-trainer-dist.zip
+*.log
+.DS_Store
