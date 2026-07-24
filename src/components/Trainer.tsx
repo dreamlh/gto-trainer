@@ -79,6 +79,7 @@ export function Trainer({ active = true }: { active?: boolean }) {
   const snap = useSyncExternalStore(trainerSession.subscribe, trainerSession.getSnapshot)
   const [tableSize, setTableSize] = useState(6)
   const [preflopOnly, setPreflopOnly] = useState(false)
+  const [revealAll, setRevealAll] = useState(false)
   const [tally, setTally] = useState<Tally>({
     hands: 0,
     decisions: 0,
@@ -112,7 +113,13 @@ export function Trainer({ active = true }: { active?: boolean }) {
     }
   }, [active, tableSize, preflopOnly])
 
+  // 新一手开始（结果清空）时自动关闭透视
+  useEffect(() => {
+    if (!snap.result) setRevealAll(false)
+  }, [snap.result])
+
   const newHandClick = useCallback(() => {
+    setRevealAll(false)
     void trainerSession.startHand(tableSize, preflopOnly)
   }, [tableSize, preflopOnly])
 
@@ -192,7 +199,13 @@ export function Trainer({ active = true }: { active?: boolean }) {
             engine={snap.engine}
             heroSeat={snap.heroSeat}
             toActSeat={snap.toActSeat}
-            revealed={snap.result?.revealed ?? []}
+            revealed={
+              revealAll && snap.engine
+                ? snap.engine.players
+                    .filter((p) => p.seat !== snap.heroSeat)
+                    .map((p) => ({ seat: p.seat, cards: p.cards }))
+                : (snap.result?.revealed ?? [])
+            }
             solveProgress={snap.solveProgress}
           />
         )}
@@ -270,6 +283,11 @@ export function Trainer({ active = true }: { active?: boolean }) {
               <button className="primary-btn" onClick={newHandClick}>
                 下一手（回车）
               </button>
+              {!revealAll && (
+                <button className="link-btn" onClick={() => setRevealAll(true)}>
+                  查看对手底牌
+                </button>
+              )}
             </div>
           </div>
         )}

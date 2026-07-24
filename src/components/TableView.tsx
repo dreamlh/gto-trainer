@@ -72,7 +72,7 @@ export function TableView({
                 className={`seat ${p.folded ? 'seat-folded' : ''} ${isHero ? 'seat-hero' : ''} ${acting ? 'seat-acting' : ''}`}
                 style={{ left: `${x}%`, top: `${y}%` }}
               >
-                {cards && !p.folded && (
+                {cards && (
                   <div className="seat-cards">
                     <CardFace card={cards[0]} size={isHero ? 'lg' : 'md'} />
                     <CardFace card={cards[1]} size={isHero ? 'lg' : 'md'} />
