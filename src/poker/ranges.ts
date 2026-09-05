@@ -13,9 +13,10 @@ export interface SpotAction {
 
 export interface Spot {
   id: string
-  category: 'rfi' | 'vs-rfi' | 'vs-3bet' | 'vs-4bet'
+  category: 'rfi' | 'vs-rfi' | 'vs-3bet' | 'cold-3bet' | 'vs-4bet'
   hero: Position
   villain?: Position
+  chip?: string // 选择按钮上的短标签；缺省按 category 拼
   title: string
   situation: string
   actions: SpotAction[]
@@ -317,6 +318,7 @@ export const CATEGORY_LABELS: Record<Spot['category'], string> = {
   rfi: '首入加注 (RFI)',
   'vs-rfi': '面对开局加注',
   'vs-3bet': '面对 3-bet',
+  'cold-3bet': '盲注冷跟 vs 3-bet',
   'vs-4bet': '面对 4-bet',
 }
 

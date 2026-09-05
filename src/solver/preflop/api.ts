@@ -202,6 +202,26 @@ function deriveSpots(bundle: PreflopBundle): Spot[] {
       })
       return null
     }
+    if (node.raisesBefore === 2 && ctx.calls === 0 && node.actor !== ctx.opener) {
+      // 盲注面对「开局 + 3-bet」的冷跟/弃（树里只有盲注在此有决策）
+      category = 'cold-3bet'
+      villain = pos[ctx.threeBettor]
+      const opener = pos[ctx.opener]
+      title = `${hero} 面对 ${opener} 开局 + ${villain} 3-bet（冷跟）`
+      situation = `${opener} 开局加注，${villain} 3-bet，轮到你在 ${hero}（只能跟注或弃牌，不含冷 4-bet）。`
+      spots.push({
+        id: `${tree.n}p-${hero.toLowerCase()}-vs-${opener.toLowerCase()}-${villain.toLowerCase()}-cold`,
+        category,
+        hero,
+        villain,
+        chip: `${hero} vs ${opener}+${villain}`,
+        title,
+        situation,
+        actions,
+        strategy,
+      })
+      return null
+    }
     if (node.raisesBefore === 3 && ctx.calls === 0 && node.actor === ctx.threeBettor) {
       category = 'vs-4bet'
       villain = pos[ctx.fourBettor]

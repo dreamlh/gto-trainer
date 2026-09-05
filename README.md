@@ -12,7 +12,7 @@
 
 ## 求解架构
 
-- **翻前**：向量 CFR+（regret-matching+，线性平均），169 手牌抽象；动作阶梯 2.5bb 开局（SB 3bb）/3-bet/4-bet/5-bet 全下，无 limp、禁冷跟 3-bet；叶子估值 = 169×169 预计算权益矩阵 × 权益锐化（γ=1.6）× 位置实现系数。8 个桌型构建期预解并入库（`public/solutions/*.bin.gz`，共 ~900KB），HU 可利用度 <0.25bb/100。
+- **翻前**：向量 CFR+（regret-matching+，线性平均），169 手牌抽象；动作阶梯 2.5bb 开局（SB 3bb）/3-bet/4-bet/5-bet 全下，无 limp；面对 3-bet 只有盲注可冷跟（无冷 4-bet），其它未投入者只能弃牌；叶子估值 = 169×169 预计算权益矩阵 × 权益锐化（γ=1.6）× 位置实现系数；多人叶按两两权益乘积分配底池，份额逐手牌有界（自己 / (自己 + 其他人的范围均值)）。8 个桌型构建期预解并入库（`public/solutions/*.bin.gz`，共 ~650KB），HU 可利用度 <0.25bb/100。
 - **翻后**：1326 组合向量 CFR+，河牌精确（排序牌力扫描 O(M) 摊牌评估 + 阻断牌容斥）；转牌全枚举 48 张河牌（河牌子树用粗化 continuation）；翻牌深度受限（发完热权益 × 实现系数，runout 采样）。跑在 Web Worker，支持进度与取消。
 - 已知近似：多人 CFR 无纳什保证、翻前叶子模型是启发式、翻牌层较粗（靠逐街重解弥补）。定位是学习工具，精度不及商用 solver。
 
@@ -28,7 +28,8 @@ npm run build      # 生产构建
 
 ```bash
 npx tsx scripts/gen-equity169.ts 100000   # 169×169 权益矩阵（~5 分钟）
-npx tsx scripts/solve-preflop.ts          # 预解 2-9 人桌（~20 分钟）
+npx tsx scripts/solve-preflop.ts          # 预解 2-9 人桌，8 个桌型并行子进程（~14 分钟，取决于 9 人桌）
+npx tsx scripts/solve-preflop.ts 6        # 只解某个桌型（本进程）
 ```
 
 ## 测试

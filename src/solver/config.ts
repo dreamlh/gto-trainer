@@ -85,6 +85,7 @@ export function realizationFactor(
 // ============ 翻前 CFR 求解参数 ============
 export const PREFLOP_CFR = {
   iterations: 600,
+  averagingDelayFrac: 0.25, // 前 25% 迭代不计入平均策略（CFR+ 常规做法）
   pruneReachMass: 1e-7, // 对手 reach 质量乘积低于此则剪枝
   storeReachThreshold: 1e-4, // artifact 只存公共序列 reach 高于此的节点
   huExploitabilityTarget: 0.0025, // bb（即 0.25bb/100）

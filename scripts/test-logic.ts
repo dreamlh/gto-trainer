@@ -4,6 +4,8 @@ import { evaluate } from '../src/poker/evaluator'
 import { computeEquity } from '../src/poker/equity'
 import { parseCard, combosForHand, comboCount, type Card } from '../src/poker/cards'
 import { SPOTS } from '../src/poker/ranges'
+import { buildPreflopTree, type PfNode } from '../src/solver/preflop/tree'
+import { DEFAULT_LADDER, POSITIONS_BY_SIZE } from '../src/solver/config'
 
 let failed = 0
 function check(name: string, cond: boolean, detail = '') {
@@ -142,6 +144,43 @@ for (const spot of SPOTS) {
   st2.street = 'river'
   const win2 = showdown(st2)
   check('公共牌成手平分池', Math.abs(win2.get(0)! - win2.get(1)!) < 1e-9)
+}
+
+// ---- 翻前树：没有座位会被静默跳过 ----
+// 树把「唯一动作=弃牌」的座位坍缩掉（未投入者面对 3bet/4bet），必须记进 forcedFolds，
+// 否则训练器会在轮到英雄时凭空跳过他。
+{
+  for (const n of [2, 3, 4, 5, 6, 9]) {
+    const tree = buildPreflopTree(n, DEFAULT_LADDER)
+    const positions = POSITIONS_BY_SIZE[n]
+    let leaks = 0
+    let forcedSeen = 0
+    function walk(node: PfNode, accounted: Set<number>) {
+      const acc = new Set(accounted)
+      for (const s of node.forcedFolds) {
+        if (acc.has(s)) leaks++ // 同一座位被记两次
+        acc.add(s)
+        forcedSeen++
+      }
+      if (node.type === 'terminal') {
+        for (let s = 0; s < n; s++) {
+          if (!node.active.includes(s) && !acc.has(s)) leaks++
+        }
+        return
+      }
+      if (acc.has(node.actor)) leaks++ // 已弃牌的人还在行动
+      for (let i = 0; i < node.actions.length; i++) {
+        const nx = new Set(acc)
+        if (node.actions[i].kind === 'fold') nx.add(node.actor)
+        walk(node.children[i], nx)
+      }
+    }
+    walk(tree.root, new Set())
+    check(`${n} 人翻前树无静默跳过（${positions.length} 座）`, leaks === 0, `leaks=${leaks}`)
+    // 盲注可冷跟后，强制弃牌只剩「非盲注、未投入、面对 3bet」的座位：≤4 人桌不存在，5 人起才有
+    if (n <= 4) check(`${n} 人树无强制弃牌`, forcedSeen === 0, `forced=${forcedSeen}`)
+    else check(`${n} 人树记录了强制弃牌`, forcedSeen > 0)
+  }
 }
 
 if (failed > 0) {

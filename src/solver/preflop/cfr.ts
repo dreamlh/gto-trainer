@@ -146,7 +146,9 @@ export function solvePreflop(
       return
     }
 
-    // 多人：两两权益乘积 + Z 归一化（每个对手的 matvec 只算一次）
+    // 多人：两两权益乘积，份额 = 自己的乘积 / (自己的乘积 + 其他人乘积的范围均值之和)。
+    // 逐手牌有界（<1），范围均值上仍近似零和。早先用 upot/Z（Z=全员均值之和）时强牌份额可 >1，
+    // 三人 3bet 底池对强范围是「凭空造钱」，盲注冷跟分支一放开就被 CFR 榨到 UTG AA 开局 EV 32bb。
     const eqCache = new Map<number, Float32Array>()
     const mCache = new Map<number, Float32Array>()
     for (const j of t.active) {
@@ -168,35 +170,30 @@ export function solvePreflop(
         massP[h] *= m[h]
       }
     }
-    let Z = 0
+    let others = 0 // 其他人 upot 的范围均值之和
     for (const k of t.active) {
+      if (k === p) continue
       let upotSum = 0
       let reachSum = 0
-      if (k === p) {
-        for (let h = 0; h < 169; h++) {
-          upotSum += reaches[p][h] * upotP[h]
-          reachSum += reaches[p][h]
-        }
-      } else {
-        upotK.fill(1)
-        for (const j of t.active) {
-          if (j === k) continue
-          const e = eqCache.get(j)!
-          const m = mCache.get(j)!
-          for (let h = 0; h < 169; h++) upotK[h] *= sharp(e[h] / Math.max(m[h], EPS))
-        }
-        for (let h = 0; h < 169; h++) {
-          upotSum += reaches[k][h] * upotK[h]
-          reachSum += reaches[k][h]
-        }
+      upotK.fill(1)
+      for (const j of t.active) {
+        if (j === k) continue
+        const e = eqCache.get(j)!
+        const m = mCache.get(j)!
+        for (let h = 0; h < 169; h++) upotK[h] *= sharp(e[h] / Math.max(m[h], EPS))
       }
-      Z += upotSum / Math.max(reachSum, EPS)
+      for (let h = 0; h < 169; h++) {
+        upotSum += reaches[k][h] * upotK[h]
+        reachSum += reaches[k][h]
+      }
+      others += upotSum / Math.max(reachSum, EPS)
     }
-    Z = Math.max(Z, EPS)
+    others = Math.max(others, EPS)
     const pot = t.pot
     const inv = t.invested[p]
     for (let h = 0; h < 169; h++) {
-      out[h] = (R * pot * (upotP[h] / Z) - inv) * massP[h] * mFold
+      const share = upotP[h] / (upotP[h] + others)
+      out[h] = (R * pot * share - inv) * massP[h] * mFold
     }
   }
 
@@ -255,31 +252,41 @@ export function solvePreflop(
   }
 
   // ============ 主循环 ============
+  // 线性平均但跳过前 1/4 迭代：早期均匀策略会给「后来再也不走的线路」留下冻结的平均
+  // （AA 冷跟开局再面对 squeeze 之类），延迟平均让这些手牌的 stratSum 归零，走下面的 EV 兜底。
+  const avgDelay = Math.floor(T * PREFLOP_CFR.averagingDelayFrac)
   const rootBuf = new Float32Array(169)
   for (let t = 1; t <= T; t++) {
+    const iterWeight = Math.max(0, t - avgDelay)
     for (let p = 0; p < n; p++) {
       for (let i = 0; i < n; i++) reaches[i].set(BASE_DIST)
-      traverse(tree.root, p, 0, t, rootBuf)
+      traverse(tree.root, p, 0, iterWeight, rootBuf)
     }
     if (opts.onProgress && t % 50 === 0) opts.onProgress(t, T)
   }
 
   // ============ 平均策略 ============
+  // 从未到达的手牌（如 AA 冷跟开局后面对 squeeze——AA 根本不冷跟）没有累积过策略，
+  // 先填均匀，EV 提取后再改成 EV 最优动作的 one-hot（它们 reach 为零，不影响他人 EV）。
   const avgStrategy = new Map<number, Float32Array>()
+  const unreached = new Map<number, boolean[]>() // nodeId -> 每手牌是否从未到达
   for (const node of tree.decisionNodes) {
     const A = node.actions.length
     const S = stratSum.get(node.id)!
     const avg = new Float32Array(169 * A)
+    const ur = new Array<boolean>(169).fill(false)
     for (let h = 0; h < 169; h++) {
       let s = 0
       for (let a = 0; a < A; a++) s += S[h * A + a]
       if (s <= EPS) {
+        ur[h] = true
         for (let a = 0; a < A; a++) avg[h * A + a] = 1 / A
       } else {
         for (let a = 0; a < A; a++) avg[h * A + a] = S[h * A + a] / s
       }
     }
     avgStrategy.set(node.id, avg)
+    unreached.set(node.id, ur)
   }
 
   // ============ EV 提取 + 公共到达质量（用平均策略各跑一遍）============
@@ -348,6 +355,19 @@ export function solvePreflop(
     let v = 0
     for (let h = 0; h < 169; h++) v += BASE_DIST[h] * rootBuf[h]
     selfValue.push(v)
+  }
+  // 未到达手牌：改成 EV 最优动作的 one-hot（见平均策略处注释）
+  for (const node of tree.decisionNodes) {
+    const A = node.actions.length
+    const ur = unreached.get(node.id)!
+    const avg = avgStrategy.get(node.id)!
+    const EV = evByAction.get(node.id)!
+    for (let h = 0; h < 169; h++) {
+      if (!ur[h]) continue
+      let best = 0
+      for (let a = 1; a < A; a++) if (EV[h * A + a] > EV[h * A + best]) best = a
+      for (let a = 0; a < A; a++) avg[h * A + a] = a === best ? 1 : 0
+    }
   }
 
   // ============ HU 可利用度 ============

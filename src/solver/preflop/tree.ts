@@ -4,7 +4,7 @@ import { POSITIONS_BY_SIZE, postflopOrder, type LadderConfig } from '../config'
 // 翻前博弈树。动作抽象（控制树规模的关键）：
 // - 不允许 limp：首入只有 弃牌/开局加注
 // - 面对开局：所有人 弃牌/跟注/3bet
-// - 面对 3bet：开局者 弃牌/跟注/4bet；已跟注者 弃牌/跟注；未投入者（含盲注）弃牌/4bet（禁冷跟）
+// - 面对 3bet：开局者 弃牌/跟注/4bet；已跟注者与盲注 弃牌/跟注（盲注可冷跟、不可冷 4bet）；其它未投入者只能弃牌
 // - 面对 4bet：3bet 者 弃牌/跟注/全下；其他已投入者 弃牌/跟注；未投入者只能弃牌
 // - 第 4 次加注 = 全下；面对全下只有 弃牌/跟注
 
@@ -23,6 +23,7 @@ export interface PfDecisionNode {
   children: PfNode[]
   publicPath: string // 例 "F-F-R2.5-C" 便于导航与调试
   raisesBefore: number // 面对的加注次数
+  forcedFolds: number[] // 到达本节点前被树坍缩（唯一动作=弃牌）的座位，按行动顺序
 }
 
 export interface PfTerminalNode {
@@ -35,6 +36,7 @@ export interface PfTerminalNode {
   winner?: number // foldwin 时
   realization?: number[] // flop 叶：每个 active 玩家的 R 系数（与 active 对齐）
   publicPath: string
+  forcedFolds: number[] // 到达本节点前被树坍缩的座位，按行动顺序
 }
 
 export type PfNode = PfDecisionNode | PfTerminalNode
@@ -77,7 +79,7 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
   const terminals: PfTerminalNode[] = []
   let nextId = 0
 
-  function makeTerminal(st: BuildState): PfTerminalNode {
+  function makeTerminal(st: BuildState, forcedFolds: number[]): PfTerminalNode {
     const active = positions.map((_, i) => i).filter((i) => !st.folded[i])
     const pot = st.invested.reduce((a, b) => a + b, 0)
     let t: PfTerminalNode
@@ -91,6 +93,7 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
         active,
         winner: active[0],
         publicPath: st.path,
+        forcedFolds,
       }
     } else {
       const notAllin = active.filter((i) => !st.allin[i])
@@ -103,6 +106,7 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
           invested: st.invested.slice(),
           active,
           publicPath: st.path,
+          forcedFolds,
         }
       } else {
         // 进翻牌：计算每个玩家的实现系数（在 leaf.ts 里按 SPR/位置算，这里存位置序即可）
@@ -114,6 +118,7 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
           invested: st.invested.slice(),
           active,
           publicPath: st.path,
+          forcedFolds,
         }
       }
     }
@@ -148,14 +153,16 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
       return acts
     }
     if (st.raises === 2) {
-      // 面对 3bet（未投入者禁冷跟也禁冷 4bet——现实频率 <1%，砍掉换树规模）
+      // 面对 3bet
       const fourBetTo = Math.min(ladder.stack, round05(facing * ladder.fourBetMult))
       if (seat === st.opener) {
         acts.push({ kind: 'call', to: facing })
         if (canRaise) acts.push({ kind: 'raise', to: fourBetTo })
-      } else if (st.voluntary[seat]) {
-        acts.push({ kind: 'call', to: facing }) // 冷跟注者只能跟或弃
+      } else if (st.voluntary[seat] || seat === sbSeat || seat === bbSeat) {
+        // 已跟注者与盲注可以跟（盲注冷跟 3bet：有折扣/关闭行动，AA/KK 用跟注代替冷 4bet）
+        acts.push({ kind: 'call', to: facing })
       }
+      // 其它未投入者只能弃牌（BTN/CO 冷跟 3bet 在 GTO 里接近 0，砍掉换树规模）
       return acts
     }
     if (st.raises === 3) {
@@ -176,17 +183,20 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
     return acts
   }
 
-  function build(st: BuildState): PfNode {
-    if (st.pending.length === 0) return makeTerminal(st)
+  // forced：到达本状态前被坍缩掉的座位（唯一动作=弃牌），挂到下一个真实节点上，
+  // 让消费方（训练器牌桌）知道这些人已经弃牌，而不是凭空跳过。
+  function build(st: BuildState, forced: number[] = []): PfNode {
+    if (st.pending.length === 0) return makeTerminal(st, forced)
     const seat = st.pending[0]
     const rest = st.pending.slice(1)
     const actions = legalActions(st, seat)
-    // 只有弃牌一个选项时直接坍缩（未投入者面对 4bet+）
+    // 只有弃牌一个选项时直接坍缩（未投入者面对 3bet/4bet）
     if (actions.length === 1) {
       const st2 = applyFold(st, seat, rest)
+      const forced2 = [...forced, seat]
       const activeCnt = st2.folded.filter((f) => !f).length
-      if (activeCnt === 1) return makeTerminal(st2)
-      return build(st2)
+      if (activeCnt === 1) return makeTerminal(st2, forced2)
+      return build(st2, forced2)
     }
     const node: PfDecisionNode = {
       type: 'decision',
@@ -196,6 +206,7 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
       children: [],
       publicPath: st.path,
       raisesBefore: st.raises,
+      forcedFolds: forced,
     }
     decisionNodes.push(node)
     for (const a of actions) {
@@ -204,7 +215,7 @@ export function buildPreflopTree(n: number, ladder: LadderConfig): PfTree {
         st2 = applyFold(st, seat, rest)
         const activeCnt = st2.folded.filter((f) => !f).length
         if (activeCnt === 1) {
-          node.children.push(makeTerminal(st2))
+          node.children.push(makeTerminal(st2, []))
           continue
         }
       } else if (a.kind === 'call') {

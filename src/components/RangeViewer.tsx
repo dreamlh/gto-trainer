@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
-import { CATEGORY_LABELS, SPOTS, type Spot } from '../poker/ranges'
+import { CATEGORY_LABELS, SPOTS, type Position, type Spot } from '../poker/ranges'
+import { POSITIONS_BY_SIZE } from '../solver/config'
 import { loadPreflop, type PreflopBundle } from '../solver/preflop/api'
 import { RangeChart } from './RangeChart'
 
-const CATEGORIES = ['rfi', 'vs-rfi', 'vs-3bet', 'vs-4bet'] as const
+const CATEGORIES = ['rfi', 'vs-rfi', 'vs-3bet', 'cold-3bet', 'vs-4bet'] as const
 const TABLE_SIZES = [2, 3, 4, 5, 6, 7, 8, 9]
 
 export function RangeViewer() {
@@ -58,7 +59,11 @@ export function RangeViewer() {
           </div>
         </div>
         {CATEGORIES.map((cat) => {
-          const catSpots = spots.filter((s) => s.category === cat)
+          // 按英雄位置（行动顺序）再按对手位置排，chip 才好找
+          const order = (p?: Position) => (p ? POSITIONS_BY_SIZE[tableSize]?.indexOf(p) ?? 99 : 99)
+          const catSpots = spots
+            .filter((s) => s.category === cat)
+            .sort((a, b) => order(a.hero) - order(b.hero) || order(a.villain) - order(b.villain))
           if (catSpots.length === 0) return null
           return (
             <div key={cat} className="viewer-group">
@@ -70,11 +75,7 @@ export function RangeViewer() {
                     className={`chip-btn ${spot && s.id === spot.id ? 'chip-btn-active' : ''}`}
                     onClick={() => setSpotId(s.id)}
                   >
-                    {s.category === 'rfi'
-                      ? s.hero
-                      : s.category === 'vs-rfi'
-                        ? `${s.hero} vs ${s.villain}`
-                        : `${s.hero} vs ${s.villain}`}
+                    {s.chip ?? (s.category === 'rfi' ? s.hero : `${s.hero} vs ${s.villain}`)}
                   </button>
                 ))}
               </div>

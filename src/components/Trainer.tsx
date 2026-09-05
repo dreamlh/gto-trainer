@@ -5,6 +5,7 @@ import {
   type DecisionRecord,
   type HandRecord,
 } from '../game/session'
+import { pot, type EnginePlayer, type EngineState } from '../game/engine'
 import { ACTION_COLORS } from '../poker/ranges'
 import { TableView } from './TableView'
 
@@ -62,6 +63,34 @@ function segColor(d: DecisionRecord, i: number): string {
   if (label.includes('弃牌')) return FOLD_BG
   if (label.includes('过牌') || label.includes('跟注')) return ACTION_COLORS.call
   return ACTION_COLORS.raise
+}
+
+// 轮到英雄时的一行局面说明：位置 · 面对什么 · 底池 · 需跟注
+function describeSpot(eng: EngineState, heroSeat: number): string {
+  const hero = eng.players[heroSeat]
+  const pos = eng.positions[heroSeat]
+  const streetInv = (p: EnginePlayer) => p.invested - p.streetBase
+  const maxBet = Math.max(...eng.players.map(streetInv))
+  const toCall = Math.max(0, maxBet - streetInv(hero))
+  const fmt = (x: number) => (x % 1 === 0 ? `${x}` : x.toFixed(1))
+  const raises = eng.history.filter((h) => h.street === eng.street && h.kind !== 'fold' && h.kind !== 'check' && h.kind !== 'call').length
+  let facing: string
+  if (eng.street === 'preflop') {
+    if (raises === 0) facing = '前面无人加注'
+    else {
+      const aggressor = [...eng.history].reverse().find((h) => h.street === 'preflop' && h.kind === 'raise')!
+      const what = raises === 1 ? '开局加注' : raises === 2 ? '3-bet' : raises === 3 ? '4-bet' : '全下'
+      facing = `面对 ${eng.positions[aggressor.seat]} ${what}到 ${fmt(maxBet)}bb`
+    }
+  } else {
+    if (raises === 0) facing = toCall > 0 ? `面对下注 ${fmt(maxBet)}bb` : '对手过牌/轮你先动'
+    else {
+      const aggressor = [...eng.history].reverse().find((h) => h.street === eng.street && (h.kind === 'bet' || h.kind === 'raise'))!
+      facing = `面对 ${eng.positions[aggressor.seat]} ${raises === 1 ? '下注' : '加注'}到 ${fmt(maxBet)}bb`
+    }
+  }
+  const call = toCall > 0.001 ? ` · 需跟 ${fmt(toCall)}bb` : ''
+  return `轮到你：${pos} · ${facing} · 底池 ${pot(eng).toFixed(1)}bb${call}`
 }
 
 // 会话内简单统计（完整统计在数据页）
@@ -225,6 +254,9 @@ export function Trainer({ active = true }: { active?: boolean }) {
         )}
 
         {/* 行动区 */}
+        {snap.phase === 'hero-turn' && snap.engine && (
+          <p className="turn-hint">{describeSpot(snap.engine, snap.heroSeat)}</p>
+        )}
         {snap.phase === 'hero-turn' && (
           <div className="action-row">
             {snap.heroActions.map((a, i) => (
@@ -276,7 +308,7 @@ export function Trainer({ active = true }: { active?: boolean }) {
                 ))}
               </div>
             )}
-            {snap.decisions.length === 0 && (
+            {snap.decisions.length === 0 && !snap.result.note && (
               <p className="spot-desc">本手没轮到你决策。</p>
             )}
             <div className="feedback-actions">

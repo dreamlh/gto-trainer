@@ -190,6 +190,8 @@ export class TrainerSession {
     while (gen === this.generation) {
       if (this.engine!.street === 'preflop') {
         const node = this.pfNode!
+        // 树把「唯一动作=弃牌」的座位坍缩掉了，这里补记到引擎，别让牌桌凭空跳过
+        if (this.applyForcedFolds(node.forcedFolds)) return
         if (node.type === 'terminal') {
           await this.handlePfTerminal(gen, node)
           return
@@ -275,6 +277,30 @@ export class TrainerSession {
     void this.process(gen)
   }
 
+  // 树上坍缩的强制弃牌：逐个补记到引擎（牌桌实时变灰、底池正确）。
+  // 英雄被强制弃牌时按普通弃牌收尾，并说明原因——以前这里是静默跳过，
+  // 结算面板只剩一句「本手没轮到你决策」。返回 true 表示本手已结束。
+  private applyForcedFolds(seats: number[]): boolean {
+    if (seats.length === 0) return false
+    const eng = this.engine!
+    let heroForced = false
+    for (const seat of seats) {
+      if (eng.players[seat].folded) continue
+      applyAction(eng, seat, 'fold', 0)
+      if (seat === this.snap.heroSeat) heroForced = true
+    }
+    if (!heroForced) {
+      this.update({})
+      return false
+    }
+    const raises = eng.history.filter((h) => h.street === 'preflop' && h.kind === 'raise').length
+    this.finishHeroFold(
+      `你在 ${eng.positions[this.snap.heroSeat]} 面对 ${raises + 1}-bet：` +
+        `训练树在该局面只保留弃牌（不含冷跟注/冷 4-bet），本手自动弃牌`,
+    )
+    return true
+  }
+
   // ============ 翻前细节 ============
   private applyPreflopAction(node: PfDecisionNode, seat: number, i: number) {
     const a = node.actions[i]
@@ -305,7 +331,7 @@ export class TrainerSession {
 
   private async handlePfTerminal(gen: number, t: PfNode & { type: 'terminal' }) {
     const eng = this.engine!
-    // 树中坍缩的强制弃牌（唯一动作）不会经过引擎，这里按终端 active 列表同步
+    // 兜底：终端 active 列表是权威（强制弃牌已在 applyForcedFolds 里补记过）
     for (const p of eng.players) {
       if (!t.active.includes(p.seat)) p.folded = true
     }
@@ -500,7 +526,7 @@ export class TrainerSession {
     )
   }
 
-  private finishHeroFold() {
+  private finishHeroFold(note?: string) {
     const eng = this.engine!
     const delta = -eng.players[this.snap.heroSeat].invested
     this.finishWith({
@@ -509,6 +535,7 @@ export class TrainerSession {
       wentToShowdown: false,
       multiwayCutoff: false,
       revealed: [],
+      note,
     })
   }
 

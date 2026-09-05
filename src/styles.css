@@ -721,6 +721,13 @@ body {
   min-height: 22px;
 }
 
+.turn-hint {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 13px;
+  margin: 10px 0 -4px;
+}
+
 .inline-feedback {
   display: flex;
   align-items: center;
