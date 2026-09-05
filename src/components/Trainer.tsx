@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useState, useSyncExternalStore } from 'react'
 import {
   onHandRecord,
   trainerSession,
@@ -104,10 +104,33 @@ interface Tally {
   netHands: number
 }
 
+const PREFS_KEY = 'gto-trainer-prefs'
+function loadPrefs(): { tableSize: number; preflopOnly: boolean } {
+  try {
+    const raw = localStorage.getItem(PREFS_KEY)
+    if (raw) {
+      const p = JSON.parse(raw)
+      if (TABLE_SIZES.includes(p.tableSize)) return { tableSize: p.tableSize, preflopOnly: !!p.preflopOnly }
+    }
+  } catch {
+    /* 无存储环境 */
+  }
+  return { tableSize: 6, preflopOnly: false }
+}
+function savePrefs(p: { tableSize: number; preflopOnly: boolean }) {
+  try {
+    localStorage.setItem(PREFS_KEY, JSON.stringify(p))
+  } catch {
+    /* ignore */
+  }
+}
+
 export function Trainer({ active = true }: { active?: boolean }) {
   const snap = useSyncExternalStore(trainerSession.subscribe, trainerSession.getSnapshot)
-  const [tableSize, setTableSize] = useState(6)
-  const [preflopOnly, setPreflopOnly] = useState(false)
+  const [prefs] = useState(loadPrefs)
+  const [tableSize, setTableSize] = useState(prefs.tableSize)
+  const [preflopOnly, setPreflopOnly] = useState(prefs.preflopOnly)
+  const [started, setStarted] = useState(false)
   const [revealAll, setRevealAll] = useState(false)
   const [tally, setTally] = useState<Tally>({
     hands: 0,
@@ -118,8 +141,6 @@ export function Trainer({ active = true }: { active?: boolean }) {
     net: 0,
     netHands: 0,
   })
-  const started = useRef(false)
-
   useEffect(() => {
     return onHandRecord((r: HandRecord) => {
       setTally((t) => ({
@@ -134,13 +155,15 @@ export function Trainer({ active = true }: { active?: boolean }) {
     })
   }, [])
 
-  // 首次进入自动开一手
+  // 配置变化时记住
   useEffect(() => {
-    if (active && !started.current) {
-      started.current = true
-      void trainerSession.startHand(tableSize, preflopOnly)
-    }
-  }, [active, tableSize, preflopOnly])
+    savePrefs({ tableSize, preflopOnly })
+  }, [tableSize, preflopOnly])
+
+  const startTraining = useCallback(() => {
+    setStarted(true)
+    void trainerSession.startHand(tableSize, preflopOnly)
+  }, [tableSize, preflopOnly])
 
   // 新一手开始（结果清空）时自动关闭透视
   useEffect(() => {
@@ -157,6 +180,10 @@ export function Trainer({ active = true }: { active?: boolean }) {
     const onKey = (e: KeyboardEvent) => {
       if (!active) return
       if (e.target instanceof HTMLInputElement) return
+      if (!started) {
+        if (e.key === 'Enter') startTraining()
+        return
+      }
       if (snap.phase === 'hero-turn') {
         const idx = parseInt(e.key, 10) - 1
         if (idx >= 0 && idx < snap.heroActions.length) trainerSession.heroAct(idx)
@@ -167,7 +194,7 @@ export function Trainer({ active = true }: { active?: boolean }) {
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, snap.phase, snap.heroActions.length, newHandClick])
+  }, [active, started, startTraining, snap.phase, snap.heroActions.length, newHandClick])
 
   const changeSize = (n: number) => {
     setTableSize(n)
@@ -180,6 +207,60 @@ export function Trainer({ active = true }: { active?: boolean }) {
   }
 
   const d = snap.lastDecision
+
+  if (!started) {
+    return (
+      <div className="trainer">
+        <div className="panel setup-panel">
+          <h2 className="spot-title">开始训练</h2>
+          <p className="spot-desc">选好配置后开始。训练中随时可以换桌型或切换模式。</p>
+          <div className="setup-row">
+            <span className="setup-label">牌桌人数</span>
+            <div className="trainer-settings" style={{ marginBottom: 0 }}>
+              {TABLE_SIZES.map((n) => (
+                <button
+                  key={n}
+                  className={`chip-btn ${n === tableSize ? 'chip-btn-active' : ''}`}
+                  onClick={() => setTableSize(n)}
+                >
+                  {n}人
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="setup-row">
+            <span className="setup-label">训练范围</span>
+            <div className="trainer-settings" style={{ marginBottom: 0 }}>
+              <button
+                className={`chip-btn ${!preflopOnly ? 'chip-btn-active' : ''}`}
+                onClick={() => setPreflopOnly(false)}
+              >
+                全牌局
+              </button>
+              <button
+                className={`chip-btn ${preflopOnly ? 'chip-btn-active' : ''}`}
+                onClick={() => setPreflopOnly(true)}
+              >
+                只练翻前
+              </button>
+            </div>
+          </div>
+          <p className="setup-note">
+            {preflopOnly
+              ? '每手到翻牌为止，只评估翻前决策，节奏最快。'
+              : tableSize === 2
+                ? '单挑：翻前按预解策略，翻后每街现场 CFR 求解（翻牌约 2 秒、转牌约 7 秒）。'
+                : '翻前多人按预解策略；恰好单挑进翻后时逐街现场求解，多人进翻后只评翻前。'}
+          </p>
+          <div className="feedback-actions">
+            <button className="primary-btn" onClick={startTraining}>
+              开始训练（回车）
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="trainer">
