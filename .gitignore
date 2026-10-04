@@ -3,3 +3,5 @@ dist/
 gto-trainer-dist.zip
 *.log
 .DS_Store
+.wrangler/
+artifacts/

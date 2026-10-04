@@ -1,0 +1,2 @@
+/* Table geometry, deal/bet/payout effects and seat states are shared with Private Table. */
+.tt-table .battle-seat-target { cursor: default; }

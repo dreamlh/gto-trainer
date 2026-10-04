@@ -1,0 +1,75 @@
+.app.app-trainer[data-page="trainer"] .app-main { max-width: none; padding-top: 0; }
+.app.app-trainer .app-footer { padding: 8px 2px 0; }
+.app.app-trainer { padding-bottom: 8px; }
+.trainer-page .battle-room-identity h2 { letter-spacing: 0; }
+.trainer-page .battle-table-panel { min-width: 0; }
+.trainer-setup-note { margin: 2px 0 20px; }
+.trainer-table-loading { display: grid !important; place-items: center; min-height: 320px !important; color: #94a397; }
+.trainer-session-stats { display: flex; align-items: center; flex: none; flex-wrap: wrap; gap: 4px 20px; padding: 9px 2px 2px; color: #87968c; font-size: 11px; font-variant-numeric: tabular-nums; }
+.trainer-session-stats b { margin-left: 4px; color: #c6d6c5; font-weight: 550; white-space: nowrap; }
+.trainer-session-stats small { font-size: 10px; }
+.trainer-decision .ba-your-turn { flex: none; }
+.trainer-turn-spot { min-width: 0; flex: 1; color: #91a394; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trainer-result-actions { display: flex; align-items: center; gap: 10px; }
+.trainer-result-actions > .ba-action { min-width: 110px; }
+.trainer-result-actions > .battle-button { min-width: 0; }
+.trainer-result-note { font-size: 11px; line-height: 15px; }
+.trainer-feedback-link { background: transparent; border: 0; padding: 2px 0; font-size: 11px !important; white-space: nowrap; flex: none; }
+.trainer-feedback-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+.trainer-result-meta { display: flex; flex-direction: column; align-items: flex-end; }
+.trainer-result-meta > span { font-size: 10px; }
+.trainer-panel-scroll { overflow-y: auto; flex: 1; min-height: 0; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #536b58 transparent; }
+.trainer-decision-review { padding: 0 14px 16px; border-bottom: 1px solid #303e33; }
+.trainer-verdict-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; }
+.trainer-verdict-row > span { color: #879b8c; font-size: 10px; }
+.trainer-verdict-optimal, .trainer-verdict-optimal .trainer-verdict-row > strong { color: #a6d5ad; }
+.trainer-verdict-acceptable, .trainer-verdict-acceptable .trainer-verdict-row > strong { color: #dfc395; }
+.trainer-verdict-wrong, .trainer-verdict-wrong .trainer-verdict-row > strong { color: #e3a295; }
+.trainer-chosen { color: #90a293; font-size: 11px; margin-top: 9px; line-height: 1.6; }
+.trainer-chosen strong { color: #c6d6c5; font-weight: 550; }
+.trainer-ev-loss { display: flex; justify-content: space-between; align-items: baseline; margin: 12px 0; }
+.trainer-ev-loss dt { color: #91a597; font-size: 11px; }
+.trainer-ev-loss dd { color: #dce7d7; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.trainer-decision-review .freq-bar { height: 8px; margin: 12px 0; border-radius: 3px; }
+.trainer-strategy-heading, .trainer-strategy-list > li { display: grid; grid-template-columns: minmax(0, 1fr) 46px 50px; gap: 6px; align-items: center; }
+.trainer-strategy-heading { color: #84988a; font-size: 9px; padding: 7px 0; }
+.trainer-strategy-heading > span:not(:first-child) { text-align: right; }
+.trainer-strategy-list { list-style: none; }
+.trainer-strategy-list > li { color: #b9c8bd; font-size: 11px; min-height: 34px; border-top: 1px solid #28382e; }
+.trainer-strategy-list > li > span { min-width: 0; display: flex; align-items: center; gap: 5px; overflow-wrap: anywhere; }
+.trainer-strategy-list i { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.trainer-strategy-list small { color: #c6dfbb; margin-left: auto; }
+.trainer-strategy-list strong { text-align: right; font-size: 11px; font-weight: 550; font-variant-numeric: tabular-nums; }
+.trainer-strategy-list .is-chosen { color: #e0eddb; background: #b9d7bc0a; }
+.trainer-review-list { padding: 14px; }
+.trainer-review-list h3 { font-size: 11px; font-weight: 500; color: #93a797; margin-bottom: 8px; }
+.trainer-review-list > button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; border: 1px solid transparent; border-radius: 4px; background: transparent; padding: 8px 5px; font-size: 10px; color: #adbfaf; }
+.trainer-review-list > button[aria-pressed="true"] { border-color: #536d55; background: #25352a; }
+.trainer-review-list > button:hover { background: #26352b; }
+.trainer-review-list > button > strong { font-weight: 500; flex: none; font-variant-numeric: tabular-nums; }
+.trainer-feedback-note { color: #92a394; font-size: 10px; line-height: 1.75; margin-top: 10px; }
+.trainer-hand-note { padding: 0 14px 14px; margin: 0; }
+.trainer-page > .trainer-session-stats { flex-shrink: 0; }
+@container battle-actions (max-width: 680px) {
+  .trainer-result-actions > .ba-action { flex: 1; }
+  .trainer-result-actions > .battle-button { flex: 1.5; font-size: 11px; padding: 6px; }
+}
+@media (max-width: 600px) {
+  .app.app-trainer { padding-bottom: 6px; }
+  .trainer-session-stats { font-size: 10px; gap: 4px 12px; padding-top: 6px; }
+  .trainer-session-stats small { display: none; }
+  .trainer-page .battle-header-actions { margin-left: auto; }
+  .trainer-page .battle-room-identity h2 { font-size: 13px; }
+  .trainer-page .battle-room-header { gap: 6px; }
+}
+
+/* Direct actions occupy the entire row; only strategy-supported actions are rendered. */
+.trainer-page .ba-dock { height: 136px; }
+.trainer-decision { grid-template-columns: minmax(0, 1fr); grid-template-rows: 30px minmax(0, 1fr); }
+.trainer-decision > .trainer-direct-actions { grid-column: 1 / -1; grid-row: 2; grid-template-columns: repeat(var(--trainer-action-count), minmax(0, 1fr)); }
+.trainer-direct-actions > .ba-action { grid-column: auto; }
+.brs-share.trainer-setup-switch { margin-bottom: 8px; border-top: 0; }
+@container battle-actions (max-width: 680px) {
+  .trainer-decision > .trainer-direct-actions { grid-template-columns: repeat(var(--trainer-mobile-columns), minmax(0, 1fr)); gap: 6px; }
+  .trainer-direct-actions > .ba-action { min-height: 42px; }
+}

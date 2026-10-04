@@ -1,14 +1,14 @@
 :root {
-  --bg: #0c1118;
-  --surface: #10161f;
-  --surface2: #182130;
-  --border: #253147;
-  --text: #e8edf5;
-  --text-dim: #97a3b8;
+  --bg: #101612;
+  --surface: #161e19;
+  --surface2: #202b23;
+  --border: #344239;
+  --text: #e2e8e2;
+  --text-dim: #94a397;
   --raise: #e2574a;
   --call: #1fa78e;
   --fold: #5c7cba;
-  --gold: #d9a441;
+  --gold: #b9d7bc;
 }
 
 * {
@@ -38,48 +38,6 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-}
-
-.app-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding-bottom: 16px;
-}
-
-.app-header h1 {
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.logo-suit {
-  color: var(--gold);
-}
-
-.tabs {
-  display: flex;
-  gap: 4px;
-  background: var(--surface2);
-  border-radius: 10px;
-  padding: 4px;
-}
-
-.tab {
-  border: none;
-  background: transparent;
-  color: var(--text-dim);
-  font-size: 14px;
-  padding: 7px 16px;
-  border-radius: 7px;
-  cursor: pointer;
-}
-
-.tab-active {
-  background: var(--surface);
-  color: var(--text);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .app-main {
@@ -966,18 +924,6 @@ body {
   .app {
     padding: 10px;
   }
-  .app-header h1 {
-    font-size: 17px;
-  }
-  .tabs {
-    overflow-x: auto;
-    max-width: 100%;
-  }
-  .tab {
-    padding: 7px 11px;
-    font-size: 13px;
-    white-space: nowrap;
-  }
   .panel {
     padding: 12px;
   }
@@ -1039,13 +985,6 @@ body {
 
 /* ---------- 桌面端放大（≥900px） ---------- */
 @media (min-width: 900px) {
-  .app-header h1 {
-    font-size: 24px;
-  }
-  .tab {
-    font-size: 15px;
-    padding: 8px 20px;
-  }
   .table-felt {
     max-width: 760px;
     height: 400px;

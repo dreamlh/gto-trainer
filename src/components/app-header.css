@@ -1,0 +1,188 @@
+/* Shared across study pages and private tables. */
+.app .app-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px 28px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #29382e;
+}
+
+.app-header .app-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  color: #e2e8e2;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -.3px;
+  white-space: nowrap;
+}
+.app-brand .logo-suit { color: #b9d7bc; font-size: 23px; line-height: 1; }
+.app-navigation { display: contents; }
+.app-navigation-trigger { display: none; }
+.app-header .tabs[hidden] { display: none; }
+
+.app-header .tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 3px;
+}
+.app-header .tab {
+  position: relative;
+  flex-shrink: 0;
+  min-height: 40px;
+  padding: 9px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #94a397;
+  font: inherit;
+  font-size: 13px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.app-header .tab:hover { background: #1c2920; color: #e2e8e2; }
+.app-header .tab-active { background: #26382c; color: #d9ecd9; font-weight: 600; }
+.app-header .tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  border-radius: 2px;
+  background: #b9d7bc;
+}
+.app-header .tab-battle { margin-left: 13px; }
+.app-header .tab-battle::before {
+  content: '';
+  position: absolute;
+  left: -9px;
+  top: 12px;
+  bottom: 12px;
+  width: 1px;
+  background: #344239;
+}
+
+.app-header .app-header-utilities { display: flex; align-items: center; gap: 12px; }
+.app-header .app-language-switch {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0;
+  padding: 3px;
+  border: 1px solid #2e3d32;
+  border-radius: 7px;
+}
+.app-header .app-language-switch button {
+  min-width: 36px;
+  min-height: 30px;
+  padding: 4px 7px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #94a397;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.app-header .app-language-switch button:hover { color: #e2e8e2; }
+.app-header .app-language-switch button[aria-pressed="true"] { background: #2b3b30; color: #e2ece1; }
+.app-header .app-audio-control .battle-audio-toggle { width: 34px; height: 36px; }
+.app-header .app-audio-settings-trigger { width: 26px; height: 36px; }
+.app-header .app-turn-notice { grid-column: 1 / -1; }
+.app .app-header button:focus-visible { outline: 2px solid #b9d7bc; outline-offset: 2px; }
+.app-header button { touch-action: manipulation; }
+
+@media (max-width: 1050px) {
+  .app .app-header { grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; padding-bottom: 8px; }
+  .app-header .app-header-utilities { grid-column: 2; grid-row: 1; }
+  .app-header .tabs { grid-column: 1 / -1; grid-row: 2; overflow-x: auto; scrollbar-width: thin; scrollbar-color: #425348 transparent; }
+  .app-header .tab { min-height: 44px; }
+}
+
+@media (max-width: 600px) {
+  .app .app-header { column-gap: 8px; }
+  .app-header .app-brand { font-size: 13px; gap: 5px; }
+  .app-brand .logo-suit { font-size: 20px; }
+  .app-header .app-header-utilities { gap: 6px; }
+  .app-header .app-language-switch { padding: 2px; }
+  .app-header .app-language-switch button { min-width: 32px; min-height: 36px; padding: 4px; }
+  .app-header .app-audio-control .battle-audio-toggle { width: 32px; height: 44px; }
+  .app-header .app-audio-settings-trigger { width: 24px; height: 44px; }
+  .app-header .tabs { gap: 2px; }
+  .app-header .tab { flex: 1 0 auto; padding: 10px; font-size: 12px; }
+  .app-header .tab-battle { margin-left: 11px; }
+  .app-header .app-audio-popover { top: 62px; }
+}
+
+/* Collapse the navigation before reducing the space available to the table. */
+.app.app-nav-compact { padding-top: 8px; }
+.app.app-nav-compact .app-header {
+  position: relative;
+  z-index: 35;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 6px 14px;
+  padding-bottom: 6px;
+}
+.app-nav-compact .app-header .app-brand { grid-column: 1; grid-row: 1; font-size: 14px; }
+.app-nav-compact .app-navigation { display: block; position: relative; grid-column: 2; grid-row: 1; min-width: 0; }
+.app-nav-compact .app-navigation-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid #3e5545;
+  border-radius: 5px;
+  color: #d9ecd9;
+  background: #223127;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.app-navigation-trigger > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.app-navigation-trigger > svg { flex-shrink: 0; }
+.app-navigation-trigger[aria-expanded="true"] { border-color: #92ad91; background: #2b3e30; }
+.app-navigation-trigger[aria-expanded="true"] .app-navigation-chevron { transform: rotate(180deg); }
+.app-nav-compact .app-header .tabs:not([hidden]) {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  z-index: 110;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 3px;
+  width: 210px;
+  max-width: calc(100vw - 48px);
+  max-height: max(80px, calc(var(--app-viewport-height, 100dvh) - 90px));
+  overflow-y: auto;
+  padding: 6px;
+  border: 1px solid #4b6351;
+  border-radius: 7px;
+  background: #17231b;
+  box-shadow: 0 12px 32px #0007;
+}
+.app-nav-compact .app-header .tab { min-height: 40px; padding: 8px 12px; text-align: left; }
+.app-nav-compact .app-header .tab-active::after { right: auto; left: 0; top: 10px; bottom: 10px; width: 2px; height: auto; }
+.app-nav-compact .app-header .tab-battle { margin: 3px 0 0; border-top: 1px solid #344239; border-radius: 0 0 4px 4px; }
+.app-nav-compact .app-header .tab-battle::before { display: none; }
+.app-nav-compact .app-header .app-header-utilities { grid-column: 3; grid-row: 1; gap: 7px; }
+.app-nav-compact .app-header .app-language-switch { padding: 2px; }
+.app-nav-compact .app-header .app-language-switch button { min-width: 30px; min-height: 30px; padding: 3px 5px; }
+.app-nav-compact .app-header .app-audio-control .battle-audio-toggle { width: 30px; height: 36px; }
+.app-nav-compact .app-header .app-audio-settings-trigger { width: 23px; height: 36px; }
+.app-nav-compact .app-header .app-audio-popover { position: absolute; top: calc(100% + 7px); max-height: max(80px, calc(var(--app-viewport-height, 100dvh) - 76px)); overflow-y: auto; }
+@media (max-width: 600px) {
+  .app.app-nav-compact .app-header { gap: 6px; }
+  .app-nav-compact .app-brand-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .app-nav-compact .app-brand .logo-suit { font-size: 22px; }
+  .app-nav-compact .app-navigation-trigger { width: 100%; gap: 6px; padding: 6px 8px; }
+  .app-nav-compact .app-header .app-header-utilities { gap: 4px; }
+  .app-nav-compact .app-header .tab { min-height: 42px; }
+}

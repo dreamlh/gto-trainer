@@ -1,0 +1,36 @@
+/* The fan belongs to the whole card, so both sides retain the same tilt. */
+.poker-hole-card {
+  display: inline-flex;
+  flex: none;
+  perspective: 500px;
+  transform-origin: 50% 80%;
+  transform: rotate(-8deg) translate(2px, 1px);
+}
+.poker-hole-card-second { transform: rotate(8deg) translate(-2px, 1px); }
+.poker-hole-flipper {
+  position: relative;
+  display: grid;
+  transform-style: preserve-3d;
+  transform: rotateY(0deg);
+  transition: transform 460ms cubic-bezier(.22,.65,.22,1);
+}
+.poker-hole-flipper.is-face-up { transform: rotateY(180deg); }
+.poker-hole-front, .poker-hole-back {
+  grid-area: 1 / 1;
+  display: inline-flex;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+.poker-hole-front { transform: rotateY(180deg); }
+.poker-hole-back { position: absolute; inset: 0; transform: rotateY(0deg); }
+/* Context styles size the front shell; the back must occupy that same rectangle. */
+.poker-hole-back > * { box-sizing: border-box; width: 100% !important; height: 100% !important; transform: none !important; }
+.poker-hole-card .card-face { animation: none !important; }
+.poker-hole-placeholder { visibility: hidden; }
+.poker-hole-card.is-publicly-shown .poker-hole-front .card-face {
+  opacity: 1;
+  box-shadow: 0 0 0 1px #b5edc9, 0 0 7px 2px #a4e1bc80;
+}
+@media (prefers-reduced-motion: reduce) {
+  .poker-hole-flipper { transition: none; }
+}

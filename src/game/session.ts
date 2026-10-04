@@ -47,6 +47,7 @@ export interface HandResultInfo {
 export interface HeroActionView {
   label: string
   kind: string
+  amount: number // Target investment on the current street, for the action UI.
 }
 
 export interface SessionSnapshot {
@@ -88,15 +89,11 @@ export function onHandRecord(fn: RecordListener): () => void {
   return () => recordListeners.delete(fn)
 }
 
-function labelOf(kind: string, to: number, street: GameStreet, streetBase: number): string {
+function labelOf(kind: string, amount: number, allIn = false): string {
   if (kind === 'fold') return '弃牌'
   if (kind === 'check') return '过牌'
-  if (kind === 'call') return '跟注'
-  const amt = street === 'preflop' ? to : to - streetBase
-  void amt
-  if (kind === 'bet') return `下注 ${to}`
-  if (kind === 'raise') return street === 'preflop' ? `加注到 ${to}` : `加注到 ${to}`
-  return kind
+  if (kind === 'call') return `${allIn ? '全下跟注' : '跟注'} ${Number(amount.toFixed(1))}`
+  return `${allIn ? '全下' : kind === 'bet' ? '下注' : '加注至'} ${Number(amount.toFixed(1))}`
 }
 
 export class TrainerSession {
@@ -144,6 +141,22 @@ export class TrainerSession {
 
   setPreflopOnly(v: boolean) {
     this.update({ preflopOnly: v })
+  }
+
+  stop() {
+    ++this.generation
+    this.cancelSolve?.()
+    this.cancelSolve = null
+    this.engine = null
+    this.bundle = null
+    this.tracker = null
+    this.pfNode = null
+    this.postNodes = null
+    this.postNode = null
+    this.update({
+      phase: 'idle', heroSeat: -1, toActSeat: -1, heroActions: [],
+      decisions: [], lastDecision: null, result: null, solveProgress: null, error: '',
+    })
   }
 
   async startHand(n: number, preflopOnly?: boolean) {
@@ -194,7 +207,8 @@ export class TrainerSession {
         if (this.applyForcedFolds(node.forcedFolds)) return
         if (node.type === 'terminal') {
           await this.handlePfTerminal(gen, node)
-          return
+          if (gen !== this.generation || this.snap.result || this.snap.error) return
+          continue
         }
         const seat = node.actor
         if (seat === this.snap.heroSeat) {
@@ -202,8 +216,9 @@ export class TrainerSession {
             phase: 'hero-turn',
             toActSeat: seat,
             heroActions: node.actions.map((a) => ({
-              label: labelOf(a.kind, a.to, 'preflop', 0),
+              label: labelOf(a.kind, a.kind === 'call' ? a.to - this.engine!.players[seat].invested : a.to, a.to >= this.engine!.stack - .001),
               kind: a.kind,
+              amount: a.to,
             })),
           })
           return // 等待 heroAct
@@ -226,7 +241,8 @@ export class TrainerSession {
       const node = this.postNode!
       if (node.type === 'terminal') {
         await this.handlePostTerminal(gen, node)
-        return
+        if (gen !== this.generation || this.snap.result || this.snap.error) return
+        continue
       }
       if (node.type === 'chance') {
         // 本街结束 → 下一街
@@ -241,8 +257,9 @@ export class TrainerSession {
           phase: 'hero-turn',
           toActSeat: seat,
           heroActions: node.actions.map((a) => ({
-            label: labelOf(a.kind, a.amount, this.engine!.street, 0),
+            label: labelOf(a.kind, a.kind === 'call' ? a.amount - (this.engine!.players[seat].invested - this.engine!.players[seat].streetBase) : a.amount, a.amount >= this.engine!.stack - this.engine!.players[seat].streetBase - .001),
             kind: a.kind,
+            amount: a.amount,
           })),
         })
         return
@@ -320,7 +337,7 @@ export class TrainerSession {
     const freqs = Array.from({ length: A }, (_, a) => (freqArr ? freqArr[h * A + a] : 1 / A))
     const evs = evArr ? Array.from({ length: A }, (_, a) => evArr[h * A + a]) : null
     this.pushDecision(
-      node.actions.map((a) => labelOf(a.kind, a.to, 'preflop', 0)),
+      node.actions.map((a) => labelOf(a.kind, a.kind === 'call' ? a.to - this.engine!.players[this.snap.heroSeat].invested : a.to, a.to >= this.engine!.stack - .001)),
       node.actions.map((a) => a.kind),
       freqs,
       evs,
@@ -393,7 +410,7 @@ export class TrainerSession {
     const freqs = Array.from({ length: A }, (_, a) => (wn ? wn.strategy[c * A + a] : 1 / A))
     const evs = wn ? Array.from({ length: A }, (_, a) => wn.ev[c * A + a]) : null
     this.pushDecision(
-      node.actions.map((a) => labelOf(a.kind, a.amount, this.engine!.street, 0)),
+      node.actions.map((a) => labelOf(a.kind, a.kind === 'call' ? a.amount - (this.engine!.players[this.snap.heroSeat].invested - this.engine!.players[this.snap.heroSeat].streetBase) : a.amount, a.amount >= this.engine!.stack - this.engine!.players[this.snap.heroSeat].streetBase - .001)),
       node.actions.map((a) => a.kind),
       freqs,
       evs,
@@ -422,8 +439,6 @@ export class TrainerSession {
     }
     // street-end（flop 深度受限树）→ 下一街
     await this.nextStreet(gen)
-    if (gen !== this.generation) return
-    void this.process(gen)
   }
 
   private async nextStreet(gen: number) {
@@ -477,7 +492,6 @@ export class TrainerSession {
       })
       this.postNode = tree.root
       this.update({ phase: 'bot-thinking', solveProgress: null })
-      void this.process(gen)
     } catch (e) {
       if (gen !== this.generation) return
       this.cancelSolve = null

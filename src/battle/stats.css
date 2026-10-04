@@ -1,0 +1,50 @@
+.stats-scope-tabs { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px; }
+.battle-stats { color:#ecede9; }
+.battle-stats h3 { margin:0 0 12px; font-size:16px; font-weight:600; }
+.battle-stats-summary { display:flex; flex-wrap:wrap; gap:20px 32px; padding:12px 0 22px; border-bottom:1px solid #343d37; }
+.battle-stats-summary > div { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.battle-stats-summary span { color:#98a79c; font-size:12px; }
+.battle-stats-summary strong { font-size:22px; font-weight:600; line-height:1.2; font-variant-numeric:tabular-nums; }
+.battle-stats-summary .battle-stats-stack strong { font-size:28px; }
+.battle-stats-summary small { color:#a1ada3; font-size:12px; font-weight:400; }
+.battle-stat-positive { color:#b9d7bc; }
+.battle-stat-negative { color:#e1988d; }
+.battle-stat-grid { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); }
+.battle-stat-card { display:flex; flex-direction:column; gap:7px; min-width:0; padding:18px 8px 18px 0; border-bottom:1px solid #303a33; }
+.battle-stat-card > span { font-size:12px; line-height:1.4; color:#a6b1a8; }
+.battle-stat-card strong { font-size:24px; font-weight:500; line-height:1.2; color:#ecede9; font-variant-numeric:tabular-nums; }
+.battle-stats-definitions { margin-top:18px; font-size:12px; color:#a6b1a8; line-height:1.75; }
+.battle-stats-definitions summary { width:fit-content; padding:4px 0; cursor:pointer; color:#b9d7bc; }
+.battle-stats-definitions summary:focus-visible { outline:2px solid #b9d7bc; outline-offset:4px; }
+.battle-stats-definitions dl { margin:14px 0; }
+.battle-stats-definitions dl > div { margin:0 0 14px; }
+.battle-stats-definitions dt { display:flex; align-items:baseline; gap:10px; color:#e3e8e0; font-weight:600; }
+.battle-stats-definitions dt span { color:#829388; font-size:11px; font-weight:400; font-variant-numeric:tabular-nums; }
+.battle-stats-definitions dd { margin:3px 0 0; }
+.battle-stats-definitions p { margin:0; color:#879a8c; }
+.battle-stats-compact .battle-stat-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+@media (max-width:650px) {
+  .battle-stat-grid, .battle-stats-compact .battle-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .battle-stats-summary { gap:18px 24px; }
+  .battle-stats-summary strong { font-size:20px; }
+  .battle-stats-summary .battle-stats-stack strong { font-size:24px; }
+}
+.stats-history-toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+.stats-history-toolbar h2 { margin:0; min-width:0; font-size:20px; font-weight:600; line-height:1.4; }
+.stats-history-clear { flex-shrink:0; white-space:nowrap; padding:7px 10px; border:1px solid #47554a; border-radius:5px; background:transparent; color:#b9c4bb; font:inherit; font-size:12px; cursor:pointer; }
+.stats-history-clear:hover:not(:disabled) { border-color:#b9d7bc; color:#e2e8e2; }
+.stats-history-clear:disabled { opacity:.4; cursor:default; }
+.stats-history-dialog { box-sizing:border-box; width:min(430px, calc(100vw - 32px)); max-height:calc(100dvh - 40px); overflow:auto; padding:24px; border:1px solid #47554a; border-radius:9px; background:#18221b; color:#e2e8e2; box-shadow:0 12px 70px #0008; }
+.stats-history-dialog::backdrop { background:#050b07b8; }
+.stats-history-dialog h2 { margin:0 0 12px; font-size:19px; font-weight:600; }
+.stats-history-dialog p { margin:0; font-size:13px; line-height:1.8; color:#a7b4aa; }
+.stats-history-dialog-actions { display:flex; justify-content:flex-end; flex-wrap:wrap; gap:10px; margin-top:24px; }
+.stats-history-dialog-actions button { min-height:38px; padding:8px 14px; border:1px solid #526358; border-radius:5px; background:transparent; color:#e2e8e2; font:inherit; font-size:13px; cursor:pointer; }
+.stats-history-dialog-actions .stats-history-confirm { background:#ab5148; border-color:#c86d62; color:#fff; }
+.stats-history-dialog-actions button:focus-visible, .stats-history-clear:focus-visible { outline:2px solid #b9d7bc; outline-offset:3px; }
+
+.stats-history-dialog p.input-error { margin-top:12px; color:var(--raise); }
+.stats-history-dialog-actions button:disabled { opacity:.4; cursor:default; }
+@media (max-width:650px) {
+  .stats-history-toolbar h2 { font-size:17px; }
+}

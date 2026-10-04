@@ -1,0 +1,37 @@
+/* Transient effects sit above the felt; the live controls never wait for them. */
+.battle-hole-motion, .battle-board-motion { display: inline-flex; flex: none; }
+.battle-hole-motion { transform-origin: 50% 80%; }
+.battle-hole-motion.is-dealt { animation: battle-hole-deal 420ms cubic-bezier(.18,.75,.25,1) both; animation-delay: var(--deal-delay, 0ms); }
+.battle-board-motion.is-revealed { animation: battle-board-reveal 420ms cubic-bezier(.2,.7,.25,1) both; animation-delay: var(--board-delay, 0ms); }
+.battle-board-motion .card-face { animation: none !important; }
+.battle-seat-box { transition: border-color 220ms ease, background-color 220ms ease, box-shadow 220ms ease; }
+.battle-cards-folded { transition: opacity 220ms ease, transform 220ms ease; transform: translateY(5px) scale(.94); }
+.battle-seat-acting .battle-seat-box { animation: battle-turn-focus 600ms ease-out; }
+.battle-action-motion { display: inline-block; animation: battle-action-pop 320ms ease-out both; }
+.battle-action-motion[data-kind="raise"], .battle-action-motion[data-kind="bet"] { color: #eed39a; }
+.battle-bet-motion { display: inline-flex; align-items: center; gap: 5px; animation: battle-bet-slide 380ms cubic-bezier(.2,.7,.3,1) both; }
+.battle-pot-motion { display: inline-block; animation: battle-pot-update 350ms ease-out; }
+.battle-seat-winner .battle-seat-box { position: relative; border-color: #dfc582; background: #39432b; box-shadow: 0 0 0 2px #dcc47d25, 0 0 24px #c8b86d1c; }
+.battle-seat-winner .battle-seat-box::after { content: attr(data-winner-label); position: absolute; right: 5px; top: -9px; border: 1px solid #b9a366; border-radius: 3px; padding: 1px 5px; background: #d4bf81; color: #242d20; font-size: 9px; line-height: 13px; font-weight: 700; letter-spacing: .6px; }
+.battle-seat-winner .battle-seat-status { color: #e1d4aa; }
+.battle-seat-winner .battle-seat-cards .card-face { box-shadow: 0 0 0 1px #ead69a, 0 0 12px #e6cd7133; }
+.battle-payout-effects { position: absolute; inset: 0; z-index: 5; pointer-events: none; overflow: hidden; }
+.battle-payout-flight { position: absolute; left: 50%; top: 50%; width: 13px; height: 13px; margin: -6px; border: 2px dashed #f3e5b7; border-radius: 50%; background: #b19753; box-shadow: 0 2px 0 #675936, 0 0 12px #e9d58d55; animation: battle-payout-flight 850ms cubic-bezier(.3,.05,.25,1) both; animation-delay: calc(var(--chip-index) * 75ms); }
+.battle-winner-ring { position: absolute; left: var(--winner-x); top: var(--winner-y); width: 104px; height: 66px; border: 1px solid #efdc9c; border-radius: 12px; opacity: 0; animation: battle-winner-ring 1300ms 400ms ease-out both; }
+.battle-winner-spark { position: absolute; left: var(--winner-x); top: var(--winner-y); width: 4px; height: 4px; border-radius: 1px; background: #f3dda0; opacity: 0; animation: battle-winner-spark 950ms 550ms ease-out both; }
+@keyframes battle-hole-deal { from { opacity: 0; transform: translate(var(--deal-x, 0px), var(--deal-y, -40px)) rotate(-16deg) scale(.65); } to { opacity: 1; transform: translate(0,0) rotate(0) scale(1); } }
+@keyframes battle-board-reveal { from { opacity: 0; transform: perspective(500px) translateY(-14px) rotateY(-75deg) scale(.9); } to { opacity: 1; transform: perspective(500px) translateY(0) rotateY(0) scale(1); } }
+@keyframes battle-action-pop { from { opacity: .2; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes battle-bet-slide { from { opacity: .2; transform: translate(var(--bet-from-x, 0px), var(--bet-from-y, 12px)) scale(.82); } to { opacity: 1; transform: translate(0,0) scale(1); } }
+@keyframes battle-pot-update { 35% { color: #f4dc99; transform: scale(1.08); } }
+@keyframes battle-turn-focus { from { box-shadow: 0 0 0 9px #c6deb700; } 30% { box-shadow: 0 0 0 5px #c6deb738; } }
+@keyframes battle-payout-flight { 0% { opacity: 0; transform: scale(.6); } 12%,75% { opacity: 1; } 100% { left: var(--winner-x); top: var(--winner-y); opacity: 0; transform: scale(.8) rotate(150deg); } }
+@keyframes battle-winner-ring { 0% { opacity: 0; transform: translate(-50%,-50%) scale(.8); } 20% { opacity: .75; } 100% { opacity: 0; transform: translate(-50%,-50%) scale(1.4); } }
+@keyframes battle-winner-spark { 0% { opacity: 0; transform: rotate(var(--spark-angle)) translateX(24px) scale(.3); } 25% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--spark-angle)) translateX(72px) scale(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .battle-hole-motion.is-dealt, .battle-board-motion.is-revealed,
+  .battle-action-motion, .battle-bet-motion, .battle-pot-motion, .battle-seat-acting .battle-seat-box { animation: none; }
+  .battle-seat-box, .battle-cards-folded { transition: none; }
+  .battle-cards-folded { transform: none; }
+  .battle-payout-effects { display: none; }
+}

@@ -1,0 +1,13 @@
+.battle-board-motion.is-winning-card, .poker-hole-card.is-winning .poker-hole-front { position: relative; }
+.battle-board-motion.is-winning-card::after, .poker-hole-card.is-winning .poker-hole-front::after {
+  content: ''; position: absolute; inset: -2px; border: 1px solid #f1d990; border-radius: 4px;
+  pointer-events: none; box-shadow: 0 0 9px 2px #edcf7660; animation: winning-five-glow 1.5s ease-in-out infinite;
+}
+.battle-board.has-winning-hand .battle-board-motion:not(.is-winning-card) { opacity: .58; }
+.battle-winning-detail { display: grid; gap: 10px; margin: 14px 0; color: #e9d599; font-size: 12px; }
+.battle-winning-detail > div { display: flex; gap: 5px; }
+.battle-winning-detail .card-face { width: 36px; height: 48px; font-size: 20px; }
+@keyframes winning-five-glow { 50% { box-shadow: 0 0 13px 3px #edcf7690; border-color: #fff1bd; } }
+@media (prefers-reduced-motion: reduce) {
+  .battle-board-motion.is-winning-card::after, .poker-hole-card.is-winning .poker-hole-front::after { animation: none; }
+}

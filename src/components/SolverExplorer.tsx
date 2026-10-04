@@ -21,6 +21,8 @@ import { POSTFLOP_PRESETS } from '../solver/config'
 import { solveInWorker, type WorkerNode, type WorkerSolution } from '../workers/workerClient'
 import { CardFace } from './CardFace'
 import { RangeChart } from './RangeChart'
+import { useLanguage } from '../battle/i18n'
+import { postflopActionName, translatePokerText } from '../poker/presentation'
 
 // 求解器：任意翻后局面的单挑 CFR 求解与策略浏览
 
@@ -89,14 +91,7 @@ function nodeToSpot(
     .map((a, i) => ({ a, i }))
     .filter(({ a }) => a.kind !== 'fold')
     .map(({ a, i }) => {
-      const label =
-        a.kind === 'check'
-          ? '过牌'
-          : a.kind === 'call'
-            ? '跟注'
-            : a.kind === 'bet'
-              ? `下注 ${a.amount}`
-              : `加注到 ${a.amount}`
+      const label = postflopActionName(a, 'zh')
       labels[keys[i]] = label
       return { key: keys[i] as Spot['actions'][number]['key'], label }
     })
@@ -119,6 +114,7 @@ function nodeToSpot(
 
 export function SolverExplorer({ active = true }: { active?: boolean }) {
   void active
+  const { language, t } = useLanguage()
   const [board, setBoard] = useState<Card[]>([])
   const [potStr, setPotStr] = useState('5.5')
   const [stackStr, setStackStr] = useState('97.5')
@@ -225,7 +221,7 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
         for (let c = 0; c < 1326; c++) rng[c] *= wn.strategy[c * A + path[i]]
       }
       crumbs.push({
-        label: `${dn.actor === 0 ? 'OOP' : 'IP'} ${a.kind === 'check' ? '过牌' : a.kind === 'call' ? '跟注' : a.kind === 'fold' ? '弃牌' : a.kind === 'bet' ? `下注${a.amount}` : `加注${a.amount}`}`,
+        label: `${dn.actor === 0 ? 'OOP' : 'IP'} ${postflopActionName(a, 'zh')}`,
         upTo: i,
       })
       node = dn.children[path[i]]
@@ -252,19 +248,19 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
   return (
     <div className="panel">
       <div className="viewer-group" style={{ marginBottom: 10 }}>
-        <div className="viewer-group-label">公共牌（{street ? { flop: '翻牌', turn: '转牌', river: '河牌' }[street] : `已选 ${board.length}`}）</div>
+        <div className="viewer-group-label">{t('公共牌', 'Board')} ({street ? { flop: t('翻牌', 'Flop'), turn: t('转牌', 'Turn'), river: t('河牌', 'River') }[street] : t(`已选 ${board.length}`, `${board.length} selected`)})</div>
         <div className="slot-row">
           {board.map((c) => (
             <button
               key={c}
               className="card-slot card-slot-active"
               onClick={() => toggleCard(c)}
-              title="点击移除"
+              title={t('点击移除', 'Click to remove')}
             >
               <CardFace card={c} />
             </button>
           ))}
-          {board.length === 0 && <span className="spot-desc">点下方牌堆选择</span>}
+          {board.length === 0 && <span className="spot-desc">{t('点下方牌堆选择', 'Choose cards from the deck below')}</span>}
         </div>
       </div>
       <div className="deck-grid">
@@ -281,6 +277,7 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
                   key={r}
                   className={`deck-card ${used ? 'deck-card-picked' : ''}`}
                   style={{ color: SUIT_COLORS[s] }}
+                  aria-label={`${RANK_CHARS[12 - r]}${SUIT_SYMBOLS[s]}`}
                   onClick={() => toggleCard(card)}
                 >
                   {RANK_CHARS[12 - r]}
@@ -293,11 +290,11 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
 
       <div className="solver-inputs">
         <label>
-          底池
+          {t('底池', 'Pot')}
           <input className="range-input num-input" value={potStr} onChange={(e) => setPotStr(e.target.value)} />
         </label>
         <label>
-          有效筹码
+          {t('有效筹码', 'Effective stack')}
           <input className="range-input num-input" value={stackStr} onChange={(e) => setStackStr(e.target.value)} />
         </label>
         <div className="mode-toggle">
@@ -305,73 +302,73 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
             className={`chip-btn ${preset === 'explorer' ? 'chip-btn-active' : ''}`}
             onClick={() => setPreset('explorer')}
           >
-            精细（慢）
+            {t('精细（慢）', 'Detailed (slower)')}
           </button>
           <button
             className={`chip-btn ${preset === 'trainer' ? 'chip-btn-active' : ''}`}
             onClick={() => setPreset('trainer')}
           >
-            快速
+            {t('快速', 'Quick')}
           </button>
         </div>
       </div>
       <label className="solver-range-label">
-        OOP 范围
+        {t('OOP 范围', 'OOP range')}
         <input className="range-input" value={oopStr} onChange={(e) => setOopStr(e.target.value)} />
       </label>
       <label className="solver-range-label">
-        IP 范围
+        {t('IP 范围', 'IP range')}
         <input className="range-input" value={ipStr} onChange={(e) => setIpStr(e.target.value)} />
       </label>
 
       <div className="eq-run-row">
         {!solving ? (
           <button className="primary-btn" onClick={solve}>
-            求解
+            {t('求解', 'Solve')}
           </button>
         ) : (
           <>
             <button className="primary-btn" disabled>
-              求解中 {(progress * 100).toFixed(0)}%
+              {t('求解中', 'Solving')} {(progress * 100).toFixed(0)}%
             </button>
             <button className="link-btn" onClick={() => cancelRef.current?.()}>
-              取消
+              {t('取消', 'Cancel')}
             </button>
           </>
         )}
         {street === 'turn' && preset === 'explorer' && !solving && (
-          <span className="spot-desc">转牌精细求解约需 1 分钟</span>
+          <span className="spot-desc">{t('转牌精细求解约需 1 分钟', 'A detailed turn solve takes about 1 minute')}</span>
         )}
-        {error && <span className="input-error">{error}</span>}
+        {error && <span className="input-error">{translatePokerText(error, language)}</span>}
       </div>
 
       {solution && navigation && (
         <div className="solver-result">
           <div className="stats-row">
             <span>
-              可利用度 <b>{(solution.exploitability * 100).toFixed(2)}%</b> 底池
+              {t('可利用度', 'Exploitability')} <b>{(solution.exploitability * 100).toFixed(2)}%</b> {t('底池', 'of pot')}
             </span>
             <span>
-              迭代 <b>{solution.iterations}</b>
+              {t('迭代', 'Iterations')} <b>{solution.iterations}</b>
             </span>
           </div>
           <div className="viewer-group-buttons" style={{ marginBottom: 8 }}>
             <button className={`chip-btn ${path.length === 0 ? 'chip-btn-active' : ''}`} onClick={() => setPath([])}>
-              根节点
+              {t('根节点', 'Root')}
             </button>
             {navigation.crumbs.map((c, i) => (
               <button key={i} className="chip-btn chip-btn-active" onClick={() => setPath(path.slice(0, c.upTo + 1))}>
-                {c.label}
+                {translatePokerText(c.label, language)}
               </button>
             ))}
           </div>
           {currentDecision && spotView && (
             <>
               <p className="spot-desc">
-                轮到 {currentDecision.actor === 0 ? 'OOP' : 'IP'}——点动作继续导航：
+                {t(`轮到 ${currentDecision.actor === 0 ? 'OOP' : 'IP'}——点动作继续导航：`, `${currentDecision.actor === 0 ? 'OOP' : 'IP'} to act. Choose an action to explore:`)}
                 {currentDecision.actions.map((a, i) => (
                   <button key={i} className="chip-btn" style={{ marginLeft: 6 }} onClick={() => setPath([...path, i])}>
-                    {a.kind === 'check' ? '过牌' : a.kind === 'call' ? '跟注' : a.kind === 'fold' ? '弃牌' : a.kind === 'bet' ? `下注${a.amount}` : `加注${a.amount}`}
+                    {postflopActionName(a, language)}
                   </button>
                 ))}
               </p>
@@ -379,11 +376,11 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
             </>
           )}
           {current && current.type === 'chance' && (
-            <p className="spot-desc">本街行动结束进入下一街。要看后续策略，请把新街牌加入公共牌后重新求解。</p>
+            <p className="spot-desc">{t('本街行动结束进入下一街。要看后续策略，请把新街牌加入公共牌后重新求解。', 'This betting round is complete. Add the next board card and solve again to explore the next street.')}</p>
           )}
           {current && current.type === 'terminal' && (
             <p className="spot-desc">
-              {current.kind === 'fold' ? '一方弃牌，牌局结束。' : current.kind === 'showdown' ? '摊牌。' : '本街结束（翻牌深度受限叶）——加一张转牌后重新求解看后续。'}
+              {current.kind === 'fold' ? t('一方弃牌，牌局结束。', 'A player folded. The hand is over.') : current.kind === 'showdown' ? t('摊牌。', 'Showdown.') : t('本街结束（翻牌深度受限叶）——加一张转牌后重新求解看后续。', 'This is the end of the depth-limited flop tree. Add a turn card and solve again to continue.')}
             </p>
           )}
         </div>

@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import { comboCount, gridHandName } from '../poker/cards'
 import { ACTION_COLORS, ACTION_LABELS, handFreqs, type Spot } from '../poker/ranges'
+import { useLanguage } from '../battle/i18n'
+import { actionName, translatePokerText } from '../poker/presentation'
 
 const FOLD_BG = 'rgba(92, 124, 186, 0.35)'
 
@@ -66,9 +68,10 @@ export function RangeChart({
   weights?: Map<string, number> // 手牌类到达权重；0/缺失 = 不在范围内（置灰）
   actionLabels?: Record<string, string> // 覆盖图例文案（如翻后的「过牌/下注」）
 }) {
+  const { language, t } = useLanguage()
   const [tip, setTip] = useState<Tooltip | null>(null)
   const percents = useMemo(() => actionPercents(spot, weights), [spot, weights])
-  const labelOf = (key: string) => actionLabels?.[key] ?? ACTION_LABELS[key]
+  const labelOf = (key: string) => actionName(actionLabels?.[key] ?? spot.actions.find(action => action.key === key)?.label ?? ACTION_LABELS[key] ?? key, language)
 
   // 悬停只更新提示框，169 个格子不随之重渲染
   const cells = useMemo(
@@ -109,20 +112,20 @@ export function RangeChart({
             {labelOf(key)} {pct.toFixed(1)}%
           </span>
         ))}
-        {weights && <span className="legend-item spot-desc">灰格 = 不在范围内</span>}
+        {weights && <span className="legend-item spot-desc">{t('灰格 = 不在范围内', 'Gray cells = outside the range')}</span>}
       </div>
       <div
         className="range-grid"
         onMouseLeave={() => setTip(null)}
         role="table"
-        aria-label={`${spot.title} 范围矩阵`}
+        aria-label={`${translatePokerText(spot.title, language)} ${t('范围矩阵', 'range matrix')}`}
       >
         {cells}
         {tip && (
           <div className="range-tooltip" style={{ left: tip.x, top: tip.y }}>
             <div className="tooltip-hand">{tip.hand}</div>
             {weights !== undefined && weightOf(weights, tip.hand) <= 0 ? (
-              <div className="tooltip-row">不在范围内</div>
+              <div className="tooltip-row">{t('不在范围内', 'Outside the range')}</div>
             ) : (
               handFreqs(spot, tip.hand).map(({ key, freq }) => (
                 <div key={key} className="tooltip-row">

@@ -1,0 +1,81 @@
+/* Shared visual language; poker action and range-map colors retain their meaning. */
+.app:not(.app-battle) { max-width: 1440px; padding: 18px 28px 24px; }
+.app:not(.app-battle) .app-main { width: 100%; max-width: 1120px; margin: 0 auto; padding-top: 18px; }
+.app:not(.app-battle) .app-footer { padding: 15px 0 5px; font-size: 11px; text-align: left; max-width: 1120px; width: 100%; margin: 0 auto; }
+.app-model-note { color: #778d7e; font-size: 11px; }
+.app-model-note summary { cursor: pointer; width: fit-content; padding: 4px 0; }
+.app-model-note p { max-width: 740px; line-height: 1.75; margin-top: 7px; }
+.app:not(.app-battle) :is(button, input, select, textarea) { font-family: inherit; }
+.app:not(.app-battle) :is(button, input, select, textarea, summary):focus-visible { outline: 2px solid #b9d7bc; outline-offset: 3px; }
+.app:not(.app-battle) button { touch-action: manipulation; }
+.app:not(.app-battle) :is(.panel, .eq-player, .stat-card, .leak-item, .hand-item, .deck-grid) { border-radius: 7px; box-shadow: none; }
+.app:not(.app-battle) .panel { padding: 18px 20px; background: #161e19; border-color: #344239; }
+.app:not(.app-battle) .spot-title { font-size: 19px; font-weight: 600; letter-spacing: -.3px; }
+.app:not(.app-battle) .spot-desc { font-size: 12px; line-height: 1.75; color: #94a397; }
+.app:not(.app-battle) .chip-btn { min-height: 30px; border-radius: 4px; padding: 5px 10px; font-size: 12px; background: transparent; border-color: #3a4b3f; color: #94a397; }
+.app:not(.app-battle) .chip-btn:hover:not(:disabled) { color: #deeadb; border-color: #6f8b73; }
+.app:not(.app-battle) .chip-btn-active { background: #2c3d2f; border-color: #9eb9a0; color: #d5e7d3; }
+.app:not(.app-battle) .primary-btn { min-height: 37px; border: 1px solid #b9d7bc; border-radius: 5px; background: #b9d7bc; color: #17261b; padding: 8px 16px; font-size: 13px; font-weight: 600; }
+.app:not(.app-battle) .primary-btn:hover:not(:disabled) { background: #d1e5d2; border-color: #d1e5d2; }
+.app:not(.app-battle) .link-btn { color: #b9d7bc; text-decoration-color: #66826c; font-size: 12px; }
+.app:not(.app-battle) .setup-panel { margin-top: 18px; }
+.app:not(.app-battle) .setup-row { gap: 10px; margin-bottom: 16px; }
+.app:not(.app-battle) .setup-note { color: #8fa192; font-size: 12px; line-height: 1.75; }
+.app:not(.app-battle) .setup-label { font-size: 12px; }
+.app:not(.app-battle) .stats-row { gap: 14px; font-size: 12px; }
+.app:not(.app-battle) .table-felt { background: #203b2d; border-color: #1a2d22; box-shadow: inset 0 0 0 1px #395444, 0 0 0 1px #2c3f32; }
+.app:not(.app-battle) .table-felt .board-row { top: 53%; max-width: 44%; justify-content: center; }
+.app:not(.app-battle) .table-felt .table-center-text { top: 39%; padding: 0; background: transparent; border-radius: 0; text-align: center; line-height: 1.3; white-space: nowrap; }
+.app:not(.app-battle) .table-felt .solve-ring { font-size: 11px; line-height: 1.3; }
+.app:not(.app-battle) .seat-pos { border-radius: 5px; font-weight: 550; background: #202c24; border-color: #48614e; }
+.app:not(.app-battle) .seat-hero .seat-pos { color: #d5e9ce; border-color: #a4c2a3; }
+.app:not(.app-battle) .seat-raiser .seat-pos { border-color: var(--raise); }
+.app:not(.app-battle) .seat-acting .seat-pos { border-color: #c9dfb9; box-shadow: 0 0 0 2px #bbd6b522; animation: none; }
+.app:not(.app-battle) .seat-label { color: #96aa9a; text-shadow: none; }
+.app:not(.app-battle) .bet-chip { border-color: #768e70; background: #15251bcc; color: #d6dfce; border-radius: 5px; }
+.app:not(.app-battle) .action-btn { border-radius: 5px; border-width: 1px; min-height: 43px; padding: 9px 20px; font-size: 14px; }
+.app:not(.app-battle) .action-key { border-radius: 3px; font-weight: 400; }
+.app:not(.app-battle) :is(.eq-player, .stat-card, .leak-item, .hand-item, .deck-grid) { background: #1c2720; border-color: #344239; }
+.app:not(.app-battle) .stat-card { padding: 12px 14px; }
+.app:not(.app-battle) .stat-card-value { font-size: 25px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.app:not(.app-battle) .stat-card-title { font-size: 11px; }
+.app:not(.app-battle) .leak-item { border-left-color: #9db89d; }
+.app:not(.app-battle) .pos-table th, .app:not(.app-battle) .pos-table td { border-bottom-color: #303e34; padding: 9px 10px; font-size: 12px; }
+.app:not(.app-battle) .pos-table th { color: #8da192; font-weight: 500; }
+.app:not(.app-battle) .hand-item summary { font-size: 12px; }
+.app:not(.app-battle) :is(.range-input, .num-input) { min-height: 36px; border-radius: 4px; background: #111a14; border-color: #425648; font-size: 13px; }
+.app:not(.app-battle) .range-input::placeholder { color: #6b8471; }
+.app:not(.app-battle) .viewer-group-label, .app:not(.app-battle) .solver-inputs label { font-size: 12px; }
+.app:not(.app-battle) .range-grid { border-radius: 4px; }
+.app:not(.app-battle) .range-tooltip { border-radius: 5px; border-color: #566b59; background: #1b281f; }
+.app:not(.app-battle) .range-cell-dead { background: #182019; }
+.app:not(.app-battle) .eq-player-title { font-weight: 600; }
+.app:not(.app-battle) .card-slot { border-width: 1px; border-radius: 4px; }
+.app:not(.app-battle) .deck-card { border-radius: 4px; }
+.app:not(.app-battle) .freq-bar { border-radius: 4px; }
+@media (max-width: 1100px) {
+  .app:not(.app-battle) { padding: 14px 18px 24px; }
+}
+@media (max-width: 600px) {
+  .app:not(.app-battle) { padding: 10px; }
+  .app:not(.app-battle) .app-main { padding-top: 12px; }
+  .app:not(.app-battle) .panel { padding: 14px 12px; }
+  .app:not(.app-battle) .spot-title { font-size: 17px; }
+  .app:not(.app-battle) .chip-btn { font-size: 11px; min-height: 31px; padding: 5px 8px; }
+  .app:not(.app-battle) .setup-panel { margin-top: 7px; }
+  .app:not(.app-battle) .action-btn { padding: 9px 12px; min-height: 43px; font-size: 13px; }
+  .app:not(.app-battle) .stat-card { padding: 10px; }
+  .app:not(.app-battle) .stat-card-value { font-size: 23px; }
+  .app:not(.app-battle) .setup-row { gap: 8px; }
+  .app:not(.app-battle) .table-felt .board-row { top: 52%; max-width: 40%; min-height: 34px; gap: 3px; }
+  .app:not(.app-battle) .table-felt .board-row .card-face { width: 22px; height: 32px; min-width: 0; flex-shrink: 1; font-size: 11px; }
+  .app:not(.app-battle) .table-felt .table-center-text { top: 37%; font-size: 12px; }
+}
+.viewer-category { border:1px solid #344239; border-radius:5px; overflow:hidden; }
+.viewer-category + .viewer-category { margin-top:6px; }
+.viewer-category-toggle { display:flex; width:100%; align-items:center; justify-content:space-between; gap:12px; padding:11px 12px; background:transparent; border:0; color:#aab9ae; font:inherit; font-size:12px; text-align:left; cursor:pointer; }
+.viewer-category-toggle > span:last-child { font-size:17px; line-height:1; color:#829687; }
+.viewer-category-open .viewer-category-toggle { color:#d5e7d3; }
+.viewer-category-toggle:hover { background:#202c24; }
+.viewer-category-content { padding:0 12px 12px; }
+.viewer-category-content[hidden] { display:none; }

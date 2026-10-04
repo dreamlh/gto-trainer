@@ -10,6 +10,8 @@ import {
 import { computeEquity, type EquityResult, type PlayerSpec } from '../poker/equity'
 import { parseRange } from '../poker/rangeParser'
 import { CardFace } from './CardFace'
+import { useLanguage } from '../battle/i18n'
+import { translatePokerText } from '../poker/presentation'
 
 const SUIT_COLORS = ['#1b2330', '#d64545', '#3b78d6', '#3f9e5f']
 // 左侧花色栏在深色背景上，黑桃用浅色
@@ -46,6 +48,7 @@ function rangeInfo(src: string): { combos: number; error?: string } {
 }
 
 export function EquityCalc() {
+  const { language, t } = useLanguage()
   const [p1, setP1] = useState<PlayerState>({ mode: 'cards', cards: [null, null], range: '' })
   const [p2, setP2] = useState<PlayerState>({
     mode: 'range',
@@ -155,7 +158,7 @@ export function EquityCalc() {
                 setActive({ who, idx: st.cards[0] === null ? 0 : 1 })
               }}
             >
-              指定手牌
+              {t('指定手牌', 'Exact hand')}
             </button>
             <button
               className={`chip-btn ${st.mode === 'range' ? 'chip-btn-active' : ''}`}
@@ -164,7 +167,7 @@ export function EquityCalc() {
                 setResult(null)
               }}
             >
-              范围
+              {t('范围', 'Range')}
             </button>
           </div>
         </div>
@@ -177,6 +180,7 @@ export function EquityCalc() {
                 <button
                   key={i}
                   className={`card-slot ${isActive ? 'card-slot-active' : ''}`}
+                  aria-label={`${title} ${t('手牌', 'card')} ${i + 1}${c !== null ? t('，点击移除', ', click to remove') : ''}`}
                   onClick={() => (c !== null ? clearSlot({ who, idx: i }) : setActive({ who, idx: i }))}
                 >
                   {c !== null ? <CardFace card={c} /> : '?'}
@@ -193,13 +197,14 @@ export function EquityCalc() {
                 setSt({ ...st, range: e.target.value })
                 setResult(null)
               }}
-              placeholder="例：TT+, AQs+, AJo+, KQs, 76s:0.5"
+              aria-label={`${title} ${t('范围', 'range')}`}
+              placeholder={t('例：TT+, AQs+, AJo+, KQs, 76s:0.5', 'e.g. TT+, AQs+, AJo+, KQs, 76s:0.5')}
             />
             <div className="range-input-info">
               {info?.error ? (
-                <span className="input-error">{info.error}</span>
+                <span className="input-error">{translatePokerText(info.error, language)}</span>
               ) : (
-                <span>{info?.combos} 个组合</span>
+                <span>{info?.combos} {t('个组合', 'combinations')}</span>
               )}
               <span className="preset-row">
                 {PRESETS.map((p) => (
@@ -211,7 +216,7 @@ export function EquityCalc() {
                       setResult(null)
                     }}
                   >
-                    {p.label}
+                    {translatePokerText(p.label, language)}
                   </button>
                 ))}
               </span>
@@ -227,12 +232,12 @@ export function EquityCalc() {
   return (
     <div className="panel">
       <div className="eq-players">
-        {renderPlayer(p1, 'p1', '玩家 1')}
-        {renderPlayer(p2, 'p2', '玩家 2')}
+        {renderPlayer(p1, 'p1', t('玩家 1', 'Player 1'))}
+        {renderPlayer(p2, 'p2', t('玩家 2', 'Player 2'))}
       </div>
 
       <div className="eq-board">
-        <span className="eq-player-title">公共牌（可选）</span>
+        <span className="eq-player-title">{t('公共牌（可选）', 'Board (optional)')}</span>
         <div className="slot-row">
           {board.map((c, i) => {
             const isActive = active?.who === 'board' && active.idx === i
@@ -240,11 +245,12 @@ export function EquityCalc() {
               <button
                 key={i}
                 className={`card-slot ${isActive ? 'card-slot-active' : ''}`}
+                aria-label={`${i < 3 ? t('翻牌', 'Flop') + ` ${i + 1}` : i === 3 ? t('转牌', 'Turn') : t('河牌', 'River')}${c !== null ? t('，点击移除', ', click to remove') : ''}`}
                 onClick={() =>
                   c !== null ? clearSlot({ who: 'board', idx: i }) : setActive({ who: 'board', idx: i })
                 }
               >
-                {c !== null ? <CardFace card={c} /> : i < 3 ? '翻' : i === 3 ? '转' : '河'}
+                {c !== null ? <CardFace card={c} /> : i < 3 ? t('翻', 'F') : i === 3 ? t('转', 'T') : t('河', 'R')}
               </button>
             )
           })}
@@ -265,6 +271,7 @@ export function EquityCalc() {
                   key={r}
                   className={`deck-card ${isUsed ? 'deck-card-used' : ''}`}
                   style={{ color: SUIT_COLORS[s] }}
+                  aria-label={`${RANK_CHARS[12 - r]}${SUIT_SYMBOLS[s]}`}
                   disabled={isUsed}
                   onClick={() => pickCard(card)}
                 >
@@ -278,38 +285,38 @@ export function EquityCalc() {
 
       <div className="eq-run-row">
         <button className="primary-btn" onClick={run} disabled={computing}>
-          {computing ? '计算中…' : '计算权益'}
+          {computing ? t('计算中…', 'Calculating…') : t('计算权益', 'Calculate equity')}
         </button>
-        {error && <span className="input-error">{error}</span>}
+        {error && <span className="input-error">{translatePokerText(error, language)}</span>}
       </div>
 
       {result && result.iterations > 0 && (
         <div className="eq-result">
           <div className="eq-headline">
-            玩家 1 权益 <b>{(eq1 * 100).toFixed(1)}%</b>
+            {t('玩家 1 权益', 'Player 1 equity')} <b>{(eq1 * 100).toFixed(1)}%</b>
             <span className="eq-sub">
-              （胜 {(result.win * 100).toFixed(1)}% / 平 {(result.tie * 100).toFixed(1)}% / 负{' '}
-              {(result.lose * 100).toFixed(1)}%，{result.iterations.toLocaleString()} 次模拟）
+              ({t('胜', 'Win')} {(result.win * 100).toFixed(1)}% / {t('平', 'Tie')} {(result.tie * 100).toFixed(1)}% / {t('负', 'Lose')}{' '}
+              {(result.lose * 100).toFixed(1)}%, {result.iterations.toLocaleString(language === 'zh' ? 'zh-CN' : 'en-GB')} {t('次模拟', 'simulations')})
             </span>
           </div>
           <div className="freq-bar">
             <div className="freq-seg" style={{ width: `${result.win * 100}%`, background: '#e2574a' }}>
-              {result.win > 0.08 && <span>玩家1 {(result.win * 100).toFixed(0)}%</span>}
+              {result.win > 0.08 && <span>{t('玩家1', 'Player 1')} {(result.win * 100).toFixed(0)}%</span>}
             </div>
             <div
               className="freq-seg"
               style={{ width: `${result.tie * 100}%`, background: 'rgba(151, 163, 184, 0.5)' }}
             >
-              {result.tie > 0.08 && <span>平 {(result.tie * 100).toFixed(0)}%</span>}
+              {result.tie > 0.08 && <span>{t('平', 'Tie')} {(result.tie * 100).toFixed(0)}%</span>}
             </div>
             <div className="freq-seg" style={{ width: `${result.lose * 100}%`, background: '#5c7cba' }}>
-              {result.lose > 0.08 && <span>玩家2 {(result.lose * 100).toFixed(0)}%</span>}
+              {result.lose > 0.08 && <span>{t('玩家2', 'Player 2')} {(result.lose * 100).toFixed(0)}%</span>}
             </div>
           </div>
         </div>
       )}
       {result && result.iterations === 0 && (
-        <div className="input-error">范围与已选牌完全冲突，无法模拟</div>
+        <div className="input-error">{t('范围与已选牌完全冲突，无法模拟', 'No valid combinations remain after removing the selected cards.')}</div>
       )}
     </div>
   )
