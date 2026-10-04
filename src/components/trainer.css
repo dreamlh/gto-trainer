@@ -14,7 +14,8 @@
 .trainer-result-actions > .ba-action { min-width: 110px; }
 .trainer-result-actions > .battle-button { min-width: 0; }
 .trainer-result-note { font-size: 11px; line-height: 15px; }
-.trainer-feedback-link { background: transparent; border: 0; padding: 2px 0; font-size: 11px !important; white-space: nowrap; flex: none; }
+.trainer-feedback-link { display: flex; flex-wrap: wrap; justify-content: flex-end; column-gap: 4px; background: transparent; border: 0; padding: 2px 0; font-size: 11px !important; flex-shrink: 1; min-width: 0; max-width: 100%; text-align: right; }
+.trainer-feedback-link > span { white-space: nowrap; }
 .trainer-feedback-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 .trainer-result-meta { display: flex; flex-direction: column; align-items: flex-end; }
 .trainer-result-meta > span { font-size: 10px; }
@@ -43,7 +44,9 @@
 .trainer-strategy-list strong { text-align: right; font-size: 11px; font-weight: 550; font-variant-numeric: tabular-nums; }
 .trainer-strategy-list .is-chosen { color: #e0eddb; background: #b9d7bc0a; }
 .trainer-review-list { padding: 14px; }
-.trainer-review-list h3 { font-size: 11px; font-weight: 500; color: #93a797; margin-bottom: 8px; }
+.trainer-review-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; color: #93a797; }
+.trainer-review-heading h3 { font-size: 11px; font-weight: 500; }
+.trainer-review-heading > span { flex: none; padding-right: 5px; font-size: 10px; }
 .trainer-review-list > button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; border: 1px solid transparent; border-radius: 4px; background: transparent; padding: 8px 5px; font-size: 10px; color: #adbfaf; }
 .trainer-review-list > button[aria-pressed="true"] { border-color: #536d55; background: #25352a; }
 .trainer-review-list > button:hover { background: #26352b; }

@@ -23,7 +23,7 @@ export function TrainerActions({ snap, onAction, onNext, revealAll, onReveal, on
   const callAmount = hero && snap.engine ? Math.min(snap.engine.stack - hero.invested, Math.max(0, maxStreetBet - (hero.invested - hero.streetBase))) : 0
   const decision = snap.lastDecision ? normalizeDecisionRecord(snap.lastDecision) : null
   const feedback = decision && <button type="button" className={`trainer-feedback-link trainer-verdict-${decision.verdict}`} onClick={onFeedback} aria-label={`${t('打开策略反馈', 'Open strategy feedback')}: ${trainerVerdict(decision.verdict, language)}${decision.evLoss != null ? `, ${t('EV 损失', 'EV loss')} ${decision.evLoss.toFixed(2)} BB` : ''}`}>
-    {trainerVerdict(decision.verdict, language)}{decision.evLoss != null && <span> · {decision.evLoss.toFixed(2)} BB</span>}
+    <span>{trainerVerdict(decision.verdict, language)}</span>{decision.evLoss != null && <span>· {t('EV 损失', 'EV loss')} {decision.evLoss.toFixed(2)} BB</span>}
   </button>
 
   if (snap.phase === 'hand-done' && snap.result) {
