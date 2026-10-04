@@ -63,4 +63,3 @@ export function DecisionDock({ active, label, className = '', children }: { acti
     <section ref={element} className={`ba-dock ${active ? 'ba-dock-active' : ''} ${className}`} aria-label={label}>{children}</section>
   </div>
 }
-

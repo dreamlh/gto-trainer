@@ -28,4 +28,3 @@ export function PokerDialog({ title, onClose, children }: { title: string; onClo
     </section>
   </div>
 }
-
