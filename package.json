@@ -23,7 +23,9 @@
     "test:poker:presentation": "node --import tsx scripts/test-poker-presentation.ts",
     "test:trainer:presentation": "node --import tsx scripts/test-trainer-presentation.ts",
     "test:trainer:events": "node --import tsx scripts/test-trainer-events.ts",
-    "test:trainer:session": "node --import tsx scripts/test-trainer-session.ts"
+    "test:trainer:session": "node --import tsx scripts/test-trainer-session.ts",
+    "test:trainer:feedback": "node --import tsx scripts/test-trainer-feedback.ts",
+    "test:postflop:availability": "node --import tsx scripts/test-postflop-availability.ts"
   },
   "dependencies": {
     "react": "^18.3.1",

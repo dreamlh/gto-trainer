@@ -178,18 +178,18 @@ export function detectLeaks(s: ProfileStats): Leak[] {
     })
   }
   // 位置泄漏
-  const withEnough = s.byPosition.filter((p) => p.decisions >= MIN_OPP)
+  const withEnough = s.byPosition.filter((p) => p.evDecisions >= MIN_OPP)
   if (withEnough.length >= 2) {
-    const avg = s.decisions ? s.totalEvLoss / s.decisions : 0
+    const avg = s.evLossPerDecision ?? 0
     for (const p of withEnough) {
-      if (avg > 0 && p.evLoss > 2 * avg && p.evLoss > 0.15) {
+      if (avg > 0 && p.evLoss !== null && p.evLoss > 2 * avg && p.evLoss > 0.15) {
         out.push({
           id: `pos-${p.pos}`,
           title: `${p.pos} 位置决策质量偏低`,
-          severity: (p.evLoss - avg) * p.decisions,
+          severity: (p.evLoss - avg) * p.evDecisions,
           user: p.evLoss,
           gto: avg,
-          n: p.decisions,
+          n: p.evDecisions,
           advice: `你在 ${p.pos} 的平均每决策 EV 损失 ${p.evLoss.toFixed(2)}bb，是整体均值（${avg.toFixed(2)}bb）的两倍以上。重点复习该位置的范围表。`,
         })
       }

@@ -25,6 +25,7 @@
 .trainer-verdict-optimal, .trainer-verdict-optimal .trainer-verdict-row > strong { color: #a6d5ad; }
 .trainer-verdict-acceptable, .trainer-verdict-acceptable .trainer-verdict-row > strong { color: #dfc395; }
 .trainer-verdict-wrong, .trainer-verdict-wrong .trainer-verdict-row > strong { color: #e3a295; }
+.trainer-verdict-unavailable, .trainer-verdict-unavailable .trainer-verdict-row > strong { color: #a0afa7; }
 .trainer-chosen { color: #90a293; font-size: 11px; margin-top: 9px; line-height: 1.6; }
 .trainer-chosen strong { color: #c6d6c5; font-weight: 550; }
 .trainer-ev-loss { display: flex; justify-content: space-between; align-items: baseline; margin: 12px 0; }

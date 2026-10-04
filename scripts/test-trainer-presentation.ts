@@ -1,9 +1,13 @@
 import assert from 'node:assert/strict'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
 import { describeTrainerSpot, trainerAction, trainerError, trainerHistoryActions, trainerLeak, trainerLeakComparison, trainerNote, trainerStreet, trainerVerdict } from '../src/game/trainerPresentation'
 import { advanceStreet, applyAction, newHand } from '../src/game/engine'
-import type { DecisionRecord, HandRecord } from '../src/game/session'
+import type { DecisionRecord, HandRecord, SessionSnapshot } from '../src/game/session'
 import { computeStats } from '../src/stats/compute'
 import type { Leak } from '../src/stats/leaks'
+import { TrainerFeedback } from '../src/components/TrainerFeedback'
+import { setLanguage } from '../src/battle/i18n'
 
 const noChinese = (text: string) => assert.equal(/\p{Script=Han}/u.test(text), false, text)
 const actions = [
@@ -15,7 +19,9 @@ for (const [label, expected] of actions) assert.equal(trainerAction(label, 'en')
 assert.equal(trainerAction('加注到 20', 'zh'), '加注到 20 BB')
 assert.equal(trainerAction('Bet 8 BB', 'en'), 'Bet 8 BB', 'Already translated units must not be duplicated')
 for (const street of ['preflop', 'flop', 'turn', 'river']) noChinese(trainerStreet(street, 'en'))
-for (const verdict of ['optimal', 'acceptable', 'wrong'] as const) noChinese(trainerVerdict(verdict, 'en'))
+for (const verdict of ['optimal', 'acceptable', 'wrong', 'unavailable'] as const) noChinese(trainerVerdict(verdict, 'en'))
+assert.equal(trainerVerdict('unavailable', 'zh'), '未评估')
+assert.equal(trainerVerdict('unavailable', 'en'), 'Not evaluated')
 
 const notes = [
   '翻前训练模式：本手到翻牌为止，仅评估翻前决策',
@@ -101,4 +107,42 @@ for (const id of ['too-loose', 'too-tight', 'low-3bet', 'over-3bet', 'fold-to-3b
 }
 assert.match(trainerLeak({ ...leak, id: 'cbet-off' }, 'en').advice, /too often/)
 assert.match(trainerLeak({ ...leak, id: 'river-call', user: .1 }, 'en').advice, /too rarely/)
-console.log('Trainer localization: live spots, legacy labels/notes, nested errors, language round trips, unchanged records/statistics and leak units passed.')
+
+// Render the actual feedback panel so missing data cannot become false 0% / optimal feedback.
+Object.assign(globalThis, {
+  window: new EventTarget(),
+  document: { documentElement: { lang: '' } },
+  localStorage: { getItem: () => null, setItem: () => {} },
+})
+const snapshot = (decision: DecisionRecord): SessionSnapshot => ({
+  version: 1, phase: 'hand-done', engine: null, heroSeat: 0, toActSeat: -1, heroActions: [],
+  decisions: [decision], lastDecision: decision,
+  result: { deltaBB: 2, heroFolded: false, wentToShowdown: false, multiwayCutoff: false, revealed: [] },
+  solveProgress: null, error: '', preflopOnly: false, tableSize: 6,
+})
+const renderFeedback = (decision: DecisionRecord) => renderToStaticMarkup(createElement(TrainerFeedback, { snap: snapshot(decision), tab: 'feedback' }))
+const legacyMissing: DecisionRecord = { ...decisions[1], freqs: [0, 0], evs: [0, 0], evLoss: 0, score: 100, verdict: 'optimal' }
+const missingBeforeRender = JSON.stringify(legacyMissing)
+for (const language of ['en', 'zh'] as const) {
+  setLanguage(language)
+  const feedback = renderFeedback(legacyMissing)
+  assert.match(feedback, language === 'zh' ? /未评估/ : /Not evaluated/)
+  assert.doesNotMatch(feedback, /trainer-verdict-optimal|0\.00 BB|>0%<|freq-bar/, 'Missing data has no zero measurements or optimal verdict')
+  assert.match(feedback, language === 'zh' ? /当前手牌或行动路线没有有效策略数据，本次不评分。/ : /No valid strategy data.*not scored/)
+  if (language === 'en') noChinese(feedback)
+
+  const onlyFrequencies = renderFeedback({ ...decisions[1], evs: null, evLoss: null })
+  assert.match(onlyFrequencies, />60%</)
+  assert.match(onlyFrequencies, />40%</)
+  assert.match(onlyFrequencies, /freq-bar/)
+  assert.doesNotMatch(onlyFrequencies, /trainer-verdict-unavailable|0\.00 BB/)
+  assert.match(onlyFrequencies, language === 'zh' ? /仅展示策略频率/ : /Strategy frequencies are shown/)
+
+  const genuineZero = renderFeedback({ ...decisions[1], freqs: [1, 0], evs: [0, 0], chosen: 0, evLoss: 0, score: 100, verdict: 'optimal' })
+  assert.match(genuineZero, />100%</)
+  assert.match(genuineZero, />0%</)
+  assert.match(genuineZero, /0\.00 BB/)
+  assert.match(genuineZero, /trainer-verdict-optimal/)
+}
+assert.equal(JSON.stringify(legacyMissing), missingBeforeRender, 'Rendering legacy unavailable data must not rewrite the original snapshot')
+console.log('Trainer presentation passed: localization, legacy labels/notes, unchanged records/statistics, leak units, unavailable strategies, missing EV and genuine zero-value feedback.')

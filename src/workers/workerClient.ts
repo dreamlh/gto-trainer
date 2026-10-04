@@ -9,7 +9,7 @@ export interface WorkerNode {
   actor: number
   actions: { kind: string; amount: number }[]
   strategy: Float32Array // 1326*A
-  ev: Float32Array // 1326*A（bb）
+  ev: Float32Array // 1326*A (BB); NaN marks an unavailable conditional EV.
 }
 
 export interface WorkerSolution {

@@ -13,7 +13,7 @@ export function trainerStreet(street: string, language: Language): string {
 }
 
 export function trainerVerdict(verdict: DecisionRecord['verdict'], language: Language): string {
-  return ({ optimal: ['✓ 最优', '✓ Optimal'], acceptable: ['~ 可接受', '~ Acceptable'], wrong: ['✗ 错误', '✗ Mistake'] } as const)[verdict][language === 'zh' ? 0 : 1]
+  return ({ optimal: ['✓ 最优', '✓ Optimal'], acceptable: ['~ 可接受', '~ Acceptable'], wrong: ['✗ 错误', '✗ Mistake'], unavailable: ['未评估', 'Not evaluated'] } as const)[verdict][language === 'zh' ? 0 : 1]
 }
 
 export function trainerAction(label: string, language: Language): string {

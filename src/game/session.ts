@@ -17,6 +17,7 @@ import {
   type GameStreet,
 } from './engine'
 import { RangeTracker } from './rangeTracker'
+import { normalizeDecisionRecord } from './decisionQuality'
 
 // 全牌局训练会话：翻前多人（solver 策略机器人），翻后单挑逐街重解
 
@@ -28,11 +29,11 @@ export interface DecisionRecord {
   labels: string[]
   kinds: string[]
   freqs: number[]
-  evs: number[] | null // 低到达未存储节点为 null
+  evs: number[] | null // Missing/unsupported solver rows have no EV.
   chosen: number
-  evLoss: number
-  score: number
-  verdict: 'optimal' | 'acceptable' | 'wrong'
+  evLoss: number | null
+  score: number | null
+  verdict: 'optimal' | 'acceptable' | 'wrong' | 'unavailable'
 }
 
 export interface HandResultInfo {
@@ -334,7 +335,7 @@ export class TrainerSession {
     const h = this.heroClass()
     const freqArr = this.bundle!.freq.get(node.id)
     const evArr = this.bundle!.ev.get(node.id)
-    const freqs = Array.from({ length: A }, (_, a) => (freqArr ? freqArr[h * A + a] : 1 / A))
+    const freqs = freqArr ? Array.from({ length: A }, (_, a) => freqArr[h * A + a]) : []
     const evs = evArr ? Array.from({ length: A }, (_, a) => evArr[h * A + a]) : null
     this.pushDecision(
       node.actions.map((a) => labelOf(a.kind, a.kind === 'call' ? a.to - this.engine!.players[this.snap.heroSeat].invested : a.to, a.to >= this.engine!.stack - .001)),
@@ -407,7 +408,7 @@ export class TrainerSession {
     const A = node.actions.length
     const c = this.heroCombo()
     const wn = this.postNodes!.get(node.id)
-    const freqs = Array.from({ length: A }, (_, a) => (wn ? wn.strategy[c * A + a] : 1 / A))
+    const freqs = wn ? Array.from({ length: A }, (_, a) => wn.strategy[c * A + a]) : []
     const evs = wn ? Array.from({ length: A }, (_, a) => wn.ev[c * A + a]) : null
     this.pushDecision(
       node.actions.map((a) => labelOf(a.kind, a.kind === 'call' ? a.amount - (this.engine!.players[this.snap.heroSeat].invested - this.engine!.players[this.snap.heroSeat].streetBase) : a.amount, a.amount >= this.engine!.stack - this.engine!.players[this.snap.heroSeat].streetBase - .001)),
@@ -508,18 +509,7 @@ export class TrainerSession {
     chosen: number,
     street: GameStreet,
   ) {
-    const maxF = Math.max(...freqs)
-    const f = freqs[chosen]
-    let evLoss = 0
-    if (evs) {
-      const maxEv = Math.max(...evs)
-      evLoss = maxEv - evs[chosen]
-    }
-    let verdict: DecisionRecord['verdict']
-    if (evs ? evLoss <= 0.05 : f >= maxF - 0.001) verdict = 'optimal'
-    else if (f >= 0.1 || (evs !== null && evLoss <= 0.25)) verdict = 'acceptable'
-    else verdict = 'wrong'
-    const rec: DecisionRecord = {
+    const rec = normalizeDecisionRecord({
       street,
       pos: this.engine!.positions[this.snap.heroSeat],
       labels,
@@ -527,10 +517,10 @@ export class TrainerSession {
       freqs,
       evs,
       chosen,
-      evLoss,
-      score: maxF > 0 ? Math.round((f / maxF) * 100) : 100,
-      verdict,
-    }
+      evLoss: null,
+      score: null,
+      verdict: 'unavailable',
+    })
     this.update({ decisions: [...this.snap.decisions, rec], lastDecision: rec })
   }
 

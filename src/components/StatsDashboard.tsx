@@ -26,9 +26,9 @@ function StatCard({ title, ratio, suffix }: { title: string; ratio: Ratio; suffi
   return (
     <div className="stat-card">
       <div className="stat-card-title">{title}</div>
-      <div className="stat-card-value">{(ratio.user * 100).toFixed(0)}%</div>
+      <div className="stat-card-value">{ratio.n ? `${(ratio.user * 100).toFixed(0)}%` : '—'}</div>
       <div className="stat-card-sub">
-        GTO {(ratio.gto * 100).toFixed(0)}% · {ratio.n} {t('次', ratio.n === 1 ? 'opportunity' : 'opportunities')}{suffix ?? ''}
+        GTO {ratio.n ? `${(ratio.gto * 100).toFixed(0)}%` : '—'} · {ratio.n} {t('次', ratio.n === 1 ? 'opportunity' : 'opportunities')}{suffix ?? ''}
       </div>
     </div>
   )
@@ -38,6 +38,7 @@ const VERDICT_COLORS: Record<string, string> = {
   optimal: '#1fa78e',
   acceptable: '#d9a441',
   wrong: '#e2574a',
+  unavailable: 'var(--text-dim)',
 }
 
 export function StatsDashboard({ active = true }: { active?: boolean }) {
@@ -138,10 +139,10 @@ function TrainingStatsDashboard({ active }: { active: boolean }) {
             {t('盈亏', 'Net')} <b>{stats.netBB >= 0 ? '+' : ''}{stats.netBB.toFixed(1)} BB</b> ({stats.settledHands} {t('手结算', stats.settledHands === 1 ? 'settled hand' : 'settled hands')})
           </span>
           <span>
-            {t('决策', stats.decisions === 1 ? 'Decision' : 'Decisions')} <b>{stats.decisions}</b> · {t('最优率', 'Optimal')} <b>{(stats.optimalRate * 100).toFixed(0)}%</b>
+            {t('决策', stats.decisions === 1 ? 'Decision' : 'Decisions')} <b>{stats.decisions}</b> · {t('已评估', 'Evaluated')} <b>{stats.evaluatedDecisions}</b> · {t('最优率', 'Optimal')} <b>{stats.optimalRate === null ? '—' : `${(stats.optimalRate * 100).toFixed(0)}%`}</b>
           </span>
-          <span>
-            {t('平均每手 EV 损失', 'EV loss / hand')} <b>{stats.evLossPerHand.toFixed(2)} BB</b>
+          <span title={t(`${stats.evDecisions} 次决策有 EV 数据`, `${stats.evDecisions} decisions have EV data`)}>
+            {t('平均每决策 EV 损失', 'EV loss / decision')} <b>{stats.evLossPerDecision === null ? '—' : `${stats.evLossPerDecision.toFixed(2)} BB`}</b>
           </span>
         </div>
 
@@ -180,7 +181,7 @@ function TrainingStatsDashboard({ active }: { active: boolean }) {
                         <td>{p.hands}</td>
                         <td>{(p.vpip * 100).toFixed(0)}%</td>
                         <td>{(p.pfr * 100).toFixed(0)}%</td>
-                        <td>{p.evLoss.toFixed(2)} BB</td>
+                        <td>{p.evLoss === null ? '—' : `${p.evLoss.toFixed(2)} BB`}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -262,12 +263,13 @@ function TrainingStatsDashboard({ active }: { active: boolean }) {
                     <div key={i} className="decision-item">
                       <span className="decision-street">{trainerStreet(d.street, language)}</span>
                       <span style={{ color: VERDICT_COLORS[d.verdict], minWidth: 64 }} title={trainerVerdict(d.verdict, language)}>
-                        {d.verdict === 'optimal' ? '✓' : d.verdict === 'acceptable' ? '~' : '✗'}{' '}
+                        {d.verdict === 'unavailable' ? '—' : d.verdict === 'optimal' ? '✓' : d.verdict === 'acceptable' ? '~' : '✗'}{' '}
                         {trainerAction(d.labels[d.chosen], language)}
                       </span>
                       <span className="verdict-score">
-                        GTO: {d.labels.map((l, j) => `${trainerAction(l, language)} ${(d.freqs[j] * 100).toFixed(0)}%`).join(' / ')}
-                        {d.evs && d.evLoss > 0.001 && ` · ${t('EV损失', 'EV loss')} ${d.evLoss.toFixed(2)} BB`}
+                        {d.verdict === 'unavailable'
+                          ? t('策略暂不可用 · 评分 —', 'Strategy unavailable · Score —')
+                          : <>GTO: {d.labels.map((l, j) => `${trainerAction(l, language)} ${(d.freqs[j] * 100).toFixed(0)}%`).join(' / ')} · {t('EV损失', 'EV loss')} {d.evLoss === null ? '—' : `${d.evLoss.toFixed(2)} BB`}</>}
                       </span>
                     </div>
                   ))}

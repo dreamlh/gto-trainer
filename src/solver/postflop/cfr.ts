@@ -12,7 +12,7 @@ import type { PostDecision, PostNode, PostTerminal, PostTree } from './tree'
 export interface PostflopSolution {
   tree: PostTree
   avgStrategy: Map<number, Float32Array> // nodeId -> 1326*A
-  evByAction: Map<number, Float32Array> // nodeId -> 1326*A（bb）
+  evByAction: Map<number, Float32Array> // nodeId -> 1326*A（bb；未求值/无兼容对手范围为 NaN）
   exploitability: number // 占底池比例
   iterations: number
 }
@@ -369,7 +369,8 @@ export async function solvePostflop(
         const EV = evMap.get(node.id)!
         for (let k = 0; k < lp.length; k++) {
           const c = lp[k]
-          EV[c * A + a] = cfvPool[depth][a][c] / Math.max(massSnap[c], EPS)
+          // 没有兼容的对手到达质量时，条件 EV 无定义，不能用 0 假装已求值。
+          if (massSnap[c] > EPS) EV[c * A + a] = cfvPool[depth][a][c] / massSnap[c]
         }
       }
     }
@@ -441,7 +442,8 @@ export async function solvePostflop(
   // ---------- EV 提取 + 自值 ----------
   const evByAction = new Map<number, Float32Array>()
   for (const nd of tree.decisionNodes)
-    evByAction.set(nd.id, new Float32Array(1326 * nd.actions.length))
+    // 范围外组合和被剪枝的节点不参与求值；保留缺失标记，区别于合法的 0 BB。
+    evByAction.set(nd.id, new Float32Array(1326 * nd.actions.length).fill(NaN))
   const selfVal: number[] = []
   for (let p = 0 as 0 | 1; p <= 1; p++) {
     reach[0].set(oopRange)

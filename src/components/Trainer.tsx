@@ -6,6 +6,7 @@ import {
 } from '../game/session'
 import { useLanguage } from '../battle/i18n'
 import { trainerError } from '../game/trainerPresentation'
+import { normalizeDecisionRecord } from '../game/decisionQuality'
 import { trainerTableEvents } from '../game/trainerTableEvents'
 import { useBattleVisuals } from './useBattleVisuals'
 import { usePokerAudioEvents } from './usePokerAudioEvents'
@@ -26,6 +27,8 @@ const TABLE_SIZES = [2, 3, 4, 5, 6, 7, 8, 9]
 interface Tally {
   hands: number
   decisions: number
+  evaluatedDecisions: number
+  evDecisions: number
   optimal: number
   wrong: number
   evLossSum: number
@@ -85,6 +88,8 @@ export function Trainer({ active = true }: { active?: boolean }) {
   const [tally, setTally] = useState<Tally>({
     hands: 0,
     decisions: 0,
+    evaluatedDecisions: 0,
+    evDecisions: 0,
     optimal: 0,
     wrong: 0,
     evLossSum: 0,
@@ -93,12 +98,15 @@ export function Trainer({ active = true }: { active?: boolean }) {
   })
   useEffect(() => {
     return onHandRecord((r: HandRecord) => {
+      const decisions = r.decisions.map(normalizeDecisionRecord)
       setTally((t) => ({
         hands: t.hands + 1,
-        decisions: t.decisions + r.decisions.length,
-        optimal: t.optimal + r.decisions.filter((d) => d.verdict === 'optimal').length,
-        wrong: t.wrong + r.decisions.filter((d) => d.verdict === 'wrong').length,
-        evLossSum: t.evLossSum + r.decisions.reduce((a, d) => a + d.evLoss, 0),
+        decisions: t.decisions + decisions.length,
+        evaluatedDecisions: t.evaluatedDecisions + decisions.filter((d) => d.verdict !== 'unavailable').length,
+        evDecisions: t.evDecisions + decisions.filter((d) => d.evLoss !== null).length,
+        optimal: t.optimal + decisions.filter((d) => d.verdict === 'optimal').length,
+        wrong: t.wrong + decisions.filter((d) => d.verdict === 'wrong').length,
+        evLossSum: t.evLossSum + decisions.reduce((a, d) => a + (d.evLoss ?? 0), 0),
         net: t.net + (r.result.deltaBB ?? 0),
         netHands: t.netHands + (r.result.deltaBB !== null ? 1 : 0),
       }))
@@ -219,7 +227,7 @@ export function Trainer({ active = true }: { active?: boolean }) {
       </div></aside>}
     </div>
     <div className="trainer-session-stats" data-poker-chrome aria-label={t('本次训练统计', 'Session statistics')}>
-      <span>{t('已练', 'Hands')} <b>{tally.hands}</b></span><span>{t('最优率', 'Optimal')} <b>{tally.decisions ? Math.round(tally.optimal / tally.decisions * 100) : 0}%</b></span><span>{t('平均 EV 损失', 'Avg. EV loss')} <b>{tally.decisions ? (tally.evLossSum / tally.decisions).toFixed(2) : '0.00'} BB</b></span><span>{t('盈亏', 'Net')} <b className={tally.net >= 0 ? 'battle-positive' : 'battle-negative'}>{tally.net >= 0 ? '+' : ''}{tally.net.toFixed(1)} BB</b><small> · {tally.netHands}{t(' 手结算', ' settled')}</small></span>
+      <span>{t('已练', 'Hands')} <b>{tally.hands}</b></span><span title={t(`${tally.evaluatedDecisions} / ${tally.decisions} 次决策有策略评估`, `${tally.evaluatedDecisions} / ${tally.decisions} decisions have strategy feedback`)}>{t('最优率', 'Optimal')} <b>{tally.evaluatedDecisions ? `${Math.round(tally.optimal / tally.evaluatedDecisions * 100)}%` : '—'}</b></span><span title={t(`${tally.evDecisions} 次决策有 EV 数据`, `${tally.evDecisions} decisions have EV data`)}>{t('平均 EV 损失', 'Avg. EV loss')} <b>{tally.evDecisions ? `${(tally.evLossSum / tally.evDecisions).toFixed(2)} BB` : '—'}</b></span><span>{t('盈亏', 'Net')} <b className={tally.net >= 0 ? 'battle-positive' : 'battle-negative'}>{tally.net >= 0 ? '+' : ''}{tally.net.toFixed(1)} BB</b><small> · {tally.netHands}{t(' 手结算', ' settled')}</small></span>
     </div>
     {!panelOpen && <nav className="battle-panel-bar" aria-label={t('打开训练面板', 'Open training panel')}>{(['feedback', 'history'] as const).map(tab => <button type="button" key={tab} aria-controls="trainer-panel" aria-expanded={false} onClick={() => { setPanelTab(tab); setPanelOpen(true) }}>{tab === 'feedback' ? t('策略反馈', 'Strategy') : t('记录', 'Records')}<span aria-hidden="true">⌃</span></button>)}</nav>}
     {showSettings && <PokerDialog title={t('训练设置', 'Training settings')} onClose={() => setShowSettings(false)}>

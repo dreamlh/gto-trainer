@@ -1,4 +1,5 @@
 import type { DecisionRecord, HandRecord } from '../game/session'
+import { normalizeDecisionRecord } from '../game/decisionQuality'
 import type { Position } from '../poker/ranges'
 
 // 玩家画像统计。所有「GTO 基线」都在与玩家完全相同的决策样本上，
@@ -15,8 +16,9 @@ export interface PositionRow {
   hands: number
   vpip: number
   pfr: number
-  evLoss: number // 平均每决策
+  evLoss: number | null // 平均每个有 EV 的决策
   decisions: number
+  evDecisions: number
 }
 
 export interface ProfileStats {
@@ -24,9 +26,12 @@ export interface ProfileStats {
   settledHands: number
   netBB: number
   decisions: number
-  optimalRate: number
+  evaluatedDecisions: number
+  evDecisions: number
+  optimalRate: number | null
   totalEvLoss: number
-  evLossPerHand: number
+  evLossPerDecision: number | null
+  evLossPerHand: number | null // 已知 EV 损失总和 / 全部手数；可能只有部分决策有 EV
   vpip: Ratio
   pfr: Ratio
   threeBet: Ratio
@@ -38,7 +43,7 @@ export interface ProfileStats {
   wtsd: Ratio // 看翻牌后到摊牌
   wsd: Ratio // 摊牌胜率（gto 无基线，gto 填 0.5 仅供参照）
   byPosition: PositionRow[]
-  byStreetEvLoss: { street: string; evLoss: number; decisions: number }[]
+  byStreetEvLoss: { street: string; evLoss: number | null; decisions: number; evDecisions: number }[]
 }
 
 function emptyRatio(): Ratio {
@@ -76,12 +81,15 @@ export function computeStats(records: HandRecord[]): ProfileStats {
   let netBB = 0
   let settledHands = 0
   let decisions = 0
+  let evaluatedDecisions = 0
+  let evDecisions = 0
   let optimal = 0
   let totalEvLoss = 0
-  const posMap = new Map<Position, PositionRow>()
-  const streetMap = new Map<string, { evLoss: number; decisions: number }>()
+  const posMap = new Map<Position, Omit<PositionRow, 'evLoss'> & { evLoss: number }>()
+  const streetMap = new Map<string, { evLoss: number; decisions: number; evDecisions: number }>()
 
-  for (const r of records) {
+  for (const record of records) {
+    const r = { ...record, decisions: record.decisions.map(normalizeDecisionRecord) }
     if (r.result.deltaBB !== null) {
       netBB += r.result.deltaBB
       settledHands++
@@ -93,6 +101,7 @@ export function computeStats(records: HandRecord[]): ProfileStats {
       pfr: 0,
       evLoss: 0,
       decisions: 0,
+      evDecisions: 0,
     }
     posRow.hands++
 
@@ -119,7 +128,7 @@ export function computeStats(records: HandRecord[]): ProfileStats {
               heroFirstDecisionRaises = raisesBefore
             }
             // 3bet 机会：面对恰好一次加注
-            if (raisesBefore === 1) {
+            if (d.verdict !== 'unavailable' && raisesBefore === 1) {
               addRatio(
                 threeBet,
                 a.kind === 'raise',
@@ -130,11 +139,11 @@ export function computeStats(records: HandRecord[]): ProfileStats {
               }
             }
             // 怕 3bet：自己开局后面对 3bet
-            if (raisesBefore === 2 && heroRaisedPre) {
+            if (d.verdict !== 'unavailable' && raisesBefore === 2 && heroRaisedPre) {
               addRatio(foldTo3Bet, a.kind === 'fold', sumFreq(d, (k) => k === 'fold'))
             }
             // BTN 偷盲：首入
-            if (raisesBefore === 0 && r.heroPos === 'BTN') {
+            if (d.verdict !== 'unavailable' && raisesBefore === 0 && r.heroPos === 'BTN') {
               addRatio(btnSteal, a.kind === 'raise', sumFreq(d, (k) => k === 'raise'))
             }
           }
@@ -152,7 +161,7 @@ export function computeStats(records: HandRecord[]): ProfileStats {
             heroDecisionIdx++
             // c-bet 机会：英雄是翻前最后加注者，面前无人下注
             // （回放到翻牌时翻前动作已全部处理，lastAggressorSeat 已定）
-            if (lastAggressorSeat === r.heroSeat && flopCheckedToHero && d.kinds.includes('bet')) {
+            if (d.verdict !== 'unavailable' && lastAggressorSeat === r.heroSeat && flopCheckedToHero && d.kinds.includes('bet')) {
               addRatio(cbet, a.kind === 'bet', sumFreq(d, (k) => k === 'bet'))
             }
           }
@@ -164,7 +173,7 @@ export function computeStats(records: HandRecord[]): ProfileStats {
           if (d.street === 'river') {
             heroDecisionIdx++
             // 河牌面对下注
-            if (d.kinds.includes('call') && d.kinds.includes('fold')) {
+            if (d.verdict !== 'unavailable' && d.kinds.includes('call') && d.kinds.includes('fold')) {
               addRatio(riverCallVsBet, a.kind === 'call', sumFreq(d, (k) => k === 'call'))
             }
           }
@@ -179,7 +188,7 @@ export function computeStats(records: HandRecord[]): ProfileStats {
     void heroWasLastPreflopAggressor
 
     // VPIP / PFR（每手一次机会；GTO 基线取首个翻前决策的自愿频率）
-    if (heroFirstDecision) {
+    if (heroFirstDecision && heroFirstDecision.verdict !== 'unavailable') {
       const d = heroFirstDecision
       const volFreq = sumFreq(d, (k) => k === 'call' || k === 'raise')
       // 首决策若已面对加注，自愿频率即该点参与频率；首入时同理
@@ -201,11 +210,17 @@ export function computeStats(records: HandRecord[]): ProfileStats {
     for (const d of r.decisions) {
       decisions++
       posRow.decisions++
+      if (d.verdict !== 'unavailable') evaluatedDecisions++
       if (d.verdict === 'optimal') optimal++
-      totalEvLoss += d.evLoss
-      posRow.evLoss += d.evLoss
-      const sm = streetMap.get(d.street) ?? { evLoss: 0, decisions: 0 }
-      sm.evLoss += d.evLoss
+      const sm = streetMap.get(d.street) ?? { evLoss: 0, decisions: 0, evDecisions: 0 }
+      if (d.evLoss !== null) {
+        evDecisions++
+        posRow.evDecisions++
+        sm.evDecisions++
+        totalEvLoss += d.evLoss
+        posRow.evLoss += d.evLoss
+        sm.evLoss += d.evLoss
+      }
       sm.decisions++
       streetMap.set(d.street, sm)
     }
@@ -219,7 +234,7 @@ export function computeStats(records: HandRecord[]): ProfileStats {
       ...row,
       vpip: row.hands ? row.vpip / row.hands : 0,
       pfr: row.hands ? row.pfr / row.hands : 0,
-      evLoss: row.decisions ? row.evLoss / row.decisions : 0,
+      evLoss: row.evDecisions ? row.evLoss / row.evDecisions : null,
     }))
     .sort((a, b) => b.hands - a.hands)
 
@@ -228,9 +243,12 @@ export function computeStats(records: HandRecord[]): ProfileStats {
     settledHands,
     netBB,
     decisions,
-    optimalRate: decisions ? optimal / decisions : 0,
+    evaluatedDecisions,
+    evDecisions,
+    optimalRate: evaluatedDecisions ? optimal / evaluatedDecisions : null,
     totalEvLoss,
-    evLossPerHand: records.length ? totalEvLoss / records.length : 0,
+    evLossPerDecision: evDecisions ? totalEvLoss / evDecisions : null,
+    evLossPerHand: evDecisions && records.length ? totalEvLoss / records.length : null,
     vpip: finishRatio(vpip),
     pfr: finishRatio(pfr),
     threeBet: finishRatio(threeBet),
@@ -244,8 +262,9 @@ export function computeStats(records: HandRecord[]): ProfileStats {
     byPosition,
     byStreetEvLoss: [...streetMap.entries()].map(([street, v]) => ({
       street,
-      evLoss: v.decisions ? v.evLoss / v.decisions : 0,
+      evLoss: v.evDecisions ? v.evLoss / v.evDecisions : null,
       decisions: v.decisions,
+      evDecisions: v.evDecisions,
     })),
   }
 }

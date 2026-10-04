@@ -1,4 +1,5 @@
 import type { HandRecord } from '../game/session'
+import { normalizeDecisionRecord } from '../game/decisionQuality'
 
 // 牌局历史存储：IndexedDB（不可用时退回内存 + 提示）
 
@@ -59,7 +60,7 @@ export async function saveHand(r: HandRecord): Promise<void> {
 
 export async function listHands(fromTs: number, toTs: number): Promise<HandRecord[]> {
   const db = await openDB()
-  if (!db) return memory.filter((r) => r.ts >= fromTs && r.ts <= toTs)
+  if (!db) return memory.filter((r) => r.ts >= fromTs && r.ts <= toTs).map(normalizeHand)
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE, 'readonly')
     const idx = tx.objectStore(STORE).index('ts')
@@ -68,7 +69,7 @@ export async function listHands(fromTs: number, toTs: number): Promise<HandRecor
     req.onsuccess = () => {
       const cur = req.result
       if (cur) {
-        out.push(cur.value as HandRecord)
+        out.push(normalizeHand(cur.value as HandRecord))
         cur.continue()
       } else {
         resolve(out)
@@ -76,6 +77,10 @@ export async function listHands(fromTs: number, toTs: number): Promise<HandRecor
     }
     req.onerror = () => reject(req.error)
   })
+}
+
+function normalizeHand(record: HandRecord): HandRecord {
+  return { ...record, decisions: record.decisions.map(normalizeDecisionRecord) }
 }
 
 export async function countHands(): Promise<number> {
