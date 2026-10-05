@@ -1,0 +1,66 @@
+Poker chat stickers: 27 emotes in three 3x3 atlases.
+Generated using the built-in imagegen tool. Original approved artwork is unchanged.
+Runtime WebP assets are lossless encodings of the transparent PNG originals.
+
+ATLAS 1
+Original: /Users/zihanzhang/projects/GTO/src/assets/poker-stickers-v1.png
+Runtime: /Users/zihanzhang/projects/GTO/src/assets/poker-stickers-v1.webp
+Prompt:
+Use case: stylized-concept
+Asset type: one production-ready sprite atlas PNG for a poker game's chat emote picker. This is ONE image asset, with a precise 3 columns by 3 rows atlas.
+Primary request: draw nine original, delightfully expressive poker-chip character emotes, each recognizable at 64 pixels, suitable for both Chinese and English players without written language.
+Style: polished illustrated game stickers, rounded gold poker-chip mascot with cream edge inlays, dark forest-green outlines, chunky expressive faces, tiny gloved arms, restrained warm highlights, slight volume, clean crisp silhouette, charming rather than generic emoji. Consistent mascot and scale throughout. The game UI is dark forest green and muted gold.
+Layout: square image, exact evenly spaced 3x3 invisible grid. Each character and all its props completely confined to its own cell, centered exactly at cell center, with at least 12% transparent safe padding on all four sides of each cell. Consistent visual size. No grid lines, no frames, no shadows extending across cell boundaries.
+Cell order, row-major:
+1 top left: NICE HAND — delighted gold chip gives a thumbs up beside a small gleaming trophy.
+2 top center: BAD BEAT — devastated gold chip with huge glossy blue tears and a tiny broken red heart.
+3 top right: BLUFF — sly gold chip peeks over two fanned face-down green playing cards, raised eyebrow and mischievous grin.
+4 middle left: ALL IN — brave determined gold chip energetically pushes a big stack of poker chips forward, flame accent behind.
+5 middle center: THINKING — thoughtful gold chip with hand on chin, one raised eyebrow, three small thought bubbles.
+6 middle right: GOOD LUCK — hopeful smiling gold chip holding a big four-leaf clover, small golden sparkles.
+7 bottom left: TILT — frustrated red-tinted gold chip with furrowed brows and tiny steam clouds from its head, funny not scary.
+8 bottom center: GOOD GAME — two friendly smaller gold poker-chip characters fist-bumping, cheerful and sportsmanlike.
+9 bottom right: LAUGH — gold chip laughing heartily with closed eyes and two joyful blue tears.
+Background: genuine transparent alpha, fully transparent between stickers and around atlas.
+Constraints: NO letters, NO numbers, NO words, NO watermark, NO brand marks. No backdrop, no checkerboard pattern. All nine cells must be fully separate and aligned to equal thirds of the canvas. Strong, clean readability on dark backgrounds.
+
+ATLAS 2
+Original: /Users/zihanzhang/projects/GTO/src/assets/poker-stickers-v2.png
+Runtime: /Users/zihanzhang/projects/GTO/src/assets/poker-stickers-v2.webp
+Prompt:
+Use case: stylized-concept.
+Asset type: ONE transparent square sprite atlas, exactly 3 columns by 3 rows, for a poker chat game.
+Input image: reference artwork ONLY, showing the already approved nine emotes. Create a NEW companion atlas, not a revision of those poses. Match the original gold poker-chip mascot, forest-green outlines, cream inlays, gloved tiny hands, rounded glossy illustrated volume, warm colors, playful expressive sticker style. The new poses must be clearly distinct and immediately understandable to Chinese and English players without any text.
+Layout: precise equal thirds in both axes. Every complete emote centered within its own cell, 12% transparent safe padding on every side of each cell. Nothing may cross a cell boundary. Each mascot should fill about 75% of its cell. Identical consistent scale. True transparent alpha, no background or checkerboard, no grid/frame.
+Nine NEW poses, row-major:
+1 top left CHECK: relaxed gold chip gently tapping the poker table with two fingers, tiny green felt oval, small curved motion lines.
+2 top middle CALL: confident smiling gold chip placing one poker chip forward with one hand, a clear friendly nod.
+3 top right RAISE: assertive smiling gold chip building a tall stack of green chips, one large tasteful upward gold arrow beside the stack.
+4 middle left FOLD: sheepish resigned gold chip gently tossing two green-backed playing cards away, with a small white surrender flag.
+5 middle middle SHIP IT / WIN: ecstatic gold chip hugging a huge overflowing pile of green and red poker chips, starry eyes.
+6 middle right SO CLOSE: gold chip with a pained squint, thumb and index finger pinched almost together, small sweat drop, communicates narrowly missing.
+7 bottom left HELP: overwhelmed gold chip inside a small red-and-white lifebuoy, arms raised, comically anxious, tiny blue splash.
+8 bottom middle STAY COOL: calm gold chip in dark sunglasses, leaning on a blue ice cube, relaxed tiny smile, clean cool sparkle.
+9 bottom right ON FIRE: gold chip with fierce triumphant grin, upward fist, bright orange flames forming a compact aura.
+Constraints: no letters, numbers, words, labels, watermark or brand marks anywhere. No scenes that extend past cell safe padding. Do not repeat original reference poses. Bold clean silhouettes readable at 56 pixels.
+
+ATLAS 3
+Original: /Users/zihanzhang/projects/GTO/src/assets/poker-stickers-v3.png
+Runtime: /Users/zihanzhang/projects/GTO/src/assets/poker-stickers-v3.webp
+Prompt:
+Use case: stylized-concept.
+Asset type: ONE transparent square sprite atlas, exactly 3 columns by 3 rows, for a poker chat game.
+Input image: reference artwork ONLY, showing approved gold poker-chip emotes. Create a NEW companion atlas, preserving the same friendly gold poker-chip mascot with cream edge inlays, forest-green outlines, gloved tiny hands, green shoes, rounded glossy illustrated volume, warm gold tones. Consistent professional game-sticker illustration. Every emote should be understandable without written language to Chinese and English players.
+Layout: exact equal thirds in both axes. Center each full emote precisely in its cell with at least 12% transparent safe padding on all four sides. No prop, shadow or character may cross a cell boundary. Every cell independent. Consistent readable scale. True transparent alpha, no background, no checkerboard, no grid or frame.
+Nine new poses, row-major:
+1 top left SHARK: grinning gold poker-chip mascot in an adorable teal-blue shark hood costume, shark teeth around the hood opening, friendly crafty wink, small fin, no threatening violence.
+2 top middle FISH: innocent wide-eyed gold poker-chip mascot in a cute orange fish hood costume, tiny side fins, pursed mouth and three clear bubbles.
+3 top right DEAL ME IN: eager gold poker-chip mascot excitedly lifting two green-backed playing cards above its head, both arms raised, delighted eyes, anticipation sparkles.
+4 middle left GOT IT: attentive gold poker-chip mascot giving a crisp cheerful salute with one hand, confident nod.
+5 middle middle THANKS: grateful gold poker-chip mascot hugging a large soft red heart, warm sincere smile, one small heart floating above.
+6 middle right SORRY: apologetic gold poker-chip mascot gently bowing its head with hands clasped, shy worried eyebrows, small single sweat drop.
+7 bottom left ONE MOMENT: gold poker-chip mascot holding an upright palm asking to wait, a compact golden hourglass in its other hand, patient friendly face.
+8 bottom middle WATCHING: entertained gold poker-chip mascot holding a bucket of popcorn and eating one piece, wide curious eyes, small green-backed playing cards tucked at side.
+9 bottom right BYE: gold poker-chip mascot waving cheerfully, a tiny green travel bag by its foot, small curved wave motion marks.
+Constraints: absolutely NO words, letters, numbers, labels, logos, watermarks. No duplication of original reference poses. Keep artwork legible at 56 pixels with bold distinct silhouettes. Do not fill the background.
+

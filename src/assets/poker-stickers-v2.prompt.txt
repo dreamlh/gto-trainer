@@ -1,0 +1,18 @@
+Generated with the built-in imagegen tool; transparent PNG sprite atlas.
+Reference: poker-stickers-v1.png (approved original nine emotes).
+
+Use case: stylized-concept.
+Asset type: ONE transparent square sprite atlas, exactly 3 columns by 3 rows, for a poker chat game.
+Input image: reference artwork ONLY, showing the already approved nine emotes. Create a NEW companion atlas, not a revision of those poses. Match the original gold poker-chip mascot, forest-green outlines, cream inlays, gloved tiny hands, rounded glossy illustrated volume, warm colors, playful expressive sticker style. The new poses must be clearly distinct and immediately understandable to Chinese and English players without any text.
+Layout: precise equal thirds in both axes. Every complete emote centered within its own cell, 12% transparent safe padding on every side of each cell. Nothing may cross a cell boundary. Each mascot should fill about 75% of its cell. Identical consistent scale. True transparent alpha, no background or checkerboard, no grid/frame.
+Nine NEW poses, row-major:
+1 top left CHECK: relaxed gold chip gently tapping the poker table with two fingers, tiny green felt oval, small curved motion lines.
+2 top middle CALL: confident smiling gold chip placing one poker chip forward with one hand, a clear friendly nod.
+3 top right RAISE: assertive smiling gold chip building a tall stack of green chips, one large tasteful upward gold arrow beside the stack.
+4 middle left FOLD: sheepish resigned gold chip gently tossing two green-backed playing cards away, with a small white surrender flag.
+5 middle middle SHIP IT / WIN: ecstatic gold chip hugging a huge overflowing pile of green and red poker chips, starry eyes.
+6 middle right SO CLOSE: gold chip with a pained squint, thumb and index finger pinched almost together, small sweat drop, communicates narrowly missing.
+7 bottom left HELP: overwhelmed gold chip inside a small red-and-white lifebuoy, arms raised, comically anxious, tiny blue splash.
+8 bottom middle STAY COOL: calm gold chip in dark sunglasses, leaning on a blue ice cube, relaxed tiny smile, clean cool sparkle.
+9 bottom right ON FIRE: gold chip with fierce triumphant grin, upward fist, bright orange flames forming a compact aura.
+Constraints: no letters, numbers, words, labels, watermark or brand marks anywhere. No scenes that extend past cell safe padding. Do not repeat original reference poses. Bold clean silhouettes readable at 56 pixels.

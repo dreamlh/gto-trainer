@@ -1,0 +1,19 @@
+Generated with the built-in imagegen tool; transparent PNG sprite atlas.
+
+Use case: stylized-concept
+Asset type: one production-ready sprite atlas PNG for a poker game's chat emote picker. This is ONE image asset, with a precise 3 columns by 3 rows atlas.
+Primary request: draw nine original, delightfully expressive poker-chip character emotes, each recognizable at 64 pixels, suitable for both Chinese and English players without written language.
+Style: polished illustrated game stickers, rounded gold poker-chip mascot with cream edge inlays, dark forest-green outlines, chunky expressive faces, tiny gloved arms, restrained warm highlights, slight volume, clean crisp silhouette, charming rather than generic emoji. Consistent mascot and scale throughout. The game UI is dark forest green and muted gold.
+Layout: square image, exact evenly spaced 3x3 invisible grid. Each character and all its props completely confined to its own cell, centered exactly at cell center, with at least 12% transparent safe padding on all four sides of each cell. Consistent visual size. No grid lines, no frames, no shadows extending across cell boundaries.
+Cell order, row-major:
+1 top left: NICE HAND — delighted gold chip gives a thumbs up beside a small gleaming trophy.
+2 top center: BAD BEAT — devastated gold chip with huge glossy blue tears and a tiny broken red heart.
+3 top right: BLUFF — sly gold chip peeks over two fanned face-down green playing cards, raised eyebrow and mischievous grin.
+4 middle left: ALL IN — brave determined gold chip energetically pushes a big stack of poker chips forward, flame accent behind.
+5 middle center: THINKING — thoughtful gold chip with hand on chin, one raised eyebrow, three small thought bubbles.
+6 middle right: GOOD LUCK — hopeful smiling gold chip holding a big four-leaf clover, small golden sparkles.
+7 bottom left: TILT — frustrated red-tinted gold chip with furrowed brows and tiny steam clouds from its head, funny not scary.
+8 bottom center: GOOD GAME — two friendly smaller gold poker-chip characters fist-bumping, cheerful and sportsmanlike.
+9 bottom right: LAUGH — gold chip laughing heartily with closed eyes and two joyful blue tears.
+Background: genuine transparent alpha, fully transparent between stickers and around atlas.
+Constraints: NO letters, NO numbers, NO words, NO watermark, NO brand marks. No backdrop, no checkerboard pattern. All nine cells must be fully separate and aligned to equal thirds of the canvas. Strong, clean readability on dark backgrounds.

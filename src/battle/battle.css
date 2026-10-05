@@ -484,11 +484,32 @@ button.battle-seat-target:hover .battle-seat-box { background: #2a3b2e; border-c
 .battle-remove-seat { position: absolute; top: -7px; right: -7px; z-index: 4; display: grid; place-items: center; width: 20px; height: 20px; padding: 0; border: 1px solid #736155; border-radius: 50%; background: #342b25; color: #ead0bd; font-size: 17px; line-height: 1; opacity: 0; pointer-events: none; }
 .battle-empty-seat-group:hover .battle-remove-seat, .battle-remove-seat:focus-visible { opacity: 1; pointer-events: auto; }
 .battle-seat-removing { font-size: 9px; color: #c9b68b; }
-.battle-chat-emoji { position: relative; }
+.battle-chat { container-type: size; }
+.battle-chat form > div { position: relative; }
+.battle-chat-emoji { position: static; }
 .battle-emoji-toggle { width: 30px; height: 30px; border: 1px solid #48604e; border-radius: 5px; background: #223629; color: #d0e3c9; font-size: 24px; line-height: 1; padding: 0; }
-.battle-emoji-picker { position: absolute; left: 0; bottom: calc(100% + 8px); z-index: 10; display: grid; grid-template-columns: repeat(5, 34px); gap: 4px; padding: 8px; border: 1px solid #5c765d; border-radius: 7px; background: #1d2c22; box-shadow: 0 5px 20px #0007; }
-.battle-emoji-picker > button { width: 34px; height: 32px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; font-size: 22px; }
-.battle-emoji-picker > button:hover, .battle-emoji-picker > button:focus-visible { background: #3a5140; }
+.battle-emoji-picker { position: absolute; left: 0; right: 0; bottom: calc(100% + 8px); z-index: 10; display: flex; flex-direction: column; gap: 8px; max-height: calc(100cqh - 58px); overflow: hidden; padding: 8px; border: 1px solid #5c765d; border-radius: 7px; background: #1d2c22; box-shadow: 0 5px 20px #0007; }
+.battle-emoji-picker select { min-width: 0; min-height: 30px; border: 1px solid #48604e; border-radius: 4px; padding: 4px; background: #17251b; color: #d0e3c9; font: inherit; font-size: 11px; }
+.battle-emoji-category { width: 100%; flex-shrink: 0; }
+.battle-emoji-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); grid-auto-rows: 32px; gap: 3px; height: 172px; min-height: 0; align-content: start; }
+.battle-emoji-grid, .battle-sticker-grid { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #4f6756 transparent; }
+.battle-emoji-grid > button { min-width: 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 4px; background: transparent; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; font-size: 22px; line-height: 1; }
+.battle-emoji-grid > button:hover:not(:disabled), .battle-emoji-picker button:focus-visible { background: #3a5140; }
+.battle-emoji-picker button:disabled { opacity: .35; cursor: default; }
+.battle-emoji-pagination { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.battle-emoji-pagination > select { flex: 1; text-align: center; }
+.battle-emoji-pagination > button { flex: 0 0 32px; height: 30px; padding: 0; border: 1px solid #48604e; border-radius: 4px; background: #223629; color: #d0e3c9; font-size: 22px; }
+.battle-emoji-tabs { display: flex; gap: 4px; flex-shrink: 0; }
+.battle-emoji-tabs > button { flex: 1; min-width: 0; min-height: 30px; padding: 4px; border: 1px solid #48604e; border-radius: 4px; background: transparent; color: #9fb5a2; font-size: 11px; }
+.battle-emoji-tabs > button[aria-pressed="true"] { background: #c3d5bb; color: #233b2a; }
+.battle-sticker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); grid-auto-rows: max-content; gap: 5px; min-height: 0; }
+.battle-sticker-grid > button { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 3px 0 5px; border: 0; border-radius: 5px; background: transparent; color: #c6d2c8; font-size: 10px; }
+.battle-sticker-grid > button:hover:not(:disabled) { background: #3a5140; }
+.battle-chat-sticker { display: inline-block; width: 32px; height: 32px; flex-shrink: 0; vertical-align: middle; background-size: 300% 300%; background-repeat: no-repeat; }
+.battle-sticker-grid .battle-chat-sticker { width: clamp(36px, calc((100cqh - 196px) / 3), 56px); height: clamp(36px, calc((100cqh - 196px) / 3), 56px); max-width: 100%; }
+.battle-chat-stickers-only .battle-chat-sticker { width: 80px; height: 80px; }
+.battle-chat-preview { max-height: 66px; overflow-y: auto; overflow-wrap: anywhere; white-space: pre-wrap; margin-top: 5px; padding: 5px; border: 1px solid #35483b; border-radius: 4px; background: #101a14; color: #c6d2c8; font-size: 12px; }
+.battle-chat-preview .battle-chat-sticker { width: 42px; height: 42px; }
 
 .battle-page .battle-remove-seat:disabled { opacity: 0; pointer-events: none; }
 .battle-empty-seat-group:hover .battle-remove-seat:disabled { opacity: .35; }

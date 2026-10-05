@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { BattleApiError, createRoom, getRoom, joinRoom, savedSession, saveSession, sendCommand } from '../battle/client'
 import type { HandView, RoomCommand, RoomPlayer, RoomSession, RoomView } from '../battle/types'
 import { useLanguage } from '../battle/i18n'
@@ -11,6 +11,9 @@ import { BattleRoomSettings, BattleSpectatorSharing, BattleStandIcon } from './B
 import { BattleAtmosphere } from './BattleAtmosphere'
 import { BattleRules } from './BattleRules'
 import { BattleHandLog } from './BattleHandLog'
+import { ChatMessageContent } from './ChatSticker'
+import type { ChatEmojiPickerState } from './ChatEmojiPicker'
+import { chatMessageParts } from '../battle/chatStickers'
 import { battleResultSummary, playerDisplayName, handPosition, playerActionLabel, playerShowdownLabel } from '../battle/presentation'
 import { CardFace } from './CardFace'
 import { PokerHoleCard } from './PokerHoleCard'
@@ -138,14 +141,16 @@ function memberStatus(player: RoomPlayer, t: Translate): string {
   return state
 }
 
-const CHAT_EMOJI = ['😀', '😂', '😎', '🤔', '😅', '😱', '👍', '👏', '💪', '🔥', '🎉', '❤️', '🍀', '🐟', '🦈', '♠️', '♥️', '♦️', '♣️', '🤝']
+const ChatEmojiPicker = lazy(() => import('./ChatEmojiPicker'))
 function RoomChat({ room, busy, onCommand }: { room: RoomView; busy: boolean; onCommand: Command }) {
   const { t, language } = useLanguage()
   const [text, setText] = useState('')
   const [emojiOpen, setEmojiOpen] = useState(false)
+  const [emojiSelection, setEmojiSelection] = useState<ChatEmojiPickerState>({ tab: 'stickers', category: 'all', page: 0, stickerPage: 0 })
   const input = useRef<HTMLTextAreaElement>(null)
   const picker = useRef<HTMLDivElement>(null)
   const messages = useRef<HTMLDivElement>(null)
+  const hasDraftSticker = chatMessageParts(text).some(part => typeof part !== 'string')
   useEffect(() => { if (messages.current) messages.current.scrollTop = messages.current.scrollHeight }, [room.chat.length])
   useEffect(() => {
     if (!emojiOpen) return
@@ -158,17 +163,19 @@ function RoomChat({ room, busy, onCommand }: { room: RoomView; busy: boolean; on
     const next = text.slice(0, start) + emoji + text.slice(end)
     if (next.length > 300) return
     setText(next)
+    setEmojiOpen(false)
     requestAnimationFrame(() => { input.current?.focus(); input.current?.setSelectionRange(start + emoji.length, start + emoji.length) })
   }
   const submit = async (event: FormEvent) => { event.preventDefault(); if (busy || !text.trim()) return; const value = text.trim(); setText(''); setEmojiOpen(false); await onCommand({ type: 'chat', text: value }) }
   return <div className="battle-chat">
-    <div className="battle-chat-messages" ref={messages} aria-live="polite">{!room.chat.length && <p className="battle-empty-note">{t('尚无聊天消息', 'No messages yet')}</p>}{room.chat.map(message => <div className={`battle-chat-message ${message.playerId === room.selfId ? 'battle-chat-own' : ''}`} key={message.id}><div><strong>{message.name}</strong><time>{new Date(message.ts).toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-GB', { hour: '2-digit', minute: '2-digit' })}</time></div><p>{message.text}</p></div>)}</div>
+    <div className="battle-chat-messages" ref={messages} aria-live="polite">{!room.chat.length && <p className="battle-empty-note">{t('尚无聊天消息', 'No messages yet')}</p>}{room.chat.map(message => <div className={`battle-chat-message ${message.playerId === room.selfId ? 'battle-chat-own' : ''}`} key={message.id}><div><strong>{message.name}</strong><time>{new Date(message.ts).toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-GB', { hour: '2-digit', minute: '2-digit' })}</time></div><p><ChatMessageContent text={message.text} /></p></div>)}</div>
     <form onSubmit={event => void submit(event)}>
       <label className="sr-only" htmlFor="battle-chat-input">{t('聊天消息', 'Chat message')}</label>
       <textarea ref={input} id="battle-chat-input" placeholder={t('发送消息…', 'Message the table…')} maxLength={300} value={text} onChange={event => setText(event.target.value)} onKeyDown={event => { if (event.nativeEvent.isComposing) return; if (event.key === 'Escape') setEmojiOpen(false); if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); if (!busy && text.trim()) void submit(event) } }} />
+      {hasDraftSticker && <aside className="battle-chat-preview" aria-label={t('表情预览', 'Sticker preview')}><ChatMessageContent text={text} /></aside>}
       <div><div className="battle-chat-emoji" ref={picker} onKeyDown={event => { if (event.key === 'Escape') { setEmojiOpen(false); input.current?.focus() } }}>
-        <button type="button" className="battle-emoji-toggle" aria-label={t('选择表情', 'Choose emoji')} aria-expanded={emojiOpen} onClick={() => setEmojiOpen(open => !open)}>☺</button>
-        {emojiOpen && <div className="battle-emoji-picker" role="group" aria-label={t('表情', 'Emoji')}>{CHAT_EMOJI.map(emoji => <button key={emoji} type="button" aria-label={emoji} onMouseDown={event => event.preventDefault()} onClick={() => insertEmoji(emoji)}>{emoji}</button>)}</div>}
+        <button type="button" className="battle-emoji-toggle" aria-label={t('选择表情', 'Choose emoji')} aria-expanded={emojiOpen} aria-controls={emojiOpen ? 'battle-emoji-picker' : undefined} onClick={() => setEmojiOpen(open => !open)}>☺</button>
+        {emojiOpen && <div id="battle-emoji-picker" className="battle-emoji-picker" role="group" aria-label={t('表情', 'Emoji')}><Suspense fallback={<p role="status">{t('加载表情…', 'Loading emoji…')}</p>}><ChatEmojiPicker selection={emojiSelection} onSelectionChange={setEmojiSelection} onSelect={insertEmoji} remaining={300 - text.length + ((input.current?.selectionEnd ?? 0) - (input.current?.selectionStart ?? 0))} /></Suspense></div>}
       </div><span>{text.length}/300</span><button className="battle-button battle-button-gold" type="submit" disabled={busy || !text.trim()}>{t('发送', 'Send')}</button></div>
     </form>
   </div>
