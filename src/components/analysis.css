@@ -1,0 +1,32 @@
+.analysis-range, .analysis-scenario, .analysis-context { border: 1px solid var(--border, #3e5145); border-radius: 8px; padding: 12px; min-width: 0; margin-bottom: 12px; }
+.analysis-range p, .analysis-scenario p { margin: 7px 0; }
+.analysis-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.analysis-toolbar, .analysis-preset-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0; }
+.analysis-toolbar label { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; max-width: 100%; }
+.analysis-toolbar select, .analysis-range select { max-width: 100%; min-width: 0; background: #182c23; color: #e4eddf; border: 1px solid #52715b; border-radius: 4px; padding: 6px; }
+.analysis-preset-row .chip-btn { white-space: normal; }
+.analysis-range summary { cursor: pointer; padding: 8px 0; }
+.analysis-hand-grid { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 2px; user-select: none; }
+.analysis-hand-grid button { min-width: 0; padding: 7px 0; font-size: 11px; border: 1px solid #395344; color: #e1ebdf; border-radius: 2px; cursor: pointer; touch-action: manipulation; }
+.analysis-hand-grid button:focus-visible { outline: 2px solid #e6c879; outline-offset: 1px; z-index: 1; }
+.analysis-hand-grid button[aria-pressed=true] { border-color: #8bb395; }
+.analysis-hand-detail { margin-top: 8px; font-size: 12px; }
+.analysis-hand-detail label { display: flex; align-items: center; gap: 8px; }
+.analysis-hand-detail input { min-width: 0; flex: 1; }
+.analysis-hand-detail span { display: block; overflow-wrap: anywhere; color: var(--text-dim); }
+.analysis-text-import textarea { box-sizing: border-box; width: 100%; min-height: 70px; background: #14261c; color: #e4eddf; border: 1px solid #52715b; padding: 8px; }
+.analysis-range-summary, .analysis-context { overflow-wrap: anywhere; }
+.analysis-context h3 { margin: 0 0 8px; }
+.analysis-replay { margin: 10px 0; }
+.analysis-replay .battle-modal { width: min(680px, calc(100vw - 24px)); }
+.analysis-replay select { max-width: 100%; }
+.analysis-history-list { display: grid; gap: 8px; margin-top: 16px; }
+.analysis-history-list details { border-top: 1px solid #3e5145; padding-top: 8px; }
+.analysis-history-list summary { cursor: pointer; overflow-wrap: anywhere; }
+@media(max-width: 680px) {
+  .analysis-columns { grid-template-columns: minmax(0, 1fr); }
+  .analysis-range, .analysis-scenario, .analysis-context { padding: 8px; }
+  .analysis-hand-grid { gap: 1px; }
+  .analysis-hand-grid button { font-size: 9px; padding: 8px 0; }
+  .analysis-toolbar label { font-size: 12px; }
+}

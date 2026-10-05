@@ -22,6 +22,7 @@ export interface RunoutPlayback {
 }
 /** Public action log, with only the authenticated viewer's own hole cards. */
 export interface ArchivedHandView {
+  replay?: { version: 1; mode: RoomMode; startingStacks: Record<string, number> }
   bigBlind?: number; smallBlind?: number
   number: number; finishedAt: number; board: Card[]; boards: Card[][]
   history: HandView['history']; players: { id: string; name: string; bot: boolean; position?: string | null }[]

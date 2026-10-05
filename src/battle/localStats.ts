@@ -1,5 +1,6 @@
 import { addStats, emptyStats } from './stats'
 import type { PlayerStats, RoomView } from './types'
+import { saveRoomReplays } from '../db/replayStore'
 
 // Keep the original key so existing browser history can migrate in place.
 const KEY = 'gto.battle.profile.v1'
@@ -75,6 +76,7 @@ function notify(): void {
 
 /** Snapshot cumulative server totals. Polls, reconnects and ID reuse are idempotent. */
 export function saveBattleProfile(room: RoomView): boolean {
+  void saveRoomReplays(room)
   const self = room.players.find(player => player.id === room.selfId && !player.bot)
   if (!self || !validStats(self.stats) || !room.instanceId) return storageAvailable
   const stored = mergedStore()

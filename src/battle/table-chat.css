@@ -1,0 +1,15 @@
+.table-chat-layer { position: absolute; inset: 0; z-index: 7; pointer-events: none; }
+.table-chat-bubble { position: absolute; width: clamp(90px, 29cqw, 148px); box-sizing: border-box; padding: 7px 9px; border: 1px solid #bdcdb1; border-radius: 12px; background: #edf3df; color: #203024; box-shadow: 0 3px 12px #07130a40; font-size: 12px; line-height: 1.4; text-align: left; animation: table-chat-appear 130ms ease-out; }
+.table-chat-bubble::before { content: ''; position: absolute; left: var(--tail-x); top: var(--tail-y); width: 8px; height: 8px; background: #edf3df; transform: translate(-50%, -50%) rotate(45deg); z-index: -1; }
+.table-chat-content { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; overflow-wrap: anywhere; white-space: pre-wrap; max-height: 86px; }
+.table-chat-content .battle-chat-sticker { width: 34px; height: 34px; margin: 0 2px; vertical-align: middle; }
+.table-chat-content .battle-chat-stickers-only { display: inline; }
+.table-chat-content .battle-chat-stickers-only .battle-chat-sticker { width: 42px; height: 42px; }
+@keyframes table-chat-appear { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 600px) {
+  .table-chat-bubble { width: 144px; padding: 5px 6px; font-size: 11px; line-height: 1.3; }
+  .table-chat-content { -webkit-line-clamp: 2; }
+  .table-chat-content .battle-chat-sticker { width: 24px; height: 24px; }
+  .table-chat-content .battle-chat-stickers-only .battle-chat-sticker { width: 36px; height: 36px; }
+}
+@media (prefers-reduced-motion: reduce) { .table-chat-bubble { animation: none; } }

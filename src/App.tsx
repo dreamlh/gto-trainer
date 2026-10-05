@@ -11,9 +11,11 @@ import { useLanguage } from './battle/i18n'
 import { GlobalAudio, BattleTurnNotice } from './components/GlobalAudio'
 import type { RoomView } from './battle/types'
 import { battleTurnState, type BattleTurnState } from './battle/audioEvents'
+import type { AnalysisContext, OpenAnalysis } from './analysis/types'
 import './theme.css'
 import './components/app-header.css'
 import './components/range-viewer.css'
+import './components/analysis.css'
 
 const TABS = [
   { id: 'trainer', label: '训练器', en: 'Trainer' },
@@ -31,6 +33,8 @@ const viewportHeight = () => Math.floor(Math.min(window.innerHeight, window.visu
 export default function App() {
   const { language, setLanguage, t } = useLanguage()
   const [battleTurn, setBattleTurn] = useState<BattleTurnState | null>(null)
+  const [equityContext, setEquityContext] = useState<AnalysisContext | null>(null)
+  const [solverContext, setSolverContext] = useState<AnalysisContext | null>(null)
   const onBattleRoomUpdate = useCallback((room: RoomView | null) => setBattleTurn(battleTurnState(room)), [])
   const [tab, setTab] = useState<TabId>(() => {
     const query = new URLSearchParams(window.location.search)
@@ -97,6 +101,12 @@ export default function App() {
     setTab(id)
     if (compactNavigation) { setNavigationOpen(false); navigationTrigger.current?.focus() }
   }
+  const openAnalysis: OpenAnalysis = (target, context) => {
+    const imported = { ...context, id: `${context.id}:${Date.now()}` }
+    if (target === 'equity') setEquityContext(imported)
+    else setSolverContext(imported)
+    selectPage(target)
+  }
 
   useEffect(() => {
     requestPersistence()
@@ -148,19 +158,19 @@ export default function App() {
           <Trainer active={tab === 'trainer'} />
         </div>
         <div style={{ display: tab === 'battle' ? undefined : 'none' }}>
-          <Battle active={tab === 'battle'} onRoomUpdate={onBattleRoomUpdate} />
+          <Battle active={tab === 'battle'} onRoomUpdate={onBattleRoomUpdate} onOpenAnalysis={openAnalysis} />
         </div>
         <div style={{ display: tab === 'solver' ? undefined : 'none' }}>
-          <SolverExplorer active={tab === 'solver'} />
+          <SolverExplorer active={tab === 'solver'} context={solverContext} />
         </div>
         <div style={{ display: tab === 'ranges' ? undefined : 'none' }}>
           <RangeViewer />
         </div>
         <div style={{ display: tab === 'equity' ? undefined : 'none' }}>
-          <EquityCalc />
+          <EquityCalc context={equityContext} />
         </div>
         <div style={{ display: tab === 'stats' ? undefined : 'none' }}>
-          <StatsDashboard active={tab === 'stats'} />
+          <StatsDashboard active={tab === 'stats'} onOpenAnalysis={openAnalysis} />
         </div>
       </main>
       {['trainer', 'solver', 'ranges', 'equity'].includes(tab) && <footer className="app-footer">

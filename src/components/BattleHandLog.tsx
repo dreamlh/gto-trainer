@@ -4,12 +4,14 @@ import { historySections } from '../battle/history'
 import { bettingActionName, handPosition, playerDisplayName } from '../battle/presentation'
 import type { RoomView } from '../battle/types'
 import { CardFace } from './CardFace'
+import { ReplayButton } from './ReplayButton'
+import type { OpenAnalysis } from '../analysis/types'
 
 const chips = (value: number) => Number(value.toFixed(2)).toLocaleString('en-GB')
 const signed = (value: number) => `${value > 0 ? '+' : ''}${chips(value)}`
 const streetNames = { preflop: ['翻前', 'Preflop'], flop: ['翻牌', 'Flop'], turn: ['转牌', 'Turn'], river: ['河牌', 'River'] } as const
 
-export function BattleHandLog({ room, active }: { room: RoomView; active: boolean }) {
+export function BattleHandLog({ room, active, onOpenAnalysis }: { room: RoomView; active: boolean; onOpenAnalysis?: OpenAnalysis }) {
   const { t } = useLanguage()
   const unit = room.mode === 'tournament' ? t('筹码', 'chips') : 'BB'
   const [selected, setSelected] = useState('current')
@@ -27,6 +29,7 @@ export function BattleHandLog({ room, active }: { room: RoomView; active: boolea
   const ownCards = archive ? archive.myCards : own?.cards
   const participated = hand && (archive ? archive.players.some(player => player.id === room.selfId) : !!own)
   const finished = !!archive || !!room.hand?.finished
+  const reviewHand = archive ?? (room.hand?.finished ? room.handHistory?.find(h => h.number === room.hand?.number) : undefined)
   const results = hand?.runResults ?? []
   const boardKey = hand?.boards.map(board => board.join(',')).join('|')
   const selectionKey = archive ? `archive:${archive.number}` : 'current'
@@ -43,6 +46,7 @@ export function BattleHandLog({ room, active }: { room: RoomView; active: boolea
       <option value="current">{room.hand ? t(`本手 · 第 ${room.hand.number} 手`, `Current · Hand ${room.hand.number}`) : t('本手', 'Current hand')}</option>
       {history.map(previous => <option value={previous.number} key={previous.number}>{t(`第 ${previous.number} 手`, `Hand ${previous.number}`)} · {previous.players.some(player => player.id === room.selfId) ? `${signed(previous.delta[room.selfId] ?? 0)} ${unit}` : t('观战', 'Spectated')}</option>)}
     </select></div>
+    {reviewHand && participated && <ReplayButton battle={{ id: JSON.stringify([room.instanceId, room.selfId, reviewHand.number]), instanceId: room.instanceId, heroId: room.selfId, savedAt: reviewHand.finishedAt, hand: reviewHand }} onOpenAnalysis={onOpenAnalysis} />}
     {archive && <div className="battle-record-hero">
       <div><span>{t('你的底牌', 'Your cards')}{positions.get(room.selfId) && <small>{positions.get(room.selfId)}</small>}</span>
         <div className="battle-record-cards">{ownCards?.every(card => card !== null) ? ownCards.map((card, index) => <CardFace key={index} card={card!} />) : <span className="battle-muted">{participated ? t('此记录未保存底牌', 'Cards unavailable in this record') : t('本手未参与', 'Not dealt in')}</span>}</div>

@@ -3,6 +3,7 @@ import type { RoomCommand, RoomView } from '../battle/types'
 import { useLanguage } from '../battle/i18n'
 import '../battle/room-settings.css'
 import { PokerSettingSwitch } from './PokerSettingSwitch'
+import { setTableChatEnabled, useTableChatEnabled } from '../battle/tableChatSettings'
 
 interface SettingsProps {
   room: RoomView
@@ -33,6 +34,7 @@ export function BattleSpectatorSharing({ room, busy, onCommand }: Omit<SettingsP
 /** Dialog content only; the caller owns the dialog and its dismissal. */
 export function BattleRoomSettings({ room, busy, onCommand, onClose }: SettingsProps) {
   const { t } = useLanguage()
+  const showTableChat = useTableChatEnabled()
   const [now, setNow] = useState(Date.now)
   const [actionSeconds, setActionSeconds] = useState(room.actionSeconds ?? 30)
   const [initialStack, setInitialStack] = useState(room.initialStack)
@@ -102,6 +104,7 @@ export function BattleRoomSettings({ room, busy, onCommand, onClose }: SettingsP
     </form>}
 
     <BattleSpectatorSharing room={room} busy={busy} onCommand={onCommand} />
+    <PokerSettingSwitch checked={showTableChat} onChange={setTableChatEnabled}>{t('在牌桌上显示玩家聊天', 'Show player chat on the table')}</PokerSettingSwitch>
     <div className="brs-actions">
       {(away || canBeAway) && <button type="button" className="brs-action" disabled={busy} title={isTournament ? t('暂离期间自动弃牌，回来后继续参赛。', 'Hands are automatically folded while away. Return to continue playing.') : t('暂离期间自动弃牌，3 分钟后自动站起观战。', 'Hands are automatically folded while away. After 3 minutes you stand up to spectate.')} onClick={() => act({ type: 'away', away: !away }, false)}>
         <span>{away ? t('取消暂离', 'Return to table') : isTournament ? t('暂离', 'Go away') : t('暂离 3 分钟', 'Away for 3 minutes')}</span>

@@ -1,7 +1,5 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
-  COMBO_A,
-  COMBO_B,
   COMBO_CLASS,
 } from '../solver/postflop/combos'
 import {
@@ -9,12 +7,10 @@ import {
   RANK_CHARS,
   SUIT_CHARS,
   SUIT_SYMBOLS,
-  combosForHand,
-  comboIndex,
   makeCard,
+  handNameOf,
   type Card,
 } from '../poker/cards'
-import { parseRange } from '../poker/rangeParser'
 import type { Spot } from '../poker/ranges'
 import { buildPostflopTree, type PostDecision, type PostNode } from '../solver/postflop/tree'
 import { POSTFLOP_PRESETS } from '../solver/config'
@@ -23,27 +19,17 @@ import { CardFace } from './CardFace'
 import { RangeChart } from './RangeChart'
 import { useLanguage } from '../battle/i18n'
 import { postflopActionName, translatePokerText } from '../poker/presentation'
+import { compatibleRanges, emptyRange, maskRange } from '../analysis/ranges'
+import { orderedPlayers, solverBlock } from '../analysis/replay'
+import type { AnalysisContext } from '../analysis/types'
+import { RangeEditor } from './RangeEditor'
+import { ScenarioPicker } from './ScenarioPicker'
+import { AnalysisNotice, useSolverBlockLabel } from './AnalysisNotice'
 
 // 求解器：任意翻后局面的单挑 CFR 求解与策略浏览
 
 const SUIT_COLORS = ['#1b2330', '#d64545', '#3b78d6', '#3f9e5f']
 const GUTTER_SUIT_COLORS = ['#c9d2e0', '#d64545', '#3b78d6', '#3f9e5f']
-
-const DEFAULT_OOP = '99-22, A9s-A2s, KTs+, QTs+, JTs, T8s+, 98s, 87s, 76s, ATo+, KQo'
-const DEFAULT_IP = '22+, ATs+, KTs+, QTs+, JTs, T9s, A5s-A2s, AQo+, KQo'
-
-function rangeToVector(src: string, board: Card[]): Float32Array {
-  const v = new Float32Array(1326)
-  for (const [hand, w] of parseRange(src)) {
-    for (const [a, b] of combosForHand(hand)) v[comboIndex(a, b)] = w
-  }
-  for (const c of board) {
-    for (let i = 0; i < 1326; i++) {
-      if (COMBO_A[i] === c || COMBO_B[i] === c) v[i] = 0
-    }
-  }
-  return v
-}
 
 // 把节点组合级策略聚合成 169 类 Spot 给 RangeChart（附带范围权重与文案）
 const AGG_KEYS = ['raise', 'threebet', 'fourbet', 'fivebet'] // 攻击性动作复用红色系 key
@@ -112,14 +98,18 @@ function nodeToSpot(
   }
 }
 
-export function SolverExplorer({ active = true }: { active?: boolean }) {
+export function SolverExplorer({ active = true, context }: { active?: boolean; context?: AnalysisContext | null }) {
   void active
   const { language, t } = useLanguage()
   const [board, setBoard] = useState<Card[]>([])
   const [potStr, setPotStr] = useState('5.5')
   const [stackStr, setStackStr] = useState('97.5')
-  const [oopStr, setOopStr] = useState(DEFAULT_OOP)
-  const [ipStr, setIpStr] = useState(DEFAULT_IP)
+  const [oopRange, setOopRange] = useState(emptyRange)
+  const [ipRange, setIpRange] = useState(emptyRange)
+  const [autoScenario, setAutoScenario] = useState(true)
+  const [review, setReview] = useState<AnalysisContext | null>(null)
+  const [positions, setPositions] = useState<[string, string]>(['BB', 'BTN'])
+  const blockLabel = useSolverBlockLabel()
   const [preset, setPreset] = useState<'explorer' | 'trainer'>('explorer')
   const [solving, setSolving] = useState(false)
   const [progress, setProgress] = useState(0)
@@ -131,9 +121,25 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
     ip: Float32Array
     pot: number
     stack: number
+    preset: 'explorer' | 'trainer'
   } | null>(null)
   const [path, setPath] = useState<number[]>([]) // 动作索引路径（本街内）
   const cancelRef = useRef<(() => void) | null>(null)
+  const generation = useRef(0)
+  useEffect(() => {
+    generation.current++; cancelRef.current?.(); cancelRef.current = null
+    setSolution(null); setSolvedMeta(null); setPath([]); setSolving(false); setProgress(0); setError('')
+  }, [board, potStr, stackStr, oopRange, ipRange, preset])
+  useEffect(() => () => { generation.current++; cancelRef.current?.() }, [])
+  useEffect(() => {
+    if (!context) return
+    generation.current++; cancelRef.current?.(); setReview(context)
+    setBoard(context.board.slice()); setPotStr(context.pot === null ? '' : String(context.pot))
+    const players = orderedPlayers(context)
+    setOopRange(players[0]?.range ?? emptyRange()); setIpRange(players[1]?.range ?? emptyRange())
+    setPositions([players[0]?.position ?? 'OOP', players[1]?.position ?? 'IP'])
+    setStackStr(players.length === 2 && players.every(p => p.stack !== null) ? String(Math.min(...players.map(p => p.stack!))) : '')
+  }, [context])
 
   const street = board.length === 3 ? 'flop' : board.length === 4 ? 'turn' : board.length === 5 ? 'river' : null
 
@@ -144,33 +150,36 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
 
   const solve = () => {
     setError('')
+    const blocked = review && solverBlock(review)
+    if (blocked) { setError(blockLabel(blocked)); return }
     if (!street) {
       setError('请选择 3（翻牌）/ 4（转牌）/ 5（河牌）张公共牌')
       return
     }
-    const pot = parseFloat(potStr)
-    const stack = parseFloat(stackStr)
-    if (!(pot > 0) || !(stack >= 0)) {
+    const pot = Number(potStr)
+    const stack = Number(stackStr)
+    if (!Number.isFinite(pot) || !Number.isFinite(stack) || !(pot > 0) || !(stack > 0)) {
       setError('底池与筹码需为正数')
       return
     }
     let oop: Float32Array
     let ip: Float32Array
     try {
-      oop = rangeToVector(oopStr, board)
-      ip = rangeToVector(ipStr, board)
+      oop = maskRange(oopRange, board)
+      ip = maskRange(ipRange, board)
     } catch (e) {
       setError(`范围解析失败：${(e as Error).message}`)
       return
     }
-    if (oop.every((x) => x === 0) || ip.every((x) => x === 0)) {
-      setError('范围与公共牌完全冲突')
+    if (!compatibleRanges(oop, ip)) {
+      setError(t('没有互不冲突的有效组合，请选择或调整双方范围。', 'No compatible combinations remain. Select or adjust both ranges.'))
       return
     }
     setSolving(true)
     setProgress(0)
     setSolution(null)
     setPath([])
+    const gen = ++generation.current
     const handle = solveInWorker({
       street,
       board: board.slice(),
@@ -179,16 +188,19 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
       preset,
       oop,
       ip,
-      onProgress: (iter, total) => setProgress(iter / total),
+      onProgress: (iter, total) => { if (gen === generation.current) setProgress(iter / total) },
     })
     cancelRef.current = handle.cancel
     handle.promise
       .then((sol) => {
+        if (gen !== generation.current) return
         setSolution(sol)
-        setSolvedMeta({ board: board.slice(), oop, ip, pot, stack })
+        setSolvedMeta({ board: board.slice(), oop, ip, pot, stack, preset })
         setSolving(false)
+        cancelRef.current = null
       })
       .catch((e) => {
+        if (gen !== generation.current) return
         setError((e as Error).message === 'cancelled' ? '已取消' : `求解失败：${(e as Error).message}`)
         setSolving(false)
       })
@@ -203,7 +215,7 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
       board: solvedMeta.board,
       pot: solvedMeta.pot,
       stack: solvedMeta.stack,
-      preset: POSTFLOP_PRESETS[preset],
+      preset: POSTFLOP_PRESETS[solvedMeta.preset],
     })
     let node: PostNode = tree.root
     const crumbs: { label: string; upTo: number }[] = []
@@ -221,13 +233,13 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
         for (let c = 0; c < 1326; c++) rng[c] *= wn.strategy[c * A + path[i]]
       }
       crumbs.push({
-        label: `${dn.actor === 0 ? 'OOP' : 'IP'} ${postflopActionName(a, 'zh')}`,
+        label: `${dn.actor === 0 ? t('先行动 OOP', 'First to act · OOP') : t('后行动 IP', 'Last to act · IP')} ${postflopActionName(a, language)}`,
         upTo: i,
       })
       node = dn.children[path[i]]
     }
     return { node, crumbs, oopNow, ipNow }
-  }, [solution, solvedMeta, path, preset])
+  }, [solution, solvedMeta, path, language])
 
   const current = navigation?.node
   const currentDecision =
@@ -240,13 +252,19 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
       ? nodeToSpot(
           currentWorkerNode,
           currentDecision.actor === 0 ? navigation.oopNow : navigation.ipNow,
-          `${currentDecision.actor === 0 ? 'OOP' : 'IP'} 策略`,
+          `${currentDecision.actor === 0 ? t('先行动 OOP', 'First to act · OOP') : t('后行动 IP', 'Last to act · IP')} ${t('策略', 'strategy')}`,
           '',
         )
       : null
 
   return (
     <div className="panel">
+      <p className="spot-desc">{t('求解器：根据双方范围、底池和有效筹码，计算各动作的近似策略频率。', 'The solver calculates approximate action frequencies from both ranges, the pot and effective stacks.')}</p>
+      {review && <AnalysisNotice context={review} onClear={() => { setReview(null); setSolution(null) }} />}
+      <ScenarioPicker autoApply={!context && autoScenario} onApply={scenario => {
+        setReview(null); setOopRange(scenario.ranges[0]); setIpRange(scenario.ranges[1]); setPositions(scenario.positions)
+        setPotStr(String(scenario.pot)); setStackStr(String(scenario.stack))
+      }} />
       <div className="viewer-group" style={{ marginBottom: 10 }}>
         <div className="viewer-group-label">{t('公共牌', 'Board')} ({street ? { flop: t('翻牌', 'Flop'), turn: t('转牌', 'Turn'), river: t('河牌', 'River') }[street] : t(`已选 ${board.length}`, `${board.length} selected`)})</div>
         <div className="slot-row">
@@ -290,12 +308,12 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
 
       <div className="solver-inputs">
         <label>
-          {t('底池', 'Pot')}
-          <input className="range-input num-input" value={potStr} onChange={(e) => setPotStr(e.target.value)} />
+          {t('底池', 'Pot')} (BB)
+          <input className="range-input num-input" value={potStr} onChange={(e) => { setAutoScenario(false); setPotStr(e.target.value) }} />
         </label>
         <label>
-          {t('有效筹码', 'Effective stack')}
-          <input className="range-input num-input" value={stackStr} onChange={(e) => setStackStr(e.target.value)} />
+          {t('有效筹码', 'Effective stack')} (BB)
+          <input className="range-input num-input" value={stackStr} onChange={(e) => { setAutoScenario(false); setStackStr(e.target.value) }} />
         </label>
         <div className="mode-toggle">
           <button
@@ -312,14 +330,10 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
           </button>
         </div>
       </div>
-      <label className="solver-range-label">
-        {t('OOP 范围', 'OOP range')}
-        <input className="range-input" value={oopStr} onChange={(e) => setOopStr(e.target.value)} />
-      </label>
-      <label className="solver-range-label">
-        {t('IP 范围', 'IP range')}
-        <input className="range-input" value={ipStr} onChange={(e) => setIpStr(e.target.value)} />
-      </label>
+      <div className="analysis-columns">
+        <RangeEditor label={`${positions[0]} · ${t('先行动 OOP 范围', 'First to act · OOP range')}`} value={oopRange} dead={board} onChange={range => { setAutoScenario(false); setOopRange(range) }} />
+        <RangeEditor label={`${positions[1]} · ${t('后行动 IP 范围', 'Last to act · IP range')}`} value={ipRange} dead={board} onChange={range => { setAutoScenario(false); setIpRange(range) }} />
+      </div>
 
       <div className="eq-run-row">
         {!solving ? (
@@ -331,7 +345,7 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
             <button className="primary-btn" disabled>
               {t('求解中', 'Solving')} {(progress * 100).toFixed(0)}%
             </button>
-            <button className="link-btn" onClick={() => cancelRef.current?.()}>
+            <button className="link-btn" onClick={() => { generation.current++; cancelRef.current?.(); cancelRef.current = null; setSolving(false); setError(t('已取消', 'Cancelled')) }}>
               {t('取消', 'Cancel')}
             </button>
           </>
@@ -365,14 +379,16 @@ export function SolverExplorer({ active = true }: { active?: boolean }) {
           {currentDecision && spotView && (
             <>
               <p className="spot-desc">
-                {t(`轮到 ${currentDecision.actor === 0 ? 'OOP' : 'IP'}——点动作继续导航：`, `${currentDecision.actor === 0 ? 'OOP' : 'IP'} to act. Choose an action to explore:`)}
+                {t(`轮到${currentDecision.actor === 0 ? '先行动方 OOP' : '后行动方 IP'}，点动作继续导航：`, `${currentDecision.actor === 0 ? 'First to act · OOP' : 'Last to act · IP'}. Choose an action to explore:`)}
                 {currentDecision.actions.map((a, i) => (
                   <button key={i} className="chip-btn" style={{ marginLeft: 6 }} onClick={() => setPath([...path, i])}>
                     {postflopActionName(a, language)}
                   </button>
                 ))}
               </p>
-              <RangeChart spot={spotView.spot} weights={spotView.weights} actionLabels={spotView.labels} />
+              <RangeChart spot={spotView.spot} weights={spotView.weights} actionLabels={spotView.labels}
+                highlight={review && orderedPlayers(review)[currentDecision.actor]?.id === review.heroId && orderedPlayers(review)[currentDecision.actor]?.cards
+                  ? handNameOf(...orderedPlayers(review)[currentDecision.actor].cards!) : undefined} />
             </>
           )}
           {current && current.type === 'chance' && (

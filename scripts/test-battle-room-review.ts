@@ -312,6 +312,9 @@ await test('folded historical hole cards are owner-only and nickname reclaims ca
   const a = (await h.view(alice)).handHistory![0]
   const b = (await h.view(bob)).handHistory![0]
   assert.deepEqual(a.myCards, original)
+  assert.equal(a.replay?.version, 1)
+  assert.equal(a.replay?.mode, 'cash')
+  assert.deepEqual(Object.values(a.replay!.startingStacks), [20, 20])
   assert.deepEqual(b.myCards, bobCards)
   const publicHand = (await h.view(observer)).handHistory![0]
   assert.equal(publicHand.myCards, undefined)

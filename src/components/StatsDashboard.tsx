@@ -9,6 +9,8 @@ import { BattleProfileDashboard } from './BattleStats'
 import { ClearHistoryDialog, StatsHistoryToolbar } from './StatsHistoryControls'
 import { positionName } from '../poker/presentation'
 import { trainerAction, trainerError, trainerLeak, trainerLeakComparison, trainerNote, trainerStreet, trainerVerdict } from '../game/trainerPresentation'
+import type { OpenAnalysis } from '../analysis/types'
+import { ReplayButton } from './ReplayButton'
 
 const RANGES = [
   { key: 'today', label: '今天', en: 'Today', ms: () => Date.now() - new Date().setHours(0, 0, 0, 0) },
@@ -41,7 +43,7 @@ const VERDICT_COLORS: Record<string, string> = {
   unavailable: 'var(--text-dim)',
 }
 
-export function StatsDashboard({ active = true }: { active?: boolean }) {
+export function StatsDashboard({ active = true, onOpenAnalysis }: { active?: boolean; onOpenAnalysis?: OpenAnalysis }) {
   const { t } = useLanguage()
   const [scope, setScope] = useState<'battle' | 'training'>('battle')
   return <div>
@@ -49,12 +51,12 @@ export function StatsDashboard({ active = true }: { active?: boolean }) {
       <button className={`chip-btn ${scope === 'battle' ? 'chip-btn-active' : ''}`} aria-pressed={scope === 'battle'} onClick={() => setScope('battle')}>{t('好友对战', 'Private Table')}</button>
       <button className={`chip-btn ${scope === 'training' ? 'chip-btn-active' : ''}`} aria-pressed={scope === 'training'} onClick={() => setScope('training')}>{t('GTO 训练', 'GTO training')}</button>
     </div>
-    <div hidden={scope !== 'battle'}><BattleProfileDashboard /></div>
-    <div hidden={scope !== 'training'}><TrainingStatsDashboard active={active && scope === 'training'} /></div>
+    <div hidden={scope !== 'battle'}><BattleProfileDashboard onOpenAnalysis={onOpenAnalysis} /></div>
+    <div hidden={scope !== 'training'}><TrainingStatsDashboard active={active && scope === 'training'} onOpenAnalysis={onOpenAnalysis} /></div>
   </div>
 }
 
-function TrainingStatsDashboard({ active }: { active: boolean }) {
+function TrainingStatsDashboard({ active, onOpenAnalysis }: { active: boolean; onOpenAnalysis?: OpenAnalysis }) {
   const { language, t } = useLanguage()
   const [rangeKey, setRangeKey] = useState<(typeof RANGES)[number]['key']>('all')
   const [stats, setStats] = useState<ProfileStats | null>(null)
@@ -256,6 +258,7 @@ function TrainingStatsDashboard({ active }: { active: boolean }) {
                   </span>
                 </summary>
                 <div className="hand-detail">
+                  <ReplayButton training={r} onOpenAnalysis={onOpenAnalysis} />
                   {r.board.length > 0 && (
                     <div className="spot-desc">{t('公共牌', 'Board')}: {r.board.map(cardText).join(' ')}</div>
                   )}

@@ -677,6 +677,7 @@ export class BattleRoom {
         }
         room.scoredHand = hand.number
         room.handHistory.unshift({ number: hand.number, finishedAt: Date.now(), bigBlind: hand.bigBlind ?? 1, smallBlind: hand.smallBlind ?? 0.5, board: [...hand.board], boards: hand.boards.map(board => [...board]),
+          replay: { version: 1, mode: room.mode, startingStacks: Object.fromEntries(hand.players.map(player => [player.id, player.startingStack])) },
           history: hand.history.map(action => ({ ...action })), players: hand.players.map(player => {
             const member = room.members.find(p => p.id === player.id)!
             return { id: member.id, name: member.name, bot: member.bot, position: handPosition(completed, player.id) }

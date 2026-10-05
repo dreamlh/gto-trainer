@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { TrainerSession, type SessionSnapshot } from '../src/game/session'
+import { TrainerSession, onHandRecord, type HandRecord, type SessionSnapshot } from '../src/game/session'
 import { newHand, applyAction } from '../src/game/engine'
 import { RangeTracker } from '../src/game/rangeTracker'
 import { buildPostflopTree } from '../src/solver/postflop/tree'
@@ -25,6 +25,8 @@ class SolverWorker {
 }
 Object.assign(globalThis, { Worker: SolverWorker })
 const session = new TrainerSession()
+let savedRecord: HandRecord | undefined
+const unsubscribeRecord = onHandRecord(record => { savedRecord = record })
 const state = session as unknown as {
   engine: ReturnType<typeof newHand>; tracker: RangeTracker; pfNode: unknown; generation: number
   update: (patch: Partial<SessionSnapshot>) => void; process: (generation: number) => Promise<void>
@@ -66,5 +68,12 @@ for (const street of ['flop', 'turn', 'river']) {
 }
 await waitFor('river', 'hand-done')
 assert.equal(session.getSnapshot().result?.wentToShowdown, true)
+assert.deepEqual(savedRecord?.replay?.map(snapshot => snapshot.street), ['flop', 'turn', 'river'])
+assert.deepEqual(savedRecord?.replay?.map(snapshot => snapshot.board.length), [3, 4, 5])
+assert.equal(savedRecord?.replay?.[0].pot, 11.6)
+assert.equal(savedRecord?.replay?.[0].stack, 94.2)
+assert(savedRecord?.replay?.every(snapshot => snapshot.ranges.every(range => range.length === 1326)))
+assert.notEqual(savedRecord?.replay?.[0].ranges[0], state.tracker.combo1326[1], 'Snapshots must not alias mutable live ranges')
+unsubscribeRecord()
 session.stop()
 console.log('Trainer session passed: one process per street, preflop → flop → turn → river navigation, correct call actions and amounts, records and showdown.')

@@ -21,7 +21,7 @@ const cache = new Map<number, Promise<PreflopBundle>>()
 export function loadPreflop(n: number): Promise<PreflopBundle> {
   let p = cache.get(n)
   if (!p) {
-    p = fetchAndBuild(n)
+    p = fetchAndBuild(n).catch(error => { cache.delete(n); throw error })
     cache.set(n, p)
   }
   return p

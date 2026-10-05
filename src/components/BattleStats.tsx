@@ -4,6 +4,9 @@ import { clearBattleProfile, loadBattleProfile, subscribeBattleProfile } from '.
 import type { PlayerStats } from '../battle/types'
 import { ClearHistoryDialog, StatsHistoryToolbar } from './StatsHistoryControls'
 import '../battle/stats.css'
+import { BattleReplayHistory, useReplayRecords } from './BattleReplayHistory'
+import { clearReplays } from '../db/replayStore'
+import type { OpenAnalysis } from '../analysis/types'
 
 function percent(value: number, total: number): string {
   return total ? `${(value / total * 100).toFixed(1)}%` : '—'
@@ -43,23 +46,33 @@ export function BattleStats({ stats, compact = false, title, stack, stackUnit = 
   )
 }
 
-export function BattleProfileDashboard() {
+export function BattleProfileDashboard({ onOpenAnalysis }: { onOpenAnalysis?: OpenAnalysis }) {
   const { t } = useLanguage()
   const [profile, setProfile] = useState(loadBattleProfile)
   const [confirmClear, setConfirmClear] = useState(false)
   const panelRef = useRef<HTMLDivElement>(null)
+  const replays = useReplayRecords()
+  const [clearing, setClearing] = useState(false)
+  const [clearError, setClearError] = useState('')
   useEffect(() => subscribeBattleProfile(() => setProfile(loadBattleProfile())), [])
   return <div ref={panelRef} tabIndex={-1} aria-label={t('对战统计', 'Private Table statistics')} className="panel battle-profile">
-    <StatsHistoryToolbar title={t('我的对战数据', 'Private Table statistics')} disabled={profile.stats.hands === 0} onClear={() => setConfirmClear(true)} />
+    <StatsHistoryToolbar title={t('我的对战数据', 'Private Table statistics')} disabled={profile.stats.hands === 0 && replays.records.length === 0} onClear={() => { setClearError(''); setConfirmClear(true) }} />
     <p className={profile.storageAvailable ? 'spot-desc' : 'input-error'}>{profile.storageAvailable
       ? t('汇总本浏览器的对战记录。清除浏览器数据后记录将丢失。', 'Private Table history saved in this browser. Clearing browser data removes it.')
       : t('浏览器存储不可用，新增对战数据仅保留在本次页面内，刷新后可能丢失。', 'Browser storage is unavailable. New Private Table data is held only in this page and may be lost on reload.')}</p>
     {profile.stats.hands === 0 && <p className="spot-desc">{t('完成第一手对战后，这里会显示你的数据。', 'Your statistics appear here after your first completed Private Table hand.')}</p>}
     <BattleStats stats={profile.stats} />
+    <BattleReplayHistory data={replays} onOpenAnalysis={onOpenAnalysis} />
     {confirmClear && <ClearHistoryDialog
       title={t('清空对战历史？', 'Clear Private Table history?')}
-      description={t('清空本浏览器保存的个人对战数据，无法撤销。房间内的统计和训练器历史不受影响；之后完成的手牌将重新累计。', 'This permanently clears personal Private Table statistics saved in this browser. Room statistics and trainer history stay unchanged. New completed hands will count from zero.')}
-      onConfirm={() => { clearBattleProfile(); setConfirmClear(false) }}
+      description={t('删除本浏览器保存的对战统计和全部对战复盘记录，无法撤销。之后完成的手牌将重新累计。', 'Permanently delete Private Table statistics and all saved Private Table reviews in this browser. New completed hands will count from zero.')}
+      busy={clearing}
+      error={clearError || undefined}
+      onConfirm={() => {
+        setClearing(true); setClearError('')
+        void clearReplays().then(() => { clearBattleProfile(); setConfirmClear(false) })
+          .catch(() => setClearError(t('清除失败，请重试。', 'Could not clear records. Please retry.'))).finally(() => setClearing(false))
+      }}
       onClose={() => setConfirmClear(false)}
       fallbackFocus={() => panelRef.current?.focus()}
     />}

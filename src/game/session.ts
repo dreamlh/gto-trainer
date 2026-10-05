@@ -18,6 +18,7 @@ import {
 } from './engine'
 import { RangeTracker } from './rangeTracker'
 import { normalizeDecisionRecord } from './decisionQuality'
+import type { StreetSnapshot } from '../analysis/types'
 
 // 全牌局训练会话：翻前多人（solver 策略机器人），翻后单挑逐街重解
 
@@ -81,6 +82,7 @@ export interface HandRecord {
   actions: { street: GameStreet; seat: number; pos: Position; kind: string; to: number }[]
   decisions: DecisionRecord[]
   result: HandResultInfo
+  replay?: StreetSnapshot[]
 }
 
 type RecordListener = (r: HandRecord) => void
@@ -127,6 +129,7 @@ export class TrainerSession {
   private seatOf: [number, number] = [-1, -1] // [OOP 座位, IP 座位]
   private cancelSolve: (() => void) | null = null
   private generation = 0 // 换手牌时递增，丢弃过期异步回调
+  private replay: StreetSnapshot[] = []
 
   subscribe = (fn: () => void): (() => void) => {
     this.listeners.add(fn)
@@ -162,6 +165,7 @@ export class TrainerSession {
 
   async startHand(n: number, preflopOnly?: boolean) {
     const gen = ++this.generation
+    this.replay = []
     this.cancelSolve?.()
     this.cancelSolve = null
     if (preflopOnly !== undefined) this.snap = { ...this.snap, preflopOnly }
@@ -462,6 +466,8 @@ export class TrainerSession {
     const curPot = pot(eng)
     const oop = this.tracker!.combo1326[oopSeat] ?? this.tracker!.toCombos(oopSeat, eng.board)
     const ip = this.tracker!.combo1326[ipSeat] ?? this.tracker!.toCombos(ipSeat, eng.board)
+    this.replay.push({ version: 1, street, board: eng.board.slice(), pot: curPot, stack: stackLeft,
+      seats: [oopSeat, ipSeat], ranges: [oop.slice(), ip.slice()] })
 
     this.update({ phase: 'solving', solveProgress: { street: eng.street, iter: 0, total: 1 } })
     const handle = solveInWorker({
@@ -589,6 +595,7 @@ export class TrainerSession {
       })),
       decisions: this.snap.decisions,
       result,
+      replay: this.replay,
     }
     for (const fn of recordListeners) fn(record)
   }

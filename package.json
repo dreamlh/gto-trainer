@@ -4,6 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "test:analysis": "node --import tsx scripts/test-analysis.ts",
+    "test:battle:chat": "node --import tsx scripts/test-table-chat.ts",
     "dev": "vite",
     "build": "tsc -b && tsc -p tsconfig.server.json && vite build",
     "preview": "vite preview",
