@@ -6,11 +6,15 @@ import { useLanguage } from '../battle/i18n'
 
 const STICKER_ATLASES = [stickerAtlas1, stickerAtlas2, stickerAtlas3]
 
+export function chatStickerStyle(sticker: Sticker) {
+  const cell = sticker.cell % 9
+  return { backgroundImage: `url(${STICKER_ATLASES[Math.floor(sticker.cell / 9)]})`, backgroundPosition: `${cell % 3 * 50}% ${Math.floor(cell / 3) * 50}%` }
+}
+
 export function ChatSticker({ sticker }: { sticker: Sticker }) {
   const { t } = useLanguage()
   const label = t(sticker.zh, sticker.en)
-  const cell = sticker.cell % 9
-  return <span className="battle-chat-sticker" role="img" aria-label={label} title={label} style={{ backgroundImage: `url(${STICKER_ATLASES[Math.floor(sticker.cell / 9)]})`, backgroundPosition: `${cell % 3 * 50}% ${Math.floor(cell / 3) * 50}%` }} />
+  return <span className="battle-chat-sticker" role="img" aria-label={label} title={label} style={chatStickerStyle(sticker)} />
 }
 
 export function ChatMessageContent({ text }: { text: string }) {

@@ -30,6 +30,7 @@ export const CHAT_STICKERS = [
 
 export type ChatSticker = typeof CHAT_STICKERS[number]
 const STICKERS_BY_CODE = new Map<string, ChatSticker>(CHAT_STICKERS.map(sticker => [sticker.code, sticker]))
+export const chatStickerForCode = (code: string) => STICKERS_BY_CODE.get(code)
 
 // Only our fixed shortcodes become images; all other user content stays plain text.
 export function chatMessageParts(text: string): (string | ChatSticker)[] {
