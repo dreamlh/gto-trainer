@@ -8,11 +8,10 @@ import { RangeEditor } from './RangeEditor'
 import { ScenarioPicker } from './ScenarioPicker'
 import { AnalysisNotice } from './AnalysisNotice'
 import { useLanguage } from '../battle/i18n'
+import { PageIntro } from './PageIntro'
 
 interface Player { mode: 'cards' | 'range'; cards: (Card | null)[]; range: AnalysisRange; name?: string }
 type Slot = { player: 0 | 1 | 'board'; index: number }
-const COLORS = ['#c9d2e0', '#e77777', '#7fa6ee', '#7ec995']
-const CARD_COLORS = ['#1b2330', '#b83434', '#265faf', '#287d41']
 
 export function EquityCalc({ context }: { context?: AnalysisContext | null }) {
   const { t, language } = useLanguage()
@@ -89,10 +88,12 @@ export function EquityCalc({ context }: { context?: AnalysisContext | null }) {
     }, 30)
   }
   const renderSlot = (ref: Slot, card: Card | null, label: string) => <button type="button" key={ref.index}
-    className={`card-slot ${active?.player === ref.player && active.index === ref.index ? 'card-slot-active' : ''}`}
+    className={`card-slot ${card !== null ? 'card-slot-filled' : ''} ${active?.player === ref.player && active.index === ref.index ? 'card-slot-active' : ''}`}
     aria-label={label} onClick={() => { if (card !== null) slot(ref, null); setActive(ref) }}>{card === null ? '?' : <CardFace card={card} />}</button>
-  return <div className="panel">
-    <p className="spot-desc">{t('权益：发到摊牌后平均能分到的底池份额，不直接代表应该怎样下注。', 'Equity is your average share at showdown; it does not directly prescribe a betting action.')}</p>
+  const names = players.map((p, index) => p.name ?? t(`玩家 ${index + 1}`, `Player ${index + 1}`))
+  return <>
+  <PageIntro title={t('权益计算', 'Equity')}>{t('发到摊牌后平均能分到的底池份额。权益不直接代表应该怎样下注。', 'Your average share of the pot at showdown. Equity alone does not prescribe a betting action.')}</PageIntro>
+  <div className="panel equity-panel">
     {review && <AnalysisNotice context={review} onClear={() => { invalidate(); setReview(null) }} />}
     <ScenarioPicker onApply={scenario => {
       invalidate(); setPlayers(previous => previous.map((p, i) => ({ ...p, range: scenario.ranges[i], name: scenario.positions[i] })) as [Player, Player])
@@ -110,14 +111,21 @@ export function EquityCalc({ context }: { context?: AnalysisContext | null }) {
           : <RangeEditor label={`${name} ${t('范围', 'range')}`} value={p.range} dead={[...used]} onChange={range => update(index, { range })} />}
       </div>
     })}</div>
-    <div className="eq-board"><strong>{t('公共牌（可选）', 'Board (optional)')}</strong><div className="slot-row">{board.map((c, i) => renderSlot({ player: 'board', index: i }, c, `${t('公共牌', 'Board')} ${i + 1}`))}</div></div>
-    <div className="deck-grid">{SUIT_SYMBOLS.map((symbol, suit) => <div className="deck-row" key={suit}><span className="deck-suit" style={{ color: COLORS[suit] }}>{symbol}</span>{[...RANK_CHARS].reverse().map((rank, i) => {
+    <div className="eq-board"><div className="study-board-head"><h3>{t('公共牌', 'Board')}</h3><span className="study-board-status">{t('可选 · 0、3、4 或 5 张', 'Optional · 0, 3, 4 or 5 cards')}</span></div><div className="slot-row board-slots">{board.map((c, i) => renderSlot({ player: 'board', index: i }, c, `${t('公共牌', 'Board')} ${i + 1}`))}</div></div>
+    <div className={`deck-grid ${active ? '' : 'deck-grid-idle'}`}>{!active && <p className="deck-grid-hint">{t('先点一个空牌位，再从牌堆选牌。', 'Select an empty card slot, then pick from the deck.')}</p>}{SUIT_SYMBOLS.map((symbol, suit) => <div className={`deck-row deck-suit-${suit}`} key={suit}><span className="deck-suit" aria-hidden="true">{symbol}</span>{[...RANK_CHARS].reverse().map((rank, i) => {
       const card = makeCard(12 - i, suit)
-      return <button type="button" key={card} aria-label={`${rank}${symbol}`} className={`deck-card ${used.has(card) ? 'deck-card-used' : ''}`} style={{ color: CARD_COLORS[suit] }} disabled={!active || used.has(card)} onClick={() => pick(card)}>{rank}</button>
+      return <button type="button" key={card} aria-label={`${rank}${symbol}`} className={`deck-card ${used.has(card) ? 'deck-card-used' : ''}`} disabled={!active || used.has(card)} onClick={() => pick(card)}>{rank}<span className="deck-card-suit" aria-hidden="true">{symbol}</span></button>
     })}</div>)}</div>
     <div className="eq-run-row"><button className="primary-btn" disabled={computing} onClick={run}>{computing ? t('计算中…', 'Calculating…') : t('计算权益', 'Calculate equity')}</button>{error && <span className="input-error" role="alert">{error}</span>}</div>
-    {result && result.iterations > 0 && <div className="eq-result"><div className="eq-headline">{t('玩家 1 权益', 'Player 1 equity')} <b>{((result.win + result.tie / 2) * 100).toFixed(1)}%</b><span className="eq-sub">{t('胜', 'Win')} {(result.win * 100).toFixed(1)}% / {t('平', 'Tie')} {(result.tie * 100).toFixed(1)}% / {t('负', 'Lose')} {(result.lose * 100).toFixed(1)}% · {result.iterations.toLocaleString(language === 'zh' ? 'zh-CN' : 'en-GB')} {t('次模拟', 'simulations')}</span></div>
-      <div className="freq-bar"><div className="freq-seg" style={{ width: `${result.win * 100}%`, background: '#e2574a' }} /><div className="freq-seg" style={{ width: `${result.tie * 100}%`, background: '#a2aeaf' }} /><div className="freq-seg" style={{ width: `${result.lose * 100}%`, background: '#5c7cba' }} /></div></div>}
+    {result && result.iterations > 0 && <section className="eq-result" aria-label={t('权益结果', 'Equity result')}>
+      <div className="eq-result-players">
+        <div><span>{names[0]}</span><strong>{((result.win + result.tie / 2) * 100).toFixed(1)}<small>%</small></strong></div>
+        <div><span>{names[1]}</span><strong>{((result.lose + result.tie / 2) * 100).toFixed(1)}<small>%</small></strong></div>
+      </div>
+      <div className="eq-split" aria-hidden="true"><span className="eq-split-a" style={{ width: `${result.win * 100}%` }} /><span className="eq-split-tie" style={{ width: `${result.tie * 100}%` }} /><span className="eq-split-b" style={{ width: `${result.lose * 100}%` }} /></div>
+      <p className="eq-sub">{names[0]}{t('：', ': ')}{t('胜', 'Win')} {(result.win * 100).toFixed(1)}% · {t('平', 'Tie')} {(result.tie * 100).toFixed(1)}% · {t('负', 'Lose')} {(result.lose * 100).toFixed(1)}% <span>{result.iterations.toLocaleString(language === 'zh' ? 'zh-CN' : 'en-GB')} {t('次模拟', 'simulations')}</span></p>
+    </section>}
     {result?.iterations === 0 && <p className="input-error">{t('没有足够的有效抽样，请调整范围。', 'Not enough valid samples. Adjust the ranges.')}</p>}
   </div>
+  </>
 }

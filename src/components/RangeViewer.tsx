@@ -5,6 +5,7 @@ import { categoryName, translatePokerText } from '../poker/presentation'
 import { POSITIONS_BY_SIZE } from '../solver/config'
 import { loadPreflop, type PreflopBundle } from '../solver/preflop/api'
 import { RangeChart } from './RangeChart'
+import { PageIntro } from './PageIntro'
 
 const CATEGORIES = ['rfi', 'vs-rfi', 'vs-3bet', 'cold-3bet', 'vs-4bet'] as const
 const TABLE_SIZES = [2, 3, 4, 5, 6, 7, 8, 9]
@@ -57,11 +58,13 @@ export function RangeViewer() {
   useEffect(() => { if (spot && spot.id !== spotId) setSpotId(spot.id) }, [spot, spotId])
 
   return (
+    <>
+    <PageIntro title={t('范围表', 'Ranges')}>{t('2–9 人桌、100 BB 的翻前近似均衡策略。选择场景，查看每类手牌的动作频率。', 'Approximate preflop equilibrium strategies for 2–9 players at 100 BB. Choose a spot to see action frequencies for every hand.')}</PageIntro>
     <div className="panel range-viewer">
       <div className="viewer-controls">
         <div className="viewer-group">
           <div className="viewer-group-label">{t('牌桌人数', 'Table size')}</div>
-          <div className="viewer-group-buttons">
+          <div className="viewer-group-buttons table-size-picker" role="group" aria-label={t('牌桌人数', 'Table size')}>
             {TABLE_SIZES.map((n) => (
               <button
                 key={n}
@@ -69,7 +72,7 @@ export function RangeViewer() {
                 aria-pressed={n === tableSize}
                 onClick={() => setTableSize(n)}
               >
-                {n} {t('人', 'players')}
+                {n}<span className="table-size-unit">{t(' 人', ' players')}</span>
               </button>
             ))}
           </div>
@@ -84,7 +87,7 @@ export function RangeViewer() {
                 setExpandedCategory(expanded ? null : cat)
                 if (!expanded && current?.category !== cat) setSpotId(catSpots[0].id)
               }}>
-                <span>{categoryName(cat, language)}</span><span aria-hidden="true">{expanded ? '−' : '+'}</span>
+                <span>{categoryName(cat, language)}<small>{catSpots.length}</small></span><span className="viewer-category-chevron" aria-hidden="true" />
               </button>
               <div id={`${accordionId}-${cat}`} className="viewer-group-buttons viewer-category-content" hidden={!expanded}>
                 {catSpots.map((s) => (
@@ -121,5 +124,6 @@ export function RangeViewer() {
         )}
       </div>
     </div>
+    </>
   )
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { HAND_NAMES, COMBO_CARDS, cardStr, type Card } from '../poker/cards'
 import { CLASS_COMBOS, SIMPLE_RANGES, rangeSummary, setClass, textRange } from '../analysis/ranges'
 import type { AnalysisRange } from '../analysis/types'
@@ -36,7 +36,7 @@ export function RangeEditor({ label, value, dead = [], onChange }: {
   return <section className="analysis-range" aria-label={label}>
     <strong>{label}</strong>
     <p className={value.source === 'unset' ? 'input-error' : 'spot-desc'}>{sources[value.source]}</p>
-    <p className="analysis-range-summary">{summary.percent.toFixed(1)}% · {summary.combos.toFixed(1)} {t('有效加权组合', 'weighted live combos')} <small>({summary.count} {t('种组合', 'combos')})</small></p>
+    <p className="analysis-range-summary"><b>{summary.percent.toFixed(1)}%</b> · {summary.combos.toFixed(1)} {t('有效加权组合', 'weighted live combos')} <small>({summary.count} {t('种组合', 'combos')})</small></p>
     <div className="analysis-preset-row">{SIMPLE_RANGES.map(p => <button type="button" className="chip-btn" key={p.en} onClick={() => onChange(textRange(p.text))}>{t(p.zh, p.en)}</button>)}</div>
     <details className="analysis-matrix-details">
       <summary>{t('点选手牌，微调范围', 'Edit hands in the range')}</summary>
@@ -50,7 +50,7 @@ export function RangeEditor({ label, value, dead = [], onChange }: {
         {HAND_NAMES.map((hand, h) => {
           const w = classWeight(h)
           return <button type="button" key={hand} data-hand={h} tabIndex={h === focused ? 0 : -1} aria-pressed={w > 0}
-            aria-label={`${hand} ${Math.round(w * 100)}%`} style={{ background: `linear-gradient(to right, #376b51 ${w * 100}%, #182c23 ${w * 100}%)` }}
+            aria-label={`${hand} ${Math.round(w * 100)}%`} style={{ '--w': `${w * 100}%` } as CSSProperties}
             onFocus={() => setFocused(h)}
             onPointerDown={e => {
               mouseClick.current = e.pointerType === 'mouse'

@@ -1,14 +1,42 @@
 :root {
-  --bg: #101612;
-  --surface: #161e19;
-  --surface2: #202b23;
-  --border: #344239;
-  --text: #e2e8e2;
+  color-scheme: dark;
+  /* Surfaces: a dark card room, lit from above. */
+  --bg: #0f1512;
+  --bg-glow: #1a2a20;
+  --surface: #151d18;
+  --surface2: #1c2720;
+  --surface3: #24332a;
+  --border: #2f3d34;
+  --border-strong: #42564a;
+  /* Text */
+  --text: #e4ebe3;
   --text-dim: #94a397;
+  --text-faint: #75887b;
+  /* Brand: sage felt light, ivory cards, brass chips. */
+  --accent: #b9d7bc;
+  --accent-strong: #d3e7d4;
+  --accent-ink: #15241a;
+  --accent-wash: #b9d7bc14;
+  --ivory: #f6f2e8;
+  --brass: #dcd2a3;
+  /* Meaning */
+  --positive: #a6d5ad;
+  --negative: #e3a295;
+  --caution: #dfc395;
+  /* Poker actions — these colours carry meaning in charts. */
   --raise: #e2574a;
   --call: #1fa78e;
   --fold: #5c7cba;
   --gold: #b9d7bc;
+  /* Card suits on dark backgrounds (four-colour deck). */
+  --suit-s: #d6dde6;
+  --suit-h: #f08080;
+  --suit-d: #86aef2;
+  --suit-c: #83cf9a;
+  --radius-sm: 4px;
+  --radius: 7px;
+  --radius-lg: 10px;
+  --shadow-pop: 0 14px 40px #0009, 0 2px 6px #0006;
 }
 
 * {
@@ -23,13 +51,20 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(1100px 560px at 50% -260px, var(--bg-glow) 0%, #1a2a2000 72%) no-repeat,
+    var(--bg);
   color: var(--text);
   font-family:
-    -apple-system, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue',
+    -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Segoe UI', 'Helvetica Neue',
     sans-serif;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
+
+::selection { background: #b9d7bc4d; color: #fff; }
 
 .app {
   max-width: 1120px;

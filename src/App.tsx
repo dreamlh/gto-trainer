@@ -28,7 +28,11 @@ const TABS = [
 
 type TabId = (typeof TABS)[number]['id']
 const COMPACT_NAV_HEIGHT = 740
+// Six tabs no longer fit on one row below this width; a menu beats a clipped, scrolling strip.
+const COMPACT_NAV_WIDTH = 640
 const viewportHeight = () => Math.floor(Math.min(window.innerHeight, window.visualViewport?.height ?? window.innerHeight))
+const viewportWidth = () => Math.floor(window.innerWidth)
+const isCompactNavigation = () => viewportHeight() <= COMPACT_NAV_HEIGHT || viewportWidth() <= COMPACT_NAV_WIDTH
 
 export default function App() {
   const { language, setLanguage, t } = useLanguage()
@@ -41,7 +45,7 @@ export default function App() {
     return query.has('room') || query.get('battle') === '1' ? 'battle' : 'trainer'
   })
   const [availableHeight, setAvailableHeight] = useState(viewportHeight)
-  const compactNavigation = availableHeight <= COMPACT_NAV_HEIGHT
+  const [compactNavigation, setCompactNavigation] = useState(isCompactNavigation)
   const [navigationOpen, setNavigationOpen] = useState(false)
   const navigationContainer = useRef<HTMLDivElement>(null)
   const navigation = useRef<HTMLElement>(null)
@@ -53,9 +57,11 @@ export default function App() {
   useEffect(() => {
     const resize = () => {
       const height = viewportHeight()
-      if (height <= COMPACT_NAV_HEIGHT && navigation.current?.contains(document.activeElement)) restoreNavigationFocus.current = 'trigger'
-      else if (height > COMPACT_NAV_HEIGHT && document.activeElement === navigationTrigger.current) restoreNavigationFocus.current = 'current'
+      const compact = isCompactNavigation()
+      if (compact && navigation.current?.contains(document.activeElement)) restoreNavigationFocus.current = 'trigger'
+      else if (!compact && document.activeElement === navigationTrigger.current) restoreNavigationFocus.current = 'current'
       setAvailableHeight(height)
+      setCompactNavigation(compact)
     }
     window.addEventListener('resize', resize)
     window.visualViewport?.addEventListener('resize', resize)

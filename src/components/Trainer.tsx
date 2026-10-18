@@ -183,7 +183,12 @@ export function Trainer({ active = true }: { active?: boolean }) {
   }
 
   const setupFields = (size: number, onlyPreflop: boolean, onSize: (size: number) => void, onMode: (onlyPreflop: boolean) => void) => <>
-    <label className="battle-field">{t('牌桌人数', 'Players')}<select value={size} onChange={event => onSize(Number(event.target.value))}>{TABLE_SIZES.map(n => <option key={n} value={n}>{n}{t(' 人桌', ' players')}</option>)}</select></label>
+    <div className="battle-field">
+      <span className="seat-count-label">{t('牌桌人数', 'Players')}<b>{size}{t(' 人桌', ' players')}{size === 2 ? t(' · 单挑', ' · heads-up') : ''}</b></span>
+      <div className="seat-count-picker" role="group" aria-label={t('牌桌人数', 'Players')}>
+        {TABLE_SIZES.map(n => <button key={n} type="button" aria-pressed={n === size} aria-label={t(`${n} 人桌`, `${n} players`)} onClick={() => onSize(n)}>{n}</button>)}
+      </div>
+    </div>
     <PokerSettingSwitch className="trainer-setup-switch" checked={onlyPreflop} onChange={onMode}>{t('只练翻前', 'Preflop only')}</PokerSettingSwitch>
     <p className="battle-fine-print trainer-setup-note">{onlyPreflop
       ? t('每手到翻牌为止，只评估翻前决策，节奏最快。', 'Hands stop before the flop. Only preflop decisions are scored, for faster practice.')

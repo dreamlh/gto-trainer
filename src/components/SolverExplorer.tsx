@@ -9,6 +9,8 @@ import {
   SUIT_SYMBOLS,
   makeCard,
   handNameOf,
+  rankOf,
+  suitOf,
   type Card,
 } from '../poker/cards'
 import type { Spot } from '../poker/ranges'
@@ -25,11 +27,10 @@ import type { AnalysisContext } from '../analysis/types'
 import { RangeEditor } from './RangeEditor'
 import { ScenarioPicker } from './ScenarioPicker'
 import { AnalysisNotice, useSolverBlockLabel } from './AnalysisNotice'
+import { PageIntro } from './PageIntro'
 
 // 求解器：任意翻后局面的单挑 CFR 求解与策略浏览
 
-const SUIT_COLORS = ['#1b2330', '#d64545', '#3b78d6', '#3f9e5f']
-const GUTTER_SUIT_COLORS = ['#c9d2e0', '#d64545', '#3b78d6', '#3f9e5f']
 
 // 把节点组合级策略聚合成 169 类 Spot 给 RangeChart（附带范围权重与文案）
 const AGG_KEYS = ['raise', 'threebet', 'fourbet', 'fivebet'] // 攻击性动作复用红色系 key
@@ -257,54 +258,61 @@ export function SolverExplorer({ active = true, context }: { active?: boolean; c
         )
       : null
 
+  const streetName = street ? { flop: t('翻牌', 'Flop'), turn: t('转牌', 'Turn'), river: t('河牌', 'River') }[street] : null
   return (
-    <div className="panel">
-      <p className="spot-desc">{t('求解器：根据双方范围、底池和有效筹码，计算各动作的近似策略频率。', 'The solver calculates approximate action frequencies from both ranges, the pot and effective stacks.')}</p>
+    <>
+    <PageIntro title={t('求解器', 'Solver')}>{t('根据双方范围、底池和有效筹码，计算单挑翻后各动作的近似策略频率。', 'Approximate heads-up postflop action frequencies from both ranges, the pot and effective stacks.')}</PageIntro>
+    <div className="panel solver-panel">
       {review && <AnalysisNotice context={review} onClear={() => { setReview(null); setSolution(null) }} />}
       <ScenarioPicker autoApply={!context && autoScenario} onApply={scenario => {
         setReview(null); setOopRange(scenario.ranges[0]); setIpRange(scenario.ranges[1]); setPositions(scenario.positions)
         setPotStr(String(scenario.pot)); setStackStr(String(scenario.stack))
       }} />
-      <div className="viewer-group" style={{ marginBottom: 10 }}>
-        <div className="viewer-group-label">{t('公共牌', 'Board')} ({street ? { flop: t('翻牌', 'Flop'), turn: t('转牌', 'Turn'), river: t('河牌', 'River') }[street] : t(`已选 ${board.length}`, `${board.length} selected`)})</div>
-        <div className="slot-row">
-          {board.map((c) => (
-            <button
-              key={c}
-              className="card-slot card-slot-active"
-              onClick={() => toggleCard(c)}
-              title={t('点击移除', 'Click to remove')}
-            >
-              <CardFace card={c} />
-            </button>
-          ))}
-          {board.length === 0 && <span className="spot-desc">{t('点下方牌堆选择', 'Choose cards from the deck below')}</span>}
+      <section className="study-board" aria-label={t('公共牌', 'Board')}>
+        <div className="study-board-head">
+          <h3>{t('公共牌', 'Board')}</h3>
+          <span className={`study-board-status ${street ? 'is-ready' : ''}`}>{streetName ?? (board.length === 0 ? t('从下方牌堆选 3–5 张', 'Pick 3–5 cards below') : t(`已选 ${board.length} 张，至少需要 3 张`, `${board.length} selected · at least 3 needed`))}</span>
         </div>
-      </div>
-      <div className="deck-grid">
-        {SUIT_CHARS.map((_, s) => (
-          <div key={s} className="deck-row">
-            <span className="deck-suit" style={{ color: GUTTER_SUIT_COLORS[s] }}>
-              {SUIT_SYMBOLS[s]}
-            </span>
-            {RANK_CHARS.map((_, r) => {
-              const card = makeCard(12 - r, s)
-              const used = board.includes(card)
-              return (
-                <button
-                  key={r}
-                  className={`deck-card ${used ? 'deck-card-picked' : ''}`}
-                  style={{ color: SUIT_COLORS[s] }}
-                  aria-label={`${RANK_CHARS[12 - r]}${SUIT_SYMBOLS[s]}`}
-                  onClick={() => toggleCard(card)}
-                >
-                  {RANK_CHARS[12 - r]}
-                </button>
-              )
-            })}
-          </div>
-        ))}
-      </div>
+        <div className="slot-row board-slots">
+          {Array.from({ length: 5 }, (_, i) => board[i] !== undefined ? (
+            <button
+              key={board[i]}
+              type="button"
+              className="card-slot card-slot-filled"
+              onClick={() => toggleCard(board[i])}
+              title={t('点击移除', 'Click to remove')}
+              aria-label={`${t('移除', 'Remove')} ${RANK_CHARS[rankOf(board[i])]}${SUIT_SYMBOLS[suitOf(board[i])]}`}
+            >
+              <CardFace card={board[i]} />
+            </button>
+          ) : <span key={`empty-${i}`} className="card-slot card-slot-empty" aria-hidden="true">{i < 3 ? t('翻牌', 'Flop') : i === 3 ? t('转牌', 'Turn') : t('河牌', 'River')}</span>)}
+        </div>
+        <div className="deck-grid">
+          {SUIT_CHARS.map((_, s) => (
+            <div key={s} className={`deck-row deck-suit-${s}`}>
+              <span className="deck-suit" aria-hidden="true">
+                {SUIT_SYMBOLS[s]}
+              </span>
+              {RANK_CHARS.map((_, r) => {
+                const card = makeCard(12 - r, s)
+                const used = board.includes(card)
+                return (
+                  <button
+                    key={r}
+                    type="button"
+                    className={`deck-card ${used ? 'deck-card-picked' : ''}`}
+                    aria-label={`${RANK_CHARS[12 - r]}${SUIT_SYMBOLS[s]}`}
+                    aria-pressed={used}
+                    onClick={() => toggleCard(card)}
+                  >
+                    {RANK_CHARS[12 - r]}<span className="deck-card-suit" aria-hidden="true">{SUIT_SYMBOLS[s]}</span>
+                  </button>
+                )
+              })}
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="solver-inputs">
         <label>
@@ -315,19 +323,26 @@ export function SolverExplorer({ active = true, context }: { active?: boolean; c
           {t('有效筹码', 'Effective stack')} (BB)
           <input className="range-input num-input" value={stackStr} onChange={(e) => { setAutoScenario(false); setStackStr(e.target.value) }} />
         </label>
-        <div className="mode-toggle">
-          <button
-            className={`chip-btn ${preset === 'explorer' ? 'chip-btn-active' : ''}`}
-            onClick={() => setPreset('explorer')}
-          >
-            {t('精细（慢）', 'Detailed (slower)')}
-          </button>
-          <button
-            className={`chip-btn ${preset === 'trainer' ? 'chip-btn-active' : ''}`}
-            onClick={() => setPreset('trainer')}
-          >
-            {t('快速', 'Quick')}
-          </button>
+        <div className="solver-precision">
+          <span>{t('求解精度', 'Precision')}</span>
+          <div className="mode-toggle segmented" role="group" aria-label={t('求解精度', 'Precision')}>
+            <button
+              type="button"
+              className={`chip-btn ${preset === 'explorer' ? 'chip-btn-active' : ''}`}
+              aria-pressed={preset === 'explorer'}
+              onClick={() => setPreset('explorer')}
+            >
+              {t('精细（慢）', 'Detailed (slower)')}
+            </button>
+            <button
+              type="button"
+              className={`chip-btn ${preset === 'trainer' ? 'chip-btn-active' : ''}`}
+              aria-pressed={preset === 'trainer'}
+              onClick={() => setPreset('trainer')}
+            >
+              {t('快速', 'Quick')}
+            </button>
+          </div>
         </div>
       </div>
       <div className="analysis-columns">
@@ -345,6 +360,9 @@ export function SolverExplorer({ active = true, context }: { active?: boolean; c
             <button className="primary-btn" disabled>
               {t('求解中', 'Solving')} {(progress * 100).toFixed(0)}%
             </button>
+            <div className="run-progress" role="progressbar" aria-label={t('求解进度', 'Solve progress')} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
+              <span style={{ width: `${Math.max(2, progress * 100)}%` }} />
+            </div>
             <button className="link-btn" onClick={() => { generation.current++; cancelRef.current?.(); cancelRef.current = null; setSolving(false); setError(t('已取消', 'Cancelled')) }}>
               {t('取消', 'Cancel')}
             </button>
@@ -358,34 +376,42 @@ export function SolverExplorer({ active = true, context }: { active?: boolean; c
 
       {solution && navigation && (
         <div className="solver-result">
-          <div className="stats-row">
-            <span>
-              {t('可利用度', 'Exploitability')} <b>{(solution.exploitability * 100).toFixed(2)}%</b> {t('底池', 'of pot')}
-            </span>
-            <span>
-              {t('迭代', 'Iterations')} <b>{solution.iterations}</b>
-            </span>
+          <div className="solver-result-head">
+            <h3>{t('求解结果', 'Solution')}</h3>
+            <div className="stats-row solver-metrics">
+              <span>
+                {t('可利用度', 'Exploitability')} <b>{(solution.exploitability * 100).toFixed(2)}%</b> {t('底池', 'of pot')}
+              </span>
+              <span>
+                {t('迭代', 'Iterations')} <b>{solution.iterations}</b>
+              </span>
+            </div>
           </div>
-          <div className="viewer-group-buttons" style={{ marginBottom: 8 }}>
-            <button className={`chip-btn ${path.length === 0 ? 'chip-btn-active' : ''}`} onClick={() => setPath([])}>
+          <nav className="solver-path" aria-label={t('行动路径', 'Action path')}>
+            <button type="button" className={`chip-btn ${path.length === 0 ? 'chip-btn-active' : ''}`} aria-current={path.length === 0 ? 'step' : undefined} onClick={() => setPath([])}>
               {t('根节点', 'Root')}
             </button>
             {navigation.crumbs.map((c, i) => (
-              <button key={i} className="chip-btn chip-btn-active" onClick={() => setPath(path.slice(0, c.upTo + 1))}>
-                {translatePokerText(c.label, language)}
-              </button>
+              <span key={i} className="solver-path-step">
+                <span className="solver-path-sep" aria-hidden="true">›</span>
+                <button type="button" className={`chip-btn ${i === navigation.crumbs.length - 1 ? 'chip-btn-active' : ''}`} aria-current={i === navigation.crumbs.length - 1 ? 'step' : undefined} onClick={() => setPath(path.slice(0, c.upTo + 1))}>
+                  {translatePokerText(c.label, language)}
+                </button>
+              </span>
             ))}
-          </div>
+          </nav>
           {currentDecision && spotView && (
             <>
-              <p className="spot-desc">
-                {t(`轮到${currentDecision.actor === 0 ? '先行动方 OOP' : '后行动方 IP'}，点动作继续导航：`, `${currentDecision.actor === 0 ? 'First to act · OOP' : 'Last to act · IP'}. Choose an action to explore:`)}
-                {currentDecision.actions.map((a, i) => (
-                  <button key={i} className="chip-btn" style={{ marginLeft: 6 }} onClick={() => setPath([...path, i])}>
-                    {postflopActionName(a, language)}
-                  </button>
-                ))}
-              </p>
+              <div className="solver-next">
+                <span>{t(`轮到${currentDecision.actor === 0 ? '先行动方 OOP' : '后行动方 IP'}，选择动作继续：`, `${currentDecision.actor === 0 ? 'First to act · OOP' : 'Last to act · IP'}. Choose an action to explore:`)}</span>
+                <div className="solver-next-actions">
+                  {currentDecision.actions.map((a, i) => (
+                    <button key={i} type="button" className={`chip-btn solver-action solver-action-${a.kind}`} onClick={() => setPath([...path, i])}>
+                      {postflopActionName(a, language)}
+                    </button>
+                  ))}
+                </div>
+              </div>
               <RangeChart spot={spotView.spot} weights={spotView.weights} actionLabels={spotView.labels}
                 highlight={review && orderedPlayers(review)[currentDecision.actor]?.id === review.heroId && orderedPlayers(review)[currentDecision.actor]?.cards
                   ? handNameOf(...orderedPlayers(review)[currentDecision.actor].cards!) : undefined} />
@@ -402,5 +428,6 @@ export function SolverExplorer({ active = true, context }: { active?: boolean; c
         </div>
       )}
     </div>
+    </>
   )
 }

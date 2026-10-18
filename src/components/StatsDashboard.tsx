@@ -11,6 +11,7 @@ import { positionName } from '../poker/presentation'
 import { trainerAction, trainerError, trainerLeak, trainerLeakComparison, trainerNote, trainerStreet, trainerVerdict } from '../game/trainerPresentation'
 import type { OpenAnalysis } from '../analysis/types'
 import { ReplayButton } from './ReplayButton'
+import { PageIntro } from './PageIntro'
 
 const RANGES = [
   { key: 'today', label: '今天', en: 'Today', ms: () => Date.now() - new Date().setHours(0, 0, 0, 0) },
@@ -37,9 +38,9 @@ function StatCard({ title, ratio, suffix }: { title: string; ratio: Ratio; suffi
 }
 
 const VERDICT_COLORS: Record<string, string> = {
-  optimal: '#1fa78e',
-  acceptable: '#d9a441',
-  wrong: '#e2574a',
+  optimal: 'var(--positive)',
+  acceptable: 'var(--caution)',
+  wrong: 'var(--negative)',
   unavailable: 'var(--text-dim)',
 }
 
@@ -47,7 +48,8 @@ export function StatsDashboard({ active = true, onOpenAnalysis }: { active?: boo
   const { t } = useLanguage()
   const [scope, setScope] = useState<'battle' | 'training'>('battle')
   return <div>
-    <div className="stats-scope-tabs" role="group" aria-label={t('统计来源', 'Statistics source')}>
+    <PageIntro title={t('数据统计', 'Statistics')}>{t('好友对战与 GTO 训练的个人数据，只保存在当前浏览器。', 'Your Private Table and GTO training records, stored only in this browser.')}</PageIntro>
+    <div className="stats-scope-tabs segmented" role="group" aria-label={t('统计来源', 'Statistics source')}>
       <button className={`chip-btn ${scope === 'battle' ? 'chip-btn-active' : ''}`} aria-pressed={scope === 'battle'} onClick={() => setScope('battle')}>{t('好友对战', 'Private Table')}</button>
       <button className={`chip-btn ${scope === 'training' ? 'chip-btn-active' : ''}`} aria-pressed={scope === 'training'} onClick={() => setScope('training')}>{t('GTO 训练', 'GTO training')}</button>
     </div>
@@ -116,7 +118,7 @@ function TrainingStatsDashboard({ active, onOpenAnalysis }: { active: boolean; o
     <div ref={panelRef} tabIndex={-1} aria-label={t('训练统计', 'Training statistics')}>
       <div className="panel">
         <StatsHistoryToolbar title={t('我的训练数据', 'GTO training statistics')} disabled={totalHands === 0} onClear={() => { setClearError(''); setConfirmClear(true) }} />
-        <div className="trainer-settings">
+        <div className="trainer-settings segmented stats-range-picker" role="group" aria-label={t('时间范围', 'Time range')}>
           {RANGES.map((r) => (
             <button
               key={r.key}
@@ -237,10 +239,10 @@ function TrainingStatsDashboard({ active, onOpenAnalysis }: { active: boolean; o
                     style={{
                       color:
                         r.result.deltaBB === null
-                          ? '#d9a441'
+                          ? 'var(--caution)'
                           : r.result.deltaBB >= 0
-                            ? '#1fa78e'
-                            : '#e2574a',
+                            ? 'var(--positive)'
+                            : 'var(--negative)',
                       fontWeight: 600,
                     }}
                   >
