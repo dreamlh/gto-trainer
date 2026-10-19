@@ -1,5 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="14" fill="#203b2d" />
-  <rect x="3" y="3" width="58" height="58" rx="11" fill="none" stroke="#b9d7bc" stroke-width="2" />
-  <path d="M32 11C27 18 14 26 14 35a10 10 0 0 0 17 7c-1 6-3 9-7 11h16c-4-2-6-5-7-11a10 10 0 0 0 17-7c0-9-13-17-18-24Z" fill="#e4efdf" />
+  <defs>
+    <radialGradient id="cloth" cx="50%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#0a7a82" />
+      <stop offset=".5" stop-color="#005660" />
+      <stop offset="1" stop-color="#002a33" />
+    </radialGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbe6b3" />
+      <stop offset=".5" stop-color="#e8bd73" />
+      <stop offset="1" stop-color="#c78a3b" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#281911" />
+  <rect x="3.5" y="3.5" width="57" height="57" rx="11" fill="url(#cloth)" stroke="url(#brass)" stroke-width="2.4" />
+  <path d="M32 12C27.5 18.5 15.5 26 15.5 35a9.5 9.5 0 0 0 16 6.9c-1 5.6-2.9 8.7-6.6 10.6h14.2c-3.7-1.9-5.6-5-6.6-10.6a9.5 9.5 0 0 0 16-6.9c0-9-12-16.5-16.5-23Z" fill="#170c07" opacity=".45" transform="translate(0 1.6) translate(32 33) scale(1.1) translate(-32 -33)" />
+  <path d="M32 12C27.5 18.5 15.5 26 15.5 35a9.5 9.5 0 0 0 16 6.9c-1 5.6-2.9 8.7-6.6 10.6h14.2c-3.7-1.9-5.6-5-6.6-10.6a9.5 9.5 0 0 0 16-6.9c0-9-12-16.5-16.5-23Z" fill="url(#brass)" transform="translate(32 33) scale(1.1) translate(-32 -33)" />
 </svg>
