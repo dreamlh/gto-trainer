@@ -5,21 +5,57 @@ export interface BattleAudioSettingsValue { muted: boolean; music: number; effec
 export type BattleSound = 'deal' | 'check' | 'fold' | 'call' | 'raise' | 'allin' | 'win' | 'result' | 'turn'
 
 const MUSIC_LICENSE = 'https://creativecommons.org/licenses/by/4.0/'
+export const BATTLE_MUSIC_GROUPS = [
+  { id: 'jazz', zh: '爵士', en: 'Jazz' },
+  { id: 'piano', zh: '钢琴', en: 'Piano' },
+  { id: 'groove', zh: '律动与氛围', en: 'Groove & ambience' },
+] as const
+const trackPage = (isrc: string) => `https://incompetech.com/music/royalty-free/index.html?isrc=${isrc}`
 export const BATTLE_MUSIC_TRACKS = [
   {
-    id: 'jazz-brunch', title: 'Jazz Brunch', artist: 'Kevin MacLeod',
-    src: '/audio/jazz-brunch.m4a', source: 'https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1700074',
+    id: 'jazz-brunch', title: 'Jazz Brunch', artist: 'Kevin MacLeod', group: 'jazz',
+    src: '/audio/jazz-brunch.m4a', source: trackPage('USUAN1700074'),
     license: MUSIC_LICENSE, zh: '轻爵士', en: 'Light jazz', duration: '5:23', gain: 0.72,
   },
   {
-    id: 'cool-vibes', title: 'Cool Vibes', artist: 'Kevin MacLeod',
-    src: '/audio/cool-vibes.m4a', source: 'https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100863',
+    id: 'cool-vibes', title: 'Cool Vibes', artist: 'Kevin MacLeod', group: 'jazz',
+    src: '/audio/cool-vibes.m4a', source: trackPage('USUAN1100863'),
     license: MUSIC_LICENSE, zh: '慢拍爵士', en: 'Slow jazz', duration: '3:38', gain: 2.45,
   },
   {
-    id: 'night-on-the-docks', title: 'Night on the Docks - Piano', artist: 'Kevin MacLeod',
-    src: '/audio/night-on-the-docks.m4a', source: 'https://incompetech.com/music/royalty-free/index.html?isrc=USUAN1100135',
+    id: 'night-in-venice', title: 'Night in Venice', artist: 'Kevin MacLeod', group: 'jazz',
+    src: '/audio/night-in-venice.m4a', source: trackPage('USUAN1900056'),
+    license: MUSIC_LICENSE, zh: '复古萨克斯爵士', en: 'Vintage sax jazz', duration: '3:38', gain: 0.35,
+  },
+  {
+    id: 'night-on-the-docks', title: 'Night on the Docks - Piano', artist: 'Kevin MacLeod', group: 'piano',
+    src: '/audio/night-on-the-docks.m4a', source: trackPage('USUAN1100135'),
     license: MUSIC_LICENSE, zh: '夜色电钢琴', en: 'Late-night piano', duration: '2:54', gain: 2.05,
+  },
+  {
+    id: 'the-entertainer', title: 'The Entertainer', artist: 'Kevin MacLeod', group: 'piano',
+    src: '/audio/the-entertainer.m4a', source: trackPage('USUAN1900059'),
+    license: MUSIC_LICENSE, zh: '拉格泰姆钢琴', en: 'Ragtime piano', duration: '3:13', gain: 0.68,
+  },
+  {
+    id: 'valse-gymnopedie', title: 'Valse Gymnopedie', artist: 'Kevin MacLeod', group: 'piano',
+    src: '/audio/valse-gymnopedie.m4a', source: trackPage('USUAN2100012'),
+    license: MUSIC_LICENSE, zh: '萨蒂新编', en: 'Satie with a beat', duration: '3:12', gain: 0.88,
+  },
+  {
+    id: 'verano-sensual', title: 'Verano Sensual', artist: 'Kevin MacLeod', group: 'groove',
+    src: '/audio/verano-sensual.m4a', source: trackPage('USUAN1900020'),
+    license: MUSIC_LICENSE, zh: '拉丁律动', en: 'Latin groove', duration: '5:01', gain: 0.53,
+  },
+  {
+    id: 'late-night-radio', title: 'Late Night Radio', artist: 'Kevin MacLeod', group: 'groove',
+    src: '/audio/late-night-radio.m4a', source: trackPage('USUAN2100003'),
+    license: MUSIC_LICENSE, zh: '深夜 Lo-fi', en: 'Late-night lo-fi', duration: '4:24', gain: 0.40,
+  },
+  {
+    id: 'equatorial-complex', title: 'Equatorial Complex', artist: 'Kevin MacLeod', group: 'groove',
+    src: '/audio/equatorial-complex.m4a', source: trackPage('USUAN2300008'),
+    license: MUSIC_LICENSE, zh: '梦幻合成器', en: 'Dreamy synthwave', duration: '4:00', gain: 1.97,
   },
 ] as const
 export type BattleMusicId = typeof BATTLE_MUSIC_TRACKS[number]['id']

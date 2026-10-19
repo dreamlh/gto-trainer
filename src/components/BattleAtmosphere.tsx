@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react'
 import {
-  BATTLE_MUSIC_TRACKS, getBattleMusicTrack, getBattleAudioSettings, subscribeBattleAudioSettings,
+  BATTLE_MUSIC_GROUPS, BATTLE_MUSIC_TRACKS, getBattleMusicTrack, getBattleAudioSettings, subscribeBattleAudioSettings,
   setBattleTensionMusic, unlockBattleAudio, updateBattleAudioSettings, type BattleMusicId,
 } from '../battle/audio'
 import { useLanguage } from '../battle/i18n'
@@ -38,9 +38,11 @@ export function BattleAudioSettings() {
         updateBattleAudioSettings({ track: event.target.value as BattleMusicId })
         unlockBattleAudio()
       }}>
-        {BATTLE_MUSIC_TRACKS.map(track => <option key={track.id} value={track.id}>{track.title} · {t(track.zh, track.en)}</option>)}
+        {BATTLE_MUSIC_GROUPS.map(group => <optgroup key={group.id} label={t(group.zh, group.en)}>
+          {BATTLE_MUSIC_TRACKS.filter(track => track.group === group.id).map(track => <option key={track.id} value={track.id}>{t(track.zh, track.en)} · {track.title}</option>)}
+        </optgroup>)}
       </select>
-      <small>{t(selected.zh, selected.en)} · {selected.duration}</small>
+      <small>{selected.title} · {selected.duration}</small>
     </label>
     {(['music', 'effects'] as const).map(channel => <label className="battle-audio-volume" key={channel}>
       <span>{channel === 'music' ? t('背景音乐', 'Background music') : t('游戏音效', 'Game effects')}</span>
