@@ -343,7 +343,7 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
   const copyInvite = async () => { if (!room) return; setShowInvite(true); try { await navigator.clipboard.writeText(inviteLink(room.code)); setCopyStatus(t('邀请链接已复制', 'Invite link copied')) } catch { setCopyStatus(t('选中链接即可复制', 'Select the link to copy')) } }
 
   if (!session) return <section className="battle-page battle-setup has-hero">
-    <SetupHero cards={[[9, 2], [8, 2]]} />
+    <SetupHero cards={[[11, 1], [10, 1]]} />
     <div className="battle-setup-intro"><span className="battle-setup-suit" aria-hidden="true">♠</span><h2>{t('好友对战', 'Private Table')}</h2><p>{t('无限注德州扑克', 'No-limit Hold’em')}</p></div>
     <form ref={setupForm} className="battle-setup-card" onSubmit={event => void connect(event)} onKeyDown={event => {
       if (event.key === 'Enter' && (event.nativeEvent.isComposing || event.keyCode === 229 || event.repeat)) event.preventDefault()
