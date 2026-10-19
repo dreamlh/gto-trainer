@@ -1,6 +1,6 @@
 # Table music
 
-All nine recordings are by **Kevin MacLeod (incompetech.com)**, under
+All nine recordings and the all-in excerpt are by **Kevin MacLeod (incompetech.com)**, under
 **Creative Commons Attribution 4.0 International (CC BY 4.0)**.
 
 - License: https://creativecommons.org/licenses/by/4.0/
@@ -97,6 +97,27 @@ All nine recordings are by **Kevin MacLeod (incompetech.com)**, under
 - Local asset: `equatorial-complex.m4a`
 - ISRC: `USUAN2300008`; full duration 240.066 s.
 - Instruments: synths, vocal pad.
+
+## All-in cue: Hitman (excerpt)
+
+“Hitman” — Kevin MacLeod (incompetech.com). Licensed under CC BY 4.0.
+
+- Official download: https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hitman.mp3
+- Local asset: `allin-hitman.m4a` (excerpt, 86.268 s)
+- Catalogue data from the official MP3 tags: Soundtrack, 76 BPM, 2013; full duration 200.8 s.
+- Played only while a hand contains an all-in, in place of the selected table music.
+
+The excerpt runs from 51.750 s to 138.017 s of the original. Playback enters at
+0.504 s in the excerpt (52.254 s in the original), the bar where the first full
+section lands, and continues to the sixteen-bar passage 35.241–85.767 s
+(86.991–137.517 s in the original, 16 × 3.1579 s at 76 BPM), which then repeats.
+Around the loop end, 140 ms of equal-power crossfade lead into a copy of the
+120 ms that surround the loop start, so the jump is continuous even if a decoder
+shifts the excerpt by up to 60 ms; no other material was cut, recomposed or added. The passage was chosen by beat-grid analysis as the
+best-matching sixteen-bar span within the track's loud section. Excerpt RMS is
+−13.2 dBFS (peak +0.1 dBFS in the decoded source); the app applies gain 0.54
+(≈ −19.5 dBFS with the 0.9 tension bus factor), and falls back to a synthesized
+cue only until the excerpt has loaded.
 
 ## Processing and playback
 

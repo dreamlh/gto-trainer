@@ -58,6 +58,17 @@ export const BATTLE_MUSIC_TRACKS = [
     license: MUSIC_LICENSE, zh: '梦幻合成器', en: 'Dreamy synthwave', duration: '4:00', gain: 1.97,
   },
 ] as const
+/**
+ * All-in cue: an excerpt of a complete recording. Playback enters on the
+ * downbeat where the track's first full section lands, then repeats a
+ * sixteen-bar passage whose end was crossfaded into its start. Times are in
+ * seconds within the excerpt file; see public/audio/README.md.
+ */
+export const ALLIN_MUSIC = {
+  title: 'Hitman', artist: 'Kevin MacLeod', src: '/audio/allin-hitman.m4a',
+  source: 'https://incompetech.com/music/royalty-free/mp3-royaltyfree/Hitman.mp3', license: MUSIC_LICENSE,
+  gain: 0.54, offset: 0.504, loopStart: 35.2408, loopEnd: 85.7671,
+} as const
 export type BattleMusicId = typeof BATTLE_MUSIC_TRACKS[number]['id']
 export const BATTLE_MUSIC = BATTLE_MUSIC_TRACKS[0]
 export function getBattleMusicTrack(id: BattleMusicId) { return BATTLE_MUSIC_TRACKS.find(track => track.id === id) ?? BATTLE_MUSIC }
@@ -119,6 +130,9 @@ class TableAudio {
   private tensionKey: string | null = null
   private tensionBuffer: AudioBuffer | null = null
   private tensionSource: AudioBufferSourceNode | null = null
+  private tensionTrim: GainNode | null = null
+  private allinRecording: AudioBuffer | null = null
+  private allinLoading: Promise<void> | null = null
   private recording: HTMLAudioElement | null = null
   private recordingStartPending: number | null = null
   private recordingGeneration = 0
@@ -243,22 +257,47 @@ class TableAudio {
   }
 
   /** Synthesize the all-in cue while the page is idle, so a shove never waits on it. */
+  /** Fetch and decode the all-in recording while the page is idle, so a shove never waits on it. */
   private prepareTension(): void {
-    const render = () => { if (this.context && !this.tensionBuffer && !this.disposed) this.tensionBuffer = createTensionMusic(this.context) }
+    const context = this.context
+    if (!context || this.allinLoading || typeof fetch !== 'function' || typeof context.decodeAudioData !== 'function') return
+    const load = () => {
+      this.allinLoading = fetch(ALLIN_MUSIC.src)
+        .then(response => { if (!response.ok) throw new Error(String(response.status)); return response.arrayBuffer() })
+        .then(data => context.decodeAudioData(data))
+        .then(buffer => { if (!this.disposed) this.allinRecording = buffer })
+        .catch(() => { this.allinLoading = null })
+    }
     const host = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number }
-    if (typeof host.requestIdleCallback === 'function') host.requestIdleCallback(render, { timeout: 4000 })
-    else if (typeof host.setTimeout === 'function') host.setTimeout(render, 1500)
+    if (typeof host.requestIdleCallback === 'function') host.requestIdleCallback(load, { timeout: 4000 })
+    else if (typeof host.setTimeout === 'function') host.setTimeout(load, 1200)
   }
 
   private startTension(): void {
     if (this.tensionSource || !this.context || !this.tension) return
-    this.tensionBuffer ??= createTensionMusic(this.context)
     const source = this.context.createBufferSource()
-    source.buffer = this.tensionBuffer
-    source.loop = true
-    source.connect(this.tension)
-    source.start()
+    const trim = this.context.createGain()
+    const recording = this.allinRecording
+    if (recording) {
+      source.buffer = recording
+      source.loop = true
+      source.loopStart = ALLIN_MUSIC.loopStart
+      source.loopEnd = ALLIN_MUSIC.loopEnd
+      trim.gain.value = ALLIN_MUSIC.gain
+    } else {
+      // Until the recording has loaded (or if it cannot), the synthesized cue keeps the moment.
+      this.tensionBuffer ??= createTensionMusic(this.context)
+      source.buffer = this.tensionBuffer
+      source.loop = true
+      trim.gain.value = 1
+      this.prepareTension()
+    }
+    source.connect(trim)
+    trim.connect(this.tension)
+    if (recording) source.start(0, ALLIN_MUSIC.offset)
+    else source.start()
     this.tensionSource = source
+    this.tensionTrim = trim
   }
 
   private stopTension(): void {
@@ -267,6 +306,8 @@ class TableAudio {
     if (!source) return
     try { source.stop() } catch { /* Already stopped by the browser. */ }
     source.disconnect()
+    this.tensionTrim?.disconnect()
+    this.tensionTrim = null
   }
 
   private tone(frequency: number, at: number, duration: number, gain: number, bus: GainNode, type: OscillatorType = 'sine', attack = 0.006): void {

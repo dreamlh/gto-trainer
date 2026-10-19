@@ -1,6 +1,6 @@
 import { useEffect, useSyncExternalStore } from 'react'
 import {
-  BATTLE_MUSIC_GROUPS, BATTLE_MUSIC_TRACKS, getBattleMusicTrack, getBattleAudioSettings, subscribeBattleAudioSettings,
+  ALLIN_MUSIC, BATTLE_MUSIC_GROUPS, BATTLE_MUSIC_TRACKS, getBattleMusicTrack, getBattleAudioSettings, subscribeBattleAudioSettings,
   setBattleTensionMusic, unlockBattleAudio, updateBattleAudioSettings, type BattleMusicId,
 } from '../battle/audio'
 import { useLanguage } from '../battle/i18n'
@@ -58,6 +58,12 @@ export function BattleAudioSettings() {
       {' · '}{selected.artist}{' · '}
       <a href={selected.license} target="_blank" rel="noreferrer">CC BY 4.0</a>
       <span>{t('已转码，完整曲目', 'Transcoded · full recording')}</span>
+    </p>
+    <p className="battle-music-credit">
+      {t('全下配乐：', 'All-in cue: ')}<a href={ALLIN_MUSIC.source} target="_blank" rel="noreferrer">{ALLIN_MUSIC.title}</a>
+      {' · '}{ALLIN_MUSIC.artist}{' · '}
+      <a href={ALLIN_MUSIC.license} target="_blank" rel="noreferrer">CC BY 4.0</a>
+      <span>{t('节选并循环', 'Excerpt, looped')}</span>
     </p>
   </section>
 }
