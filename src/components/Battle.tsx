@@ -215,6 +215,7 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
   const [connection, setConnection] = useState<'loading' | 'online' | 'retrying'>('loading')
   const visuals = useBattleVisuals(room, active && connection === 'online')
   const [copyStatus, setCopyStatus] = useState('')
+  const copyStatusTimer = useRef<number | undefined>(undefined)
   const [showInvite, setShowInvite] = useState(false)
   const [confirmLeave, setConfirmLeave] = useState(false)
   const [sidebarTab, setSidebarTab] = useState<'players' | 'history' | 'chat'>('history')
@@ -340,7 +341,15 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
       else setError(failure instanceof Error ? failure.message : t('操作失败，请重试。', 'Action failed. Try again.'))
     } finally { busyRef.current = false; setBusy(false) }
   }
-  const copyInvite = async () => { if (!room) return; setShowInvite(true); try { await navigator.clipboard.writeText(inviteLink(room.code)); setCopyStatus(t('邀请链接已复制', 'Invite link copied')) } catch { setCopyStatus(t('选中链接即可复制', 'Select the link to copy')) } }
+  const openInvite = () => { setCopyStatus(''); setShowInvite(true) }
+  // Copy only when asked; the confirmation reverts so the button can be used again.
+  const copyInvite = async () => {
+    if (!room) return
+    window.clearTimeout(copyStatusTimer.current)
+    try { await navigator.clipboard.writeText(inviteLink(room.code)); setCopyStatus(t('邀请链接已复制', 'Invite link copied')) } catch { setCopyStatus(t('选中链接即可复制', 'Select the link to copy')) }
+    copyStatusTimer.current = window.setTimeout(() => setCopyStatus(''), 2400)
+  }
+  useEffect(() => () => window.clearTimeout(copyStatusTimer.current), [])
 
   if (!session) return <section className="battle-page battle-setup has-hero">
     <SetupHero cards={[[11, 1], [10, 1]]} />
@@ -415,7 +424,7 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
       <div className="battle-room-identity"><span className={`battle-live-dot ${connection !== 'online' ? 'is-offline' : ''}`} role="status" aria-label={connection === 'online' ? t('已连接', 'Connected') : t('重连中', 'Reconnecting')} /><h2>{room.code}</h2>{tournament && <span className="battle-format-label">{t('锦标赛', 'Tournament')}</span>}<span className="battle-room-count">{room.seats.filter(Boolean).length}/{room.capacity}<span> · {t(`${activePlayers.filter(player => !player.bot && (player.seat === null || player.sittingOut)).length} 观战`, `${activePlayers.filter(player => !player.bot && (player.seat === null || player.sittingOut)).length} watching`)}</span></span></div>
       <div className="battle-header-actions">
         <button className="battle-text-button" onClick={() => setShowRules(true)}>{t('规则介绍', 'Rules')}</button>
-        <button className="battle-button battle-button-subtle" onClick={() => void copyInvite()}>{t('邀请好友', 'Invite')}</button>
+        <button className="battle-button battle-button-subtle" onClick={openInvite}>{t('邀请好友', 'Invite')}</button>
         <button className="battle-button battle-danger" onClick={() => setConfirmLeave(true)}>{t('退出房间', 'Leave room')}</button>
         <button className="battle-more" aria-label={t('房间设置', 'Room settings')} onClick={() => setShowMenu(true)}>•••</button>
       </div>

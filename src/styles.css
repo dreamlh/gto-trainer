@@ -45,6 +45,9 @@
   box-sizing: border-box;
 }
 
+/* The reset above removes the UA's margin: auto, which is what centres a modal <dialog>. */
+dialog { margin: auto; }
+
 html {
   /* 滚动条常驻，避免出现/消失引发布局振荡 */
   overflow-y: scroll;
