@@ -153,6 +153,7 @@ class TableAudio {
         this.recordingTrack = getBattleAudioSettings().track
         this.recording.src = getBattleMusicTrack(this.recordingTrack).src
         this.context.createMediaElementSource(this.recording).connect(this.music)
+        this.prepareTension()
         const samples = this.context.sampleRate * 0.15
         this.noiseBuffer = this.context.createBuffer(1, samples, this.context.sampleRate)
         const data = this.noiseBuffer.getChannelData(0)
@@ -239,6 +240,14 @@ class TableAudio {
   private shouldPlayMusic(): boolean {
     const preferences = getBattleAudioSettings()
     return this.active && !preferences.muted && preferences.music > 0
+  }
+
+  /** Synthesize the all-in cue while the page is idle, so a shove never waits on it. */
+  private prepareTension(): void {
+    const render = () => { if (this.context && !this.tensionBuffer && !this.disposed) this.tensionBuffer = createTensionMusic(this.context) }
+    const host = window as Window & { requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number }
+    if (typeof host.requestIdleCallback === 'function') host.requestIdleCallback(render, { timeout: 4000 })
+    else if (typeof host.setTimeout === 'function') host.setTimeout(render, 1500)
   }
 
   private startTension(): void {
