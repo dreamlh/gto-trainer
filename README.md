@@ -34,6 +34,10 @@ npm run dev        # http://localhost:5173
 npm run build      # 生产构建
 ```
 
+## 持续集成与部署
+
+`.github/workflows/deploy.yml`：每次推送和 PR 都会安装依赖、类型检查并构建、运行 `npm test`；推送到 `main` 且测试通过后自动执行 `wrangler deploy` 部署到 Cloudflare Workers。部署需要仓库 Secrets 中的 `CLOUDFLARE_API_TOKEN`（Cloudflare「Edit Cloudflare Workers」模板令牌）与 `CLOUDFLARE_ACCOUNT_ID`；未配置时只测试不部署。也可在 Actions 页面手动运行（workflow_dispatch）。
+
 ## 重新生成求解数据（改了 solver 参数后）
 
 ```bash
@@ -45,6 +49,7 @@ npx tsx scripts/solve-preflop.ts 6        # 只解某个桌型（本进程）
 ## 测试
 
 ```bash
+npm test                          # 全部快速测试（约 20 秒），CI 也运行这一条
 npx tsx scripts/test-logic.ts      # 快：解析/评估器/权益/引擎
 npx tsx scripts/test-stats.ts      # 快：统计与弱点检测（合成数据）
 npm run test:analysis             # 场景累计范围、组合权重、历史还原和求解边界
