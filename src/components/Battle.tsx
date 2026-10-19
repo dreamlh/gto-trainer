@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { SetupHero } from './SetupHero'
+import { OptionSlider } from './OptionSlider'
 import { BattleApiError, createRoom, getRoom, joinRoom, savedSession, saveSession, sendCommand } from '../battle/client'
 import type { HandView, RoomCommand, RoomPlayer, RoomSession, RoomView } from '../battle/types'
 import { useLanguage } from '../battle/i18n'
@@ -30,6 +31,12 @@ import { useBattleVisuals } from './useBattleVisuals'
 import { useBattleChipLayout } from './useBattleChipLayout'
 import '../battle/battle.css'
 import '../battle/effects.css'
+
+const SEAT_OPTIONS = [2, 3, 4, 5, 6, 7, 8, 9]
+const STACK_OPTIONS = [50, 100, 200, 300, 500, 1000]
+const ACTION_TIME_OPTIONS = [20, 30, 40, 50, 60, 0] // 0 = unlimited, kept at the far end
+const BLIND_INTERVAL_OPTIONS = Array.from({ length: 60 }, (_, i) => i + 1)
+const REGISTRATION_OPTIONS = Array.from({ length: 11 }, (_, n) => n)
 
 const bb = (value: number) => Number(value.toFixed(2)).toLocaleString('en-GB')
 const signed = (value: number) => `${value > 0 ? '+' : ''}${bb(value)}`
@@ -364,12 +371,20 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
           <button type="button" aria-pressed={roomMode === 'cash'} onClick={() => setRoomMode('cash')} disabled={busy}>{t('现金桌', 'Cash game')}</button>
           <button type="button" aria-pressed={roomMode === 'tournament'} onClick={() => setRoomMode('tournament')} disabled={busy}>{t('锦标赛', 'Tournament')}</button>
         </div>
-        <div className="battle-setup-fields">
-          <label className="battle-field">{t('座位数', 'Seats')}<select value={capacity} onChange={event => setCapacity(Number(event.target.value))} disabled={busy}>{Array.from({ length: 8 }, (_, i) => i + 2).map(n => <option key={n} value={n}>{n}</option>)}</select></label>
-          <label className="battle-field">{t('初始筹码', 'Starting stack')}<select value={initialStack} onChange={event => setInitialStack(Number(event.target.value))} disabled={busy}>{[50, 100, 200, 300, 500, 1000].map(stack => <option key={stack} value={stack}>{stack} BB</option>)}</select></label>
-          <label className="battle-field">{t('行动时间', 'Action time')}<select value={actionSeconds} onChange={event => setActionSeconds(Number(event.target.value))} disabled={busy}>{[20, 30, 40, 50, 60, 0].map(seconds => <option key={seconds} value={seconds}>{seconds === 0 ? t('不限时', 'Unlimited') : `${seconds}s`}</option>)}</select></label>
-          {roomMode === 'tournament' && <label className="battle-field">{t('升盲间隔（分钟）', 'Blind interval (minutes)')}<input type="number" min={1} max={60} step={1} value={blindIntervalMinutes} onChange={event => setBlindIntervalMinutes(Number(event.target.value))} disabled={busy} required /></label>}
-          {roomMode === 'tournament' && <label className="battle-field battle-field-wide">{t('报名 / 重购截止', 'Entry / rebuy closes')}<select value={registrationRaises} onChange={event => setRegistrationRaises(Number(event.target.value))} disabled={busy}>{Array.from({ length: 11 }, (_, n) => <option key={n} value={n}>{n === 0 ? t('开赛时', 'At the start') : t(`升盲 ${n} 次后 · 第 ${n + 1} 级起`, `After ${n} blind increase${n > 1 ? 's' : ''} · Level ${n + 1}`)}</option>)}</select></label>}
+        <div className="option-slider-stack">
+          <OptionSlider label={t('座位数', 'Seats')} values={SEAT_OPTIONS} value={capacity} onChange={setCapacity} disabled={busy}
+            format={n => t(`${n} 座`, `${n} seats`)} />
+          <OptionSlider label={t('初始筹码', 'Starting stack')} values={STACK_OPTIONS} value={initialStack} onChange={setInitialStack} disabled={busy}
+            format={stack => `${stack} BB`} />
+          <OptionSlider label={t('行动时间', 'Action time')} values={ACTION_TIME_OPTIONS} value={actionSeconds} onChange={setActionSeconds} disabled={busy}
+            format={seconds => seconds === 0 ? t('不限时', 'Unlimited') : t(`${seconds} 秒`, `${seconds}s`)}
+            tickLabel={seconds => seconds === 0 ? t('不限', '∞') : `${seconds}s`} />
+          {roomMode === 'tournament' && <OptionSlider label={t('升盲间隔', 'Blind interval')} values={BLIND_INTERVAL_OPTIONS} value={blindIntervalMinutes} onChange={setBlindIntervalMinutes} disabled={busy}
+            format={minutes => t(`${minutes} 分钟`, `${minutes} min`)}
+            tickLabel={minutes => minutes === 1 || minutes % 10 === 0 ? String(minutes) : null} />}
+          {roomMode === 'tournament' && <OptionSlider label={t('报名 / 重购截止', 'Entry / rebuy closes')} values={REGISTRATION_OPTIONS} value={registrationRaises} onChange={setRegistrationRaises} disabled={busy}
+            format={n => n === 0 ? t('开赛时', 'At the start') : t(`升盲 ${n} 次后 · 第 ${n + 1} 级起`, `After ${n} increase${n > 1 ? 's' : ''} · Level ${n + 1}`)}
+            tickLabel={n => n === 0 ? t('开赛', 'Start') : String(n)} />}
         </div>
         {roomMode === 'tournament' && <p className="battle-tournament-setup-note">{registrationRaises === 0 ? t('开赛即截止报名和重购。升盲从下一手生效。', 'Entry and rebuys close at the start. Blind increases apply to the next hand.') : t(`开赛后 ${registrationRaises * blindIntervalMinutes} 分钟内可报名、重购；截止后淘汰制继续。`, `Late entry and rebuys are open for ${registrationRaises * blindIntervalMinutes} minutes. After that, play continues as a freezeout.`)}</p>}
       </> : <label className="battle-field">{t('房间码', 'Room code')}<input className="battle-code-input" autoComplete="off" name="room" maxLength={8} value={code} onChange={event => setCode(event.target.value.toUpperCase().replace(/\s/g, ''))} required disabled={busy} /></label>}

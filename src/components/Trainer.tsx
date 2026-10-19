@@ -20,6 +20,7 @@ import { PokerDialog } from './PokerDialog'
 import { usePokerTableViewport } from './usePokerTableViewport'
 import { PokerSettingSwitch } from './PokerSettingSwitch'
 import { SetupHero } from './SetupHero'
+import { OptionSlider } from './OptionSlider'
 import './trainer.css'
 
 const TABLE_SIZES = [2, 3, 4, 5, 6, 7, 8, 9]
@@ -184,12 +185,8 @@ export function Trainer({ active = true }: { active?: boolean }) {
   }
 
   const setupFields = (size: number, onlyPreflop: boolean, onSize: (size: number) => void, onMode: (onlyPreflop: boolean) => void) => <>
-    <div className="battle-field">
-      <span className="seat-count-label">{t('牌桌人数', 'Players')}<b>{size}{t(' 人桌', ' players')}{size === 2 ? t(' · 单挑', ' · heads-up') : ''}</b></span>
-      <div className="seat-count-picker" role="group" aria-label={t('牌桌人数', 'Players')}>
-        {TABLE_SIZES.map(n => <button key={n} type="button" aria-pressed={n === size} aria-label={t(`${n} 人桌`, `${n} players`)} onClick={() => onSize(n)}>{n}</button>)}
-      </div>
-    </div>
+    <OptionSlider label={t('牌桌人数', 'Players')} values={TABLE_SIZES} value={size} onChange={onSize}
+      format={n => n === 2 ? t('2 人桌 · 单挑', '2 players · heads-up') : t(`${n} 人桌`, `${n} players`)} />
     <PokerSettingSwitch className="trainer-setup-switch" checked={onlyPreflop} onChange={onMode}>{t('只练翻前', 'Preflop only')}</PokerSettingSwitch>
     <p className="battle-fine-print trainer-setup-note">{onlyPreflop
       ? t('每手到翻牌为止，只评估翻前决策，节奏最快。', 'Hands stop before the flop. Only preflop decisions are scored, for faster practice.')

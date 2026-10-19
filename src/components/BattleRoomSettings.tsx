@@ -3,6 +3,7 @@ import type { RoomCommand, RoomView } from '../battle/types'
 import { useLanguage } from '../battle/i18n'
 import '../battle/room-settings.css'
 import { PokerSettingSwitch } from './PokerSettingSwitch'
+import { OptionSlider } from './OptionSlider'
 import { setTableChatEnabled, useTableChatEnabled } from '../battle/tableChatSettings'
 
 interface SettingsProps {
@@ -13,7 +14,7 @@ interface SettingsProps {
 }
 
 const chips = (value: number) => Number(value.toFixed(2)).toLocaleString('en-GB')
-const ACTION_SECONDS = [0, 20, 30, 40, 50, 60]
+const ACTION_SECONDS = [20, 30, 40, 50, 60, 0] // 0 = unlimited, kept at the far end
 const BUY_INS = [50, 100, 200, 300, 500, 1000]
 
 export function BattleStandIcon() {
@@ -96,9 +97,12 @@ export function BattleRoomSettings({ room, busy, onCommand, onClose }: SettingsP
     </dl>
 
     {canEdit && <form className="brs-edit" onSubmit={save}>
-      <div className="brs-fields">
-        <label>{t('行动时间', 'Action time')}<select value={actionSeconds} disabled={busy} onChange={event => setActionSeconds(Number(event.target.value))}>{ACTION_SECONDS.map(seconds => <option key={seconds} value={seconds}>{seconds === 0 ? t('不限时', 'Unlimited') : `${seconds}s`}</option>)}</select></label>
-        <label>{t('买入 / 补码', 'Buy-in / rebuy')}<select value={initialStack} disabled={busy} onChange={event => setInitialStack(Number(event.target.value))}>{stackOptions.map(stack => <option key={stack} value={stack}>{chips(stack)} BB</option>)}</select></label>
+      <div className="option-slider-stack brs-sliders">
+        <OptionSlider label={t('行动时间', 'Action time')} values={ACTION_SECONDS} value={actionSeconds} onChange={setActionSeconds} disabled={busy}
+          format={seconds => seconds === 0 ? t('不限时', 'Unlimited') : t(`${seconds} 秒`, `${seconds}s`)}
+          tickLabel={seconds => seconds === 0 ? t('不限', '∞') : `${seconds}s`} />
+        <OptionSlider label={t('买入 / 补码', 'Buy-in / rebuy')} values={stackOptions} value={initialStack} onChange={setInitialStack} disabled={busy}
+          format={stack => `${chips(stack)} BB`} tickLabel={stack => chips(stack)} />
       </div>
       <div className="brs-save-row"><p>{t('行动时间从下一手生效；买入量用于后续买入／补码。', 'Action time applies from the next hand; buy-in size applies to future buy-ins / rebuys.')}</p><button type="submit" className="battle-button battle-button-gold" disabled={busy || !changed}>{t('保存设置', 'Save settings')}</button></div>
     </form>}
