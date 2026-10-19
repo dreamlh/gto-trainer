@@ -7,6 +7,10 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=1" />
     <title>GTO Hold'em</title>
+    <script>
+      // Apply the saved colour theme before first paint (see src/appTheme.ts).
+      try { var t = localStorage.getItem('gto.theme'); if (t && t !== 'felt') document.documentElement.dataset.theme = t } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

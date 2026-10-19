@@ -1,0 +1,59 @@
+/*
+ * Colour themes. Every tinted colour in the app is written as
+ *   oklch(L  C × var(--tint)  var(--hue) ± offset)
+ * so a theme only chooses hues and tint strength; lightness — and with it all
+ * contrast relationships — stays exactly as designed.
+ *   --hue / --tint          neutral surfaces, borders and text
+ *   --accent-h / --accent-c light highlights (buttons, active tabs, focus)
+ *   --felt-h / --felt-tint  the poker table cloth and card backs
+ * Action colours (raise / call / fold), suits, chips and win/loss stay fixed.
+ */
+:root,
+[data-theme="felt"] {
+  --hue: 150;
+  --tint: 1;
+  --accent-h: 148;
+  --accent-c: 1;
+  --felt-h: var(--hue);
+  --felt-tint: var(--tint);
+}
+
+/* Navy cloth, brass highlights. */
+[data-theme="midnight"] {
+  --hue: 258;
+  --tint: 1.3;
+  --accent-h: 84;
+  --accent-c: 1.75;
+  --felt-h: 252;
+  --felt-tint: 1.45;
+}
+
+/* Wine velvet, champagne highlights. */
+[data-theme="bordeaux"] {
+  --hue: 14;
+  --tint: 1.1;
+  --accent-h: 72;
+  --accent-c: 1.5;
+  --felt-h: 16;
+  --felt-tint: 1.1;
+}
+
+/* Neutral charcoal room, ice-blue highlights, classic green cloth. */
+[data-theme="graphite"] {
+  --hue: 250;
+  --tint: .28;
+  --accent-h: 232;
+  --accent-c: 1.55;
+  --felt-h: 158;
+  --felt-tint: 1;
+}
+
+/* Violet dusk, rose highlights. */
+[data-theme="dusk"] {
+  --hue: 298;
+  --tint: 1.15;
+  --accent-h: 322;
+  --accent-c: 1.45;
+  --felt-h: 294;
+  --felt-tint: 1.1;
+}

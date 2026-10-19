@@ -29,7 +29,7 @@
 .poker-hole-placeholder { visibility: hidden; }
 .poker-hole-card.is-publicly-shown .poker-hole-front .card-face {
   opacity: 1;
-  box-shadow: 0 0 0 1px #b5edc9, 0 0 7px 2px #a4e1bc80;
+  box-shadow: 0 0 0 1px oklch(0.898 calc(0.0755 * var(--accent-c)) calc(var(--accent-h) + 8.4)), 0 0 7px 2px oklch(0.858 calc(0.0807 * var(--accent-c)) calc(var(--accent-h) + 9.6) / 0.502);
 }
 @media (prefers-reduced-motion: reduce) {
   .poker-hole-flipper { transition: none; }

@@ -1,28 +1,28 @@
-.brs-settings { min-width: 0; color: #d5e0d3; }
+.brs-settings { min-width: 0; color: oklch(0.895 calc(0.0211 * var(--tint)) calc(var(--hue) - 9.1)); }
 .brs-summary { display: grid; gap: 12px; margin: 0 0 18px; }
 .brs-summary > div { display: grid; grid-template-columns: minmax(90px, 1fr) minmax(0, 1.3fr); align-items: baseline; gap: 14px; }
-.brs-summary dt { color: #9cb29f; font-size: 13px; line-height: 1.5; }
+.brs-summary dt { color: oklch(0.741 calc(0.0363 * var(--accent-c)) calc(var(--accent-h) + 1.2)); font-size: 13px; line-height: 1.5; }
 .brs-summary dd { margin: 0; text-align: right; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-.brs-summary dd small { display: block; color: #91a893; font-size: 12px; }
-.brs-edit { margin: 0 0 16px; padding-top: 15px; border-top: 1px solid #354637; }
+.brs-summary dd small { display: block; color: oklch(0.708 calc(0.0396 * var(--accent-c)) calc(var(--accent-h) - 0.4)); font-size: 12px; }
+.brs-edit { margin: 0 0 16px; padding-top: 15px; border-top: 1px solid oklch(0.375 calc(0.0334 * var(--tint)) calc(var(--hue) - 1.9)); }
 .brs-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.brs-fields label { display: flex; flex-direction: column; gap: 7px; color: #b4c7b5; font-size: 13px; }
-.brs-fields select { width: 100%; min-width: 0; min-height: 40px; padding: 8px; border: 1px solid #4d6550; border-radius: 5px; color: #e2ecdf; background: #142019; font: inherit; font-size: 14px; }
+.brs-fields label { display: flex; flex-direction: column; gap: 7px; color: oklch(0.81 calc(0.0324 * var(--accent-c)) calc(var(--accent-h) - 1.3)); font-size: 13px; }
+.brs-fields select { width: 100%; min-width: 0; min-height: 40px; padding: 8px; border: 1px solid oklch(0.481 calc(0.044 * var(--tint)) calc(var(--hue) - 1.8)); border-radius: 5px; color: oklch(0.932 calc(0.0203 * var(--tint)) calc(var(--hue) - 11.6)); background: oklch(0.23 calc(0.0217 * var(--tint)) calc(var(--hue) + 8.5)); font: inherit; font-size: 14px; }
 .brs-save-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
-.brs-save-row p { margin: 0; color: #94aa98; font-size: 12px; line-height: 1.5; }
+.brs-save-row p { margin: 0; color: oklch(0.716 calc(0.0356 * var(--accent-c)) calc(var(--accent-h) + 2.6)); font-size: 12px; line-height: 1.5; }
 .brs-save-row button { flex: none; }
-.brs-share { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px 0; border-top: 1px solid #354637; color: #c7d9c6; font-size: 14px; line-height: 1.5; cursor: pointer; }
-.brs-share input { position: relative; appearance: none; width: 40px; height: 23px; flex: none; margin: 0; border: 1px solid #5f7462; border-radius: 14px; background: #25342a; cursor: pointer; transition: background-color .16s ease; }
-.brs-share input::after { content: ''; position: absolute; width: 17px; height: 17px; top: 2px; left: 2px; border-radius: 50%; background: #a1b2a2; transition: transform .16s ease; }
-.brs-share input:checked { background: #a9c899; border-color: #a9c899; }
-.brs-share input:checked::after { transform: translateX(17px); background: #f0f7eb; }
-.brs-actions { border-top: 1px solid #354637; }
-.brs-action { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: 100%; min-height: 49px; padding: 13px 0; border: 0; border-bottom: 1px solid #354637; background: transparent; color: #c7d9c6; text-align: left; font: inherit; font-size: 14px; cursor: pointer; }
-.brs-action small { color: #a0b4a2; font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.brs-action:hover:not(:disabled) { color: #eff5e9; }
-.brs-icon { width: 22px; height: 22px; flex: none; color: #a5bda4; }
+.brs-share { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 16px 0; border-top: 1px solid oklch(0.375 calc(0.0334 * var(--tint)) calc(var(--hue) - 1.9)); color: oklch(0.866 calc(0.0323 * var(--accent-c)) calc(var(--accent-h) - 4.2)); font-size: 14px; line-height: 1.5; cursor: pointer; }
+.brs-share input { position: relative; appearance: none; width: 40px; height: 23px; flex: none; margin: 0; border: 1px solid oklch(0.536 calc(0.0373 * var(--tint)) calc(var(--hue) - 0.9)); border-radius: 14px; background: oklch(0.308 calc(0.0268 * var(--tint)) calc(var(--hue) + 5.3)); cursor: pointer; transition: background-color .16s ease; }
+.brs-share input::after { content: ''; position: absolute; width: 17px; height: 17px; top: 2px; left: 2px; border-radius: 50%; background: oklch(0.746 calc(0.0295 * var(--tint)) calc(var(--hue) - 3.1)); transition: transform .16s ease; }
+.brs-share input:checked { background: oklch(0.798 calc(0.0727 * var(--accent-c)) calc(var(--accent-h) - 12.9)); border-color: oklch(0.798 calc(0.0727 * var(--accent-c)) calc(var(--accent-h) - 12.9)); }
+.brs-share input:checked::after { transform: translateX(17px); background: oklch(0.968 calc(0.0175 * var(--tint)) calc(var(--hue) - 18.1)); }
+.brs-actions { border-top: 1px solid oklch(0.375 calc(0.0334 * var(--tint)) calc(var(--hue) - 1.9)); }
+.brs-action { display: flex; align-items: center; justify-content: space-between; gap: 14px; width: 100%; min-height: 49px; padding: 13px 0; border: 0; border-bottom: 1px solid oklch(0.375 calc(0.0334 * var(--tint)) calc(var(--hue) - 1.9)); background: transparent; color: oklch(0.866 calc(0.0323 * var(--accent-c)) calc(var(--accent-h) - 4.2)); text-align: left; font: inherit; font-size: 14px; cursor: pointer; }
+.brs-action small { color: oklch(0.749 calc(0.0337 * var(--accent-c)) calc(var(--accent-h) + 0.1)); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.brs-action:hover:not(:disabled) { color: oklch(0.962 calc(0.0171 * var(--tint)) calc(var(--hue) - 21.3)); }
+.brs-icon { width: 22px; height: 22px; flex: none; color: oklch(0.773 calc(0.0438 * var(--accent-c)) calc(var(--accent-h) - 3.9)); }
 .brs-settings :is(button, select, input):disabled, .brs-share input:disabled { cursor: default; opacity: .45; }
-.brs-settings :is(button, select, input):focus-visible, .brs-share input:focus-visible { outline: 2px solid #c2d8b5; outline-offset: 3px; }
+.brs-settings :is(button, select, input):focus-visible, .brs-share input:focus-visible { outline: 2px solid oklch(0.856 calc(0.053 * var(--accent-c)) calc(var(--accent-h) - 14.2)); outline-offset: 3px; }
 @media (max-width: 430px) {
   .brs-fields { gap: 10px; }
   .brs-summary { gap: 10px; }

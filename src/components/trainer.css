@@ -4,12 +4,12 @@
 .trainer-page .battle-room-identity h2 { letter-spacing: 0; }
 .trainer-page .battle-table-panel { min-width: 0; }
 .trainer-setup-note { margin: 2px 0 20px; }
-.trainer-table-loading { display: grid !important; place-items: center; min-height: 320px !important; color: #94a397; }
-.trainer-session-stats { display: flex; align-items: center; flex: none; flex-wrap: wrap; gap: 4px 20px; padding: 9px 2px 2px; color: #87968c; font-size: 11px; font-variant-numeric: tabular-nums; }
-.trainer-session-stats b { margin-left: 4px; color: #c6d6c5; font-weight: 550; white-space: nowrap; }
+.trainer-table-loading { display: grid !important; place-items: center; min-height: 320px !important; color: oklch(0.7 calc(0.0242 * var(--tint)) calc(var(--hue) + 1.5)); }
+.trainer-session-stats { display: flex; align-items: center; flex: none; flex-wrap: wrap; gap: 4px 20px; padding: 9px 2px 2px; color: oklch(0.658 calc(0.0226 * var(--tint)) calc(var(--hue) + 6.5)); font-size: 11px; font-variant-numeric: tabular-nums; }
+.trainer-session-stats b { margin-left: 4px; color: oklch(0.859 calc(0.0289 * var(--tint)) calc(var(--hue) - 6.3)); font-weight: 550; white-space: nowrap; }
 .trainer-session-stats small { font-size: 10px; }
 .trainer-decision .ba-your-turn { flex: none; }
-.trainer-turn-spot { min-width: 0; flex: 1; color: #91a394; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.trainer-turn-spot { min-width: 0; flex: 1; color: oklch(0.697 calc(0.0296 * var(--tint)) calc(var(--hue) + 0.2)); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .trainer-result-actions { display: flex; align-items: center; gap: 10px; }
 .trainer-result-actions > .ba-action { min-width: 110px; }
 .trainer-result-actions > .battle-button { min-width: 0; }
@@ -19,39 +19,39 @@
 .trainer-feedback-link:hover { text-decoration: underline; text-underline-offset: 3px; }
 .trainer-result-meta { display: flex; flex-direction: column; align-items: flex-end; }
 .trainer-result-meta > span { font-size: 10px; }
-.trainer-panel-scroll { overflow-y: auto; flex: 1; min-height: 0; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #536b58 transparent; }
-.trainer-decision-review { padding: 0 14px 16px; border-bottom: 1px solid #303e33; }
+.trainer-panel-scroll { overflow-y: auto; flex: 1; min-height: 0; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: oklch(0.503 calc(0.0413 * var(--tint)) calc(var(--hue) + 1)) transparent; }
+.trainer-decision-review { padding: 0 14px 16px; border-bottom: 1px solid oklch(0.348 calc(0.0264 * var(--tint)) calc(var(--hue) + 1.3)); }
 .trainer-verdict-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; }
-.trainer-verdict-row > span { color: #879b8c; font-size: 10px; }
+.trainer-verdict-row > span { color: oklch(0.669 calc(0.0315 * var(--tint)) calc(var(--hue) + 3)); font-size: 10px; }
 .trainer-verdict-optimal, .trainer-verdict-optimal .trainer-verdict-row > strong { color: #a6d5ad; }
 .trainer-verdict-acceptable, .trainer-verdict-acceptable .trainer-verdict-row > strong { color: #dfc395; }
 .trainer-verdict-wrong, .trainer-verdict-wrong .trainer-verdict-row > strong { color: #e3a295; }
-.trainer-verdict-unavailable, .trainer-verdict-unavailable .trainer-verdict-row > strong { color: #a0afa7; }
-.trainer-chosen { color: #90a293; font-size: 11px; margin-top: 9px; line-height: 1.6; }
-.trainer-chosen strong { color: #c6d6c5; font-weight: 550; }
+.trainer-verdict-unavailable, .trainer-verdict-unavailable .trainer-verdict-row > strong { color: oklch(0.74 calc(0.0202 * var(--tint)) calc(var(--hue) + 12.7)); }
+.trainer-chosen { color: oklch(0.694 calc(0.0297 * var(--tint)) calc(var(--hue) + 0.2)); font-size: 11px; margin-top: 9px; line-height: 1.6; }
+.trainer-chosen strong { color: oklch(0.859 calc(0.0289 * var(--tint)) calc(var(--hue) - 6.3)); font-weight: 550; }
 .trainer-ev-loss { display: flex; justify-content: space-between; align-items: baseline; margin: 12px 0; }
-.trainer-ev-loss dt { color: #91a597; font-size: 11px; }
-.trainer-ev-loss dd { color: #dce7d7; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.trainer-ev-loss dt { color: oklch(0.702 calc(0.0302 * var(--accent-c)) calc(var(--accent-h) + 7)); font-size: 11px; }
+.trainer-ev-loss dd { color: oklch(0.915 calc(0.0244 * var(--tint)) calc(var(--hue) - 14.3)); font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .trainer-decision-review .freq-bar { height: 8px; margin: 12px 0; border-radius: 3px; }
 .trainer-strategy-heading, .trainer-strategy-list > li { display: grid; grid-template-columns: minmax(0, 1fr) 46px 50px; gap: 6px; align-items: center; }
-.trainer-strategy-heading { color: #84988a; font-size: 9px; padding: 7px 0; }
+.trainer-strategy-heading { color: oklch(0.66 calc(0.0306 * var(--tint)) calc(var(--hue) + 5)); font-size: 9px; padding: 7px 0; }
 .trainer-strategy-heading > span:not(:first-child) { text-align: right; }
 .trainer-strategy-list { list-style: none; }
-.trainer-strategy-list > li { color: #b9c8bd; font-size: 11px; min-height: 34px; border-top: 1px solid #28382e; }
+.trainer-strategy-list > li { color: oklch(0.818 calc(0.0223 * var(--tint)) calc(var(--hue) + 4)); font-size: 11px; min-height: 34px; border-top: 1px solid oklch(0.323 calc(0.0275 * var(--tint)) calc(var(--hue) + 7.1)); }
 .trainer-strategy-list > li > span { min-width: 0; display: flex; align-items: center; gap: 5px; overflow-wrap: anywhere; }
 .trainer-strategy-list i { width: 5px; height: 5px; border-radius: 50%; flex: none; }
-.trainer-strategy-list small { color: #c6dfbb; margin-left: auto; }
+.trainer-strategy-list small { color: oklch(0.876 calc(0.0554 * var(--accent-c)) calc(var(--accent-h) - 11.9)); margin-left: auto; }
 .trainer-strategy-list strong { text-align: right; font-size: 11px; font-weight: 550; font-variant-numeric: tabular-nums; }
-.trainer-strategy-list .is-chosen { color: #e0eddb; background: #b9d7bc0a; }
+.trainer-strategy-list .is-chosen { color: oklch(0.931 calc(0.0277 * var(--tint)) calc(var(--hue) - 13.1)); background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.039); }
 .trainer-review-list { padding: 14px; }
-.trainer-review-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; color: #93a797; }
+.trainer-review-heading { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; color: oklch(0.708 calc(0.0321 * var(--accent-c)) calc(var(--accent-h) + 3.3)); }
 .trainer-review-heading h3 { font-size: 11px; font-weight: 500; }
 .trainer-review-heading > span { flex: none; padding-right: 5px; font-size: 10px; }
-.trainer-review-list > button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; border: 1px solid transparent; border-radius: 4px; background: transparent; padding: 8px 5px; font-size: 10px; color: #adbfaf; }
-.trainer-review-list > button[aria-pressed="true"] { border-color: #536d55; background: #25352a; }
-.trainer-review-list > button:hover { background: #26352b; }
+.trainer-review-list > button { width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; text-align: left; border: 1px solid transparent; border-radius: 4px; background: transparent; padding: 8px 5px; font-size: 10px; color: oklch(0.786 calc(0.0298 * var(--tint)) calc(var(--hue) - 1.5)); }
+.trainer-review-list > button[aria-pressed="true"] { border-color: oklch(0.507 calc(0.0485 * var(--tint)) calc(var(--hue) - 3.2)); background: oklch(0.311 calc(0.0289 * var(--tint)) calc(var(--hue) + 4.4)); }
+.trainer-review-list > button:hover { background: oklch(0.312 calc(0.0267 * var(--tint)) calc(var(--hue) + 5.4)); }
 .trainer-review-list > button > strong { font-weight: 500; flex: none; font-variant-numeric: tabular-nums; }
-.trainer-feedback-note { color: #92a394; font-size: 10px; line-height: 1.75; margin-top: 10px; }
+.trainer-feedback-note { color: oklch(0.698 calc(0.0289 * var(--tint)) calc(var(--hue) - 1.3)); font-size: 10px; line-height: 1.75; margin-top: 10px; }
 .trainer-hand-note { padding: 0 14px 14px; margin: 0; }
 .trainer-page > .trainer-session-stats { flex-shrink: 0; }
 @container battle-actions (max-width: 680px) {

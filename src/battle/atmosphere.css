@@ -5,29 +5,29 @@
   height: 34px;
   flex-shrink: 0;
   padding: 0;
-  color: #b9d7bc;
+  color: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1));
   background: transparent;
-  border: 1px solid #3b4440;
+  border: 1px solid oklch(0.377 calc(0.0136 * var(--tint)) calc(var(--hue) + 17.1));
   border-radius: 5px;
   cursor: pointer;
 }
-.battle-audio-toggle:hover { background: #2a322e; }
-.battle-audio-toggle.is-muted { color: #8d9991; }
-.battle-audio-toggle:focus-visible, .battle-audio-switch:focus-visible, .battle-audio-volume input:focus-visible { outline: 2px solid #b9d7bc; outline-offset: 3px; }
+.battle-audio-toggle:hover { background: oklch(0.308 calc(0.0131 * var(--tint)) calc(var(--hue) + 14)); }
+.battle-audio-toggle.is-muted { color: oklch(0.671 calc(0.018 * var(--tint)) calc(var(--hue) + 6.7)); }
+.battle-audio-toggle:focus-visible, .battle-audio-switch:focus-visible, .battle-audio-volume input:focus-visible { outline: 2px solid oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1)); outline-offset: 3px; }
 .battle-audio-settings { padding: 2px 0; color: #ecede9; }
 .battle-audio-settings-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .battle-audio-settings-heading h3 { margin: 0; font-size: 14px; font-weight: 600; }
-.battle-audio-switch { display: flex; align-items: center; gap: 8px; padding: 4px 0; border: 0; background: none; color: #a5b1a8; font: inherit; font-size: 12px; cursor: pointer; }
-.battle-audio-switch > span:first-child { position: relative; width: 30px; height: 18px; border-radius: 9px; background: #434c46; }
-.battle-audio-switch > span:first-child::after { content: ''; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%; background: #d5dcd4; }
-.battle-audio-switch[aria-checked="true"] > span:first-child { background: #b9d7bc; }
-.battle-audio-switch[aria-checked="true"] > span:first-child::after { left: 15px; background: #253329; }
+.battle-audio-switch { display: flex; align-items: center; gap: 8px; padding: 4px 0; border: 0; background: none; color: oklch(0.748 calc(0.0185 * var(--tint)) calc(var(--hue) + 3.5)); font: inherit; font-size: 12px; cursor: pointer; }
+.battle-audio-switch > span:first-child { position: relative; width: 30px; height: 18px; border-radius: 9px; background: oklch(0.406 calc(0.0153 * var(--tint)) calc(var(--hue) + 6.5)); }
+.battle-audio-switch > span:first-child::after { content: ''; position: absolute; top: 3px; left: 3px; width: 12px; height: 12px; border-radius: 50%; background: oklch(0.887 calc(0.0132 * var(--tint)) calc(var(--hue) - 8.2)); }
+.battle-audio-switch[aria-checked="true"] > span:first-child { background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1)); }
+.battle-audio-switch[aria-checked="true"] > span:first-child::after { left: 15px; background: oklch(0.305 calc(0.0259 * var(--tint)) calc(var(--hue) + 3.6)); }
 .battle-audio-volume { display: grid; grid-template-columns: minmax(96px, 1fr) minmax(60px, 1.3fr) 36px; align-items: center; gap: 12px; margin: 12px 0; font-size: 12px; }
-.battle-audio-volume > span { color: #aab7ad; }
-.battle-audio-volume input { width: 100%; height: 20px; margin: 0; cursor: pointer; accent-color: #b9d7bc; }
-.battle-audio-volume output { text-align: right; font-size: 11px; font-variant-numeric: tabular-nums; color: #a5b1a8; }
+.battle-audio-volume > span { color: oklch(0.766 calc(0.0201 * var(--tint)) calc(var(--hue) + 2.7)); }
+.battle-audio-volume input { width: 100%; height: 20px; margin: 0; cursor: pointer; accent-color: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1)); }
+.battle-audio-volume output { text-align: right; font-size: 11px; font-variant-numeric: tabular-nums; color: oklch(0.748 calc(0.0185 * var(--tint)) calc(var(--hue) + 3.5)); }
 .battle-allin-effect { position: absolute; z-index: 12; top: 29%; left: 50%; transform: translate(-50%, -50%); width: 168px; pointer-events: none; animation: battle-allin-enter 1.5s ease both; }
-.battle-allin-label { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 18px; color: #f5e0b5; background: #26291ff2; border: 1px solid #a18b54; border-radius: 5px; box-shadow: 0 5px 20px #0004; }
+.battle-allin-label { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 18px; color: #f5e0b5; background: oklch(0.274 calc(0.0183 * var(--tint)) calc(var(--hue) - 28.8) / 0.949); border: 1px solid #a18b54; border-radius: 5px; box-shadow: 0 5px 20px #0004; }
 .battle-allin-label strong { font-size: 20px; font-weight: 650; line-height: 1.2; letter-spacing: 2px; }
 .battle-allin-label span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; line-height: 1.3; color: #cabd9b; }
 .battle-allin-chips { position: absolute; inset: 0; }
@@ -53,24 +53,24 @@
 .app-header-utilities { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 .app-audio-control { position: relative; flex-shrink: 0; display: flex; align-items: center; gap: 1px; }
 .app-audio-control .battle-audio-toggle { width: 29px; height: 29px; border-color: transparent; }
-.app-audio-control .battle-audio-toggle[aria-expanded="true"] { background: #27332d; border-color: #455849; }
-.app-audio-popover { position: absolute; right: 0; top: calc(100% + 9px); z-index: 100; width: 310px; max-width: calc(100vw - 24px); padding: 16px; border: 1px solid #425348; border-radius: 6px; background: #18231d; box-shadow: 0 12px 32px #0006; }
-.app-turn-notice { flex: 0 0 100%; display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 5px 10px; border: 1px solid #647c5b; border-radius: 4px; background: #273523; color: #d9e7d2; font-size: 12px; }
-.app-turn-notice-dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: #b9d7a8; }
+.app-audio-control .battle-audio-toggle[aria-expanded="true"] { background: oklch(0.308 calc(0.0194 * var(--tint)) calc(var(--hue) + 13.4)); border-color: oklch(0.44 calc(0.0339 * var(--tint)) calc(var(--hue) + 1.1)); }
+.app-audio-popover { position: absolute; right: 0; top: calc(100% + 9px); z-index: 100; width: 310px; max-width: calc(100vw - 24px); padding: 16px; border: 1px solid oklch(0.424 calc(0.0279 * var(--tint)) calc(var(--hue) + 6.6)); border-radius: 6px; background: oklch(0.243 calc(0.0193 * var(--tint)) calc(var(--hue) + 10.7)); box-shadow: 0 12px 32px #0006; }
+.app-turn-notice { flex: 0 0 100%; display: flex; align-items: center; gap: 10px; min-height: 34px; padding: 5px 10px; border: 1px solid oklch(0.558 calc(0.057 * var(--tint)) calc(var(--hue) - 12.7)); border-radius: 4px; background: oklch(0.311 calc(0.0365 * var(--tint)) calc(var(--hue) - 11.2)); color: oklch(0.912 calc(0.0318 * var(--accent-c)) calc(var(--accent-h) - 13)); font-size: 12px; }
+.app-turn-notice-dot { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: oklch(0.845 calc(0.0713 * var(--accent-c)) calc(var(--accent-h) - 13.7)); }
 .app-turn-notice strong { font-weight: 600; }
-.app-turn-remaining { color: #b0c3a7; font-variant-numeric: tabular-nums; }
-.app-turn-notice button { margin-left: auto; padding: 3px 0 3px 12px; border: 0; background: none; color: #e1efd8; font: inherit; cursor: pointer; white-space: nowrap; }
+.app-turn-remaining { color: oklch(0.795 calc(0.044 * var(--accent-c)) calc(var(--accent-h) - 12.5)); font-variant-numeric: tabular-nums; }
+.app-turn-notice button { margin-left: auto; padding: 3px 0 3px 12px; border: 0; background: none; color: oklch(0.935 calc(0.034 * var(--accent-c)) calc(var(--accent-h) - 15)); font: inherit; cursor: pointer; white-space: nowrap; }
 .app-turn-notice button:hover { text-decoration: underline; text-underline-offset: 3px; }
 @media (max-width: 600px) {
   .app-header-utilities { gap: 3px; }
   .app-audio-popover { position: fixed; top: 49px; right: 10px; }
   .app-turn-notice { gap: 7px; padding: 5px 8px; font-size: 11px; }
 }
-.battle-music-picker { display: flex; flex-direction: column; gap: 6px; margin: 3px 0 17px; font-size: 12px; color: #aab7ad; }
-.battle-music-picker select { display: block; width: 100%; min-width: 0; height: 34px; border: 1px solid #46594b; border-radius: 4px; padding: 0 7px; background: #111b15; color: #dce5db; font: inherit; font-size: 11px; text-overflow: ellipsis; }
-.battle-music-picker small { color: #8d9f91; font-size: 10px; }
-.battle-music-picker select:focus-visible { outline: 2px solid #b9d7bc; outline-offset: 3px; }
+.battle-music-picker { display: flex; flex-direction: column; gap: 6px; margin: 3px 0 17px; font-size: 12px; color: oklch(0.766 calc(0.0201 * var(--tint)) calc(var(--hue) + 2.7)); }
+.battle-music-picker select { display: block; width: 100%; min-width: 0; height: 34px; border: 1px solid oklch(0.444 calc(0.0327 * var(--tint)) calc(var(--hue) + 3)); border-radius: 4px; padding: 0 7px; background: oklch(0.21 calc(0.0188 * var(--tint)) calc(var(--hue) + 8)); color: oklch(0.912 calc(0.0165 * var(--tint)) calc(var(--hue) - 7.4)); font: inherit; font-size: 11px; text-overflow: ellipsis; }
+.battle-music-picker small { color: oklch(0.684 calc(0.0287 * var(--tint)) calc(var(--hue) + 2.1)); font-size: 10px; }
+.battle-music-picker select:focus-visible { outline: 2px solid oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1)); outline-offset: 3px; }
 
-.app-audio-settings-trigger { display: grid; place-items: center; width: 21px; height: 29px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: #96a59a; cursor: pointer; }
-.app-audio-settings-trigger:hover, .app-audio-settings-trigger[aria-expanded="true"] { color: #dce8d9; background: #27332d; }
-.app-audio-settings-trigger:focus-visible { outline: 2px solid #b9d7bc; outline-offset: 2px; }
+.app-audio-settings-trigger { display: grid; place-items: center; width: 21px; height: 29px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: oklch(0.707 calc(0.0231 * var(--tint)) calc(var(--hue) + 3.9)); cursor: pointer; }
+.app-audio-settings-trigger:hover, .app-audio-settings-trigger[aria-expanded="true"] { color: oklch(0.918 calc(0.0238 * var(--tint)) calc(var(--hue) - 10.6)); background: oklch(0.308 calc(0.0194 * var(--tint)) calc(var(--hue) + 13.4)); }
+.app-audio-settings-trigger:focus-visible { outline: 2px solid oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1)); outline-offset: 2px; }

@@ -1,22 +1,22 @@
 :root {
   color-scheme: dark;
   /* Surfaces: a dark card room, lit from above. */
-  --bg: #0f1512;
-  --bg-glow: #1a2a20;
-  --surface: #151d18;
-  --surface2: #1c2720;
-  --surface3: #24332a;
-  --border: #2f3d34;
-  --border-strong: #42564a;
+  --bg: oklch(0.188 calc(0.011 * var(--tint)) calc(var(--hue) + 13.5));
+  --bg-glow: oklch(0.267 calc(0.0285 * var(--tint)) calc(var(--hue) + 6.5));
+  --surface: oklch(0.221 calc(0.0152 * var(--tint)) calc(var(--hue) + 7.5));
+  --surface2: oklch(0.26 calc(0.0202 * var(--tint)) calc(var(--hue) + 6.8));
+  --surface3: oklch(0.304 calc(0.0257 * var(--tint)) calc(var(--hue) + 8.1));
+  --border: oklch(0.344 calc(0.0241 * var(--tint)) calc(var(--hue) + 6.7));
+  --border-strong: oklch(0.433 calc(0.0316 * var(--tint)) calc(var(--hue) + 8.4));
   /* Text */
-  --text: #e4ebe3;
-  --text-dim: #94a397;
-  --text-faint: #75887b;
+  --text: oklch(0.933 calc(0.013 * var(--tint)) calc(var(--hue) - 8.2));
+  --text-dim: oklch(0.7 calc(0.0242 * var(--tint)) calc(var(--hue) + 1.5));
+  --text-faint: oklch(0.608 calc(0.0294 * var(--tint)) calc(var(--hue) + 5.5));
   /* Brand: sage felt light, ivory cards, brass chips. */
-  --accent: #b9d7bc;
-  --accent-strong: #d3e7d4;
-  --accent-ink: #15241a;
-  --accent-wash: #b9d7bc14;
+  --accent: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1));
+  --accent-strong: oklch(0.908 calc(0.0332 * var(--accent-c)) calc(var(--accent-h) - 1.3));
+  --accent-ink: oklch(0.243 calc(0.0281 * var(--tint)) calc(var(--hue) + 4.6));
+  --accent-wash: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.078);
   --ivory: #f6f2e8;
   --brass: #dcd2a3;
   /* Meaning */
@@ -27,7 +27,7 @@
   --raise: #e2574a;
   --call: #1fa78e;
   --fold: #5c7cba;
-  --gold: #b9d7bc;
+  --gold: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1));
   /* Card suits on dark backgrounds (four-colour deck). */
   --suit-s: #d6dde6;
   --suit-h: #f08080;
@@ -52,7 +52,7 @@ html {
 
 body {
   background:
-    radial-gradient(1100px 560px at 50% -260px, var(--bg-glow) 0%, #1a2a2000 72%) no-repeat,
+    radial-gradient(1100px 560px at 50% -260px, var(--bg-glow) 0%, oklch(0.267 calc(0.0285 * var(--tint)) calc(var(--hue) + 6.5) / 0) 72%) no-repeat,
     var(--bg);
   color: var(--text);
   font-family:
@@ -64,7 +64,7 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-::selection { background: #b9d7bc4d; color: #fff; }
+::selection { background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.302); color: #fff; }
 
 .app {
   max-width: 1120px;
@@ -211,7 +211,7 @@ body {
   height: 300px;
   margin: 0 auto;
   border-radius: 150px;
-  background: radial-gradient(ellipse at center, #1d4a38 0%, #143528 75%);
+  background: radial-gradient(ellipse at center, oklch(0.372 calc(0.059 * var(--felt-tint)) calc(var(--felt-h) + 14.5)) 0%, oklch(0.3 calc(0.0459 * var(--felt-tint)) calc(var(--felt-h) + 15.2)) 75%);
   border: 10px solid #2a2119;
   box-shadow:
     inset 0 0 40px rgba(0, 0, 0, 0.45),

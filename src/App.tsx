@@ -9,6 +9,7 @@ import { Trainer } from './components/Trainer'
 import { Battle } from './components/Battle'
 import { useLanguage } from './battle/i18n'
 import { GlobalAudio, BattleTurnNotice } from './components/GlobalAudio'
+import { ThemePicker } from './components/ThemePicker'
 import type { RoomView } from './battle/types'
 import { battleTurnState, type BattleTurnState } from './battle/audioEvents'
 import type { AnalysisContext, OpenAnalysis } from './analysis/types'
@@ -154,6 +155,7 @@ export default function App() {
             <button type="button" lang="zh" onClick={() => setLanguage('zh')} aria-pressed={language === 'zh'}>中文</button>
             <button type="button" lang="en" aria-label="English" title="English" onClick={() => setLanguage('en')} aria-pressed={language === 'en'}>EN</button>
           </div>
+          <ThemePicker />
           <GlobalAudio />
         </div>
         {tab !== 'battle' && <BattleTurnNotice turn={battleTurn} onReturn={() => setTab('battle')} />}
