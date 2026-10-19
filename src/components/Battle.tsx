@@ -110,7 +110,7 @@ function BattleSeat({ room, seat, viewSeat, player, showdownBoard, onOpen, busy,
         />
       </button> : <div className="battle-empty-seat-group">
         {host && room.capacity > 2 && !reserving && <button type="button" className="battle-remove-seat" disabled={busy || removingSeat} aria-label={t(`删除空座 ${seat + 1}`, `Remove empty seat ${seat + 1}`)} title={removingSeat ? t('本手结束后删除', 'Removing after this hand') : t('删除空座', 'Remove empty seat')} onClick={() => void onCommand({ type: 'remove-seat', seat, capacity: room.capacity })}>×</button>}
-        <button className="battle-empty-seat" disabled={busy || !(canSit || canCancel)} onClick={() => void onCommand(canCancel ? { type: 'cancel-seat' } : { type: 'sit', seat })} aria-label={canCancel ? t(`取消预约座位 ${seat + 1}`, `Cancel reservation for seat ${seat + 1}`) : t(`${sitLabel}座位 ${seat + 1}`, `${sitLabel} seat ${seat + 1}`)}><span>{canCancel ? '−' : canSit ? '＋' : '—'}</span><small>{reserving ? myReservation ? tournamentLocked ? t('已报名', 'Registered') : t('取消预约', 'Cancel') : t('已预约', 'Reserved') : !admissionOpen ? t('报名截止', 'Entry closed') : `${sitLabel} ${seat + 1}`}</small></button>
+        <button className="battle-empty-seat" disabled={busy || !(canSit || canCancel)} onClick={() => void onCommand(canCancel ? { type: 'cancel-seat' } : { type: 'sit', seat })} aria-label={canCancel ? t(`取消预约座位 ${seat + 1}`, `Cancel reservation for seat ${seat + 1}`) : t(`${sitLabel}座位 ${seat + 1}`, `${sitLabel} seat ${seat + 1}`)}><span>{canCancel ? '−' : canSit ? <SeatIcon /> : '—'}</span><small>{reserving ? myReservation ? tournamentLocked ? t('已报名', 'Registered') : t('取消预约', 'Cancel') : t('已预约', 'Reserved') : !admissionOpen ? t('报名截止', 'Entry closed') : `${sitLabel} ${seat + 1}`}</small></button>
         {canAdd && <button className="battle-seat-bot-add" disabled={busy} aria-label={t(`在座位 ${seat + 1} 添加电脑`, `Add Bot at seat ${seat + 1}`)} onClick={() => void onCommand({ type: 'add-bot', seat })}>＋ {t('电脑', 'Bot')}</button>}
         {removingSeat && <small className="battle-seat-removing">{t('待删除', 'Removing')}</small>}
       </div>}
@@ -487,4 +487,13 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
     </BattleDialog>}
     {confirmLeave && <BattleDialog title={t('退出房间？', 'Leave this room?')} onClose={() => setConfirmLeave(false)}><p className="battle-dialog-caption">{tournamentLocked && (self?.tournamentStatus === 'active' || self?.tournamentStatus === 'rebuy') ? t('本手仍正常结算；若比赛尚未结束，你将弃赛，不能重新参赛。', 'This hand still settles normally. If the tournament continues, you forfeit and cannot re-enter.') : t('用同一昵称回来可继续本场数据。最后一位真人离开后，房间关闭。', 'Rejoin with the same nickname to continue. The room closes when the last human leaves.')}</p><div className="battle-dialog-buttons"><button className="battle-button battle-button-subtle" disabled={busy} onClick={() => setConfirmLeave(false)}>{t('取消', 'Cancel')}</button><button className="battle-button battle-danger" disabled={busy} onClick={() => void command({ type: 'leave' })}>{t('退出房间', 'Leave room')}</button></div></BattleDialog>}
   </section>
+}
+
+/** A chair: "take this seat", distinct from the "+ Bot" control below it. */
+function SeatIcon() {
+  return <svg className="battle-seat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M8.5 3h7A1.5 1.5 0 0 1 17 4.5V11H7V4.5A1.5 1.5 0 0 1 8.5 3Z" fill="currentColor" fill-opacity=".16" />
+    <rect x="4.5" y="11" width="15" height="3.5" rx="1.2" fill="currentColor" fill-opacity=".16" />
+    <path d="M6.5 14.5V21M17.5 14.5V21" />
+  </svg>
 }

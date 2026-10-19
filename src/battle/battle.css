@@ -88,7 +88,9 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
 .battle-seat-folded .battle-seat-cards .poker-hole-card:not(.is-publicly-shown) .battle-card-back { opacity: 1; filter: brightness(.72) saturate(.8); }
 .battle-seat-pending .battle-seat-box { border-style: dashed; }
 .battle-empty-seat { border: 1px dashed oklch(0.443 calc(0.0346 * var(--tint)) calc(var(--hue) + 2.5)); border-radius: 6px; background: oklch(0.249 calc(0.0248 * var(--tint)) calc(var(--hue) + 4.1)); color: oklch(0.683 calc(0.0368 * var(--tint)) calc(var(--hue) + 1.8)); width: 86px; height: 61px; display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
-.battle-empty-seat > span { font-size: 22px; line-height: 1.2; font-weight: 300; }
+.battle-empty-seat > span { display: inline-flex; align-items: center; justify-content: center; height: 24px; font-size: 22px; line-height: 1; font-weight: 300; }
+.battle-seat-icon { width: 21px; height: 21px; transition: transform .16s ease; }
+.battle-empty-seat:hover:not(:disabled) .battle-seat-icon { transform: translateY(-1px); }
 .battle-empty-seat > small { font-size: 10px; }
 .battle-empty-seat:hover { border-color: oklch(0.826 calc(0.0464 * var(--accent-c)) calc(var(--accent-h) - 6.8)); color: oklch(0.894 calc(0.0353 * var(--accent-c)) calc(var(--accent-h) - 12)); background: oklch(0.329 calc(0.0389 * var(--tint)) calc(var(--hue) + 1.3)); }
 .battle-seat-footer { display: flex; align-items: center; justify-content: center; gap: 5px; width: 100%; min-height: 19px; padding: 2px 1px 0; }
@@ -203,9 +205,6 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
 .battle-field input, .battle-field select { min-width: 0; width: 100%; height: 42px; padding: 9px 10px; border: 1px solid oklch(0.432 calc(0.0337 * var(--tint)) calc(var(--hue) + 4.3)); border-radius: 4px; color: oklch(0.938 calc(0.0192 * var(--tint)) calc(var(--hue) - 9.5)); background: oklch(0.207 calc(0.0178 * var(--tint)) calc(var(--hue) + 5.4)); font-size: 14px; }
 .battle-field input::placeholder { color: oklch(0.534 calc(0.0405 * var(--tint)) calc(var(--hue) + 3.6)); font-size: 12px; }
 .battle-setup-card > .battle-field { margin-bottom: 14px; }
-.battle-setup-fields { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr); gap: 10px; margin-bottom: 14px; }
-.battle-setup-fields .battle-field { margin-bottom: 0; gap: 6px; }
-.battle-setup-fields .battle-field-wide { grid-column: 1 / -1; }
 .battle-stack-input { position: relative; }
 .battle-stack-input input { padding-right: 38px; }
 .battle-stack-input > span { position: absolute; right: 12px; top: 13px; color: oklch(0.694 calc(0.0405 * var(--tint)) calc(var(--hue) - 1.3)); font-size: 11px; pointer-events: none; }
@@ -531,7 +530,8 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
 .battle-short-height .battle-seat-status { font-size: 10px; }
 .battle-short-height .battle-empty-seat-group { width: 62px; }
 .battle-short-height .battle-empty-seat { width: 62px; height: 44px; }
-.battle-short-height .battle-empty-seat > span { font-size: 19px; }
+.battle-short-height .battle-empty-seat > span { height: 20px; font-size: 19px; }
+.battle-short-height .battle-seat-icon { width: 18px; height: 18px; }
 .battle-short-height .battle-seat-bot-add { font-size: 9px; padding: 2px; }
 @container battle-table (max-width: 600px) {
   .battle-table .battle-seat { width: 72px; }
@@ -554,6 +554,8 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
   .battle-table .battle-empty-seat-group, .battle-table .battle-short-height .battle-empty-seat-group { width: 54px; }
   .battle-table .battle-empty-seat, .battle-table .battle-short-height .battle-empty-seat { width: 54px; height: 41px; }
   .battle-table .battle-empty-seat > small { font-size: 9px; }
+  .battle-table .battle-empty-seat > span { height: 19px; }
+  .battle-table .battle-seat-icon { width: 17px; height: 17px; }
   .battle-table .battle-seat-bot-add { font-size: 9px; padding: 2px; }
   .battle-table .battle-board { gap: 4px; }
   .battle-table .battle-board .card-face, .battle-table .battle-board-empty { width: 27px; height: 38px; font-size: 15px; }

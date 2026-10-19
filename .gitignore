@@ -5,3 +5,4 @@ gto-trainer-dist.zip
 .DS_Store
 .wrangler/
 artifacts/
+*.tsbuildinfo

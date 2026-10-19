@@ -5,9 +5,6 @@
 .brs-summary dd { margin: 0; text-align: right; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
 .brs-summary dd small { display: block; color: oklch(0.708 calc(0.0396 * var(--accent-c)) calc(var(--accent-h) - 0.4)); font-size: 12px; }
 .brs-edit { margin: 0 0 16px; padding-top: 15px; border-top: 1px solid oklch(0.375 calc(0.0334 * var(--tint)) calc(var(--hue) - 1.9)); }
-.brs-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-.brs-fields label { display: flex; flex-direction: column; gap: 7px; color: oklch(0.81 calc(0.0324 * var(--accent-c)) calc(var(--accent-h) - 1.3)); font-size: 13px; }
-.brs-fields select { width: 100%; min-width: 0; min-height: 40px; padding: 8px; border: 1px solid oklch(0.481 calc(0.044 * var(--tint)) calc(var(--hue) - 1.8)); border-radius: 5px; color: oklch(0.932 calc(0.0203 * var(--tint)) calc(var(--hue) - 11.6)); background: oklch(0.23 calc(0.0217 * var(--tint)) calc(var(--hue) + 8.5)); font: inherit; font-size: 14px; }
 .brs-save-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
 .brs-save-row p { margin: 0; color: oklch(0.716 calc(0.0356 * var(--accent-c)) calc(var(--accent-h) + 2.6)); font-size: 12px; line-height: 1.5; }
 .brs-save-row button { flex: none; }
@@ -24,7 +21,6 @@
 .brs-settings :is(button, select, input):disabled, .brs-share input:disabled { cursor: default; opacity: .45; }
 .brs-settings :is(button, select, input):focus-visible, .brs-share input:focus-visible { outline: 2px solid oklch(0.856 calc(0.053 * var(--accent-c)) calc(var(--accent-h) - 14.2)); outline-offset: 3px; }
 @media (max-width: 430px) {
-  .brs-fields { gap: 10px; }
   .brs-summary { gap: 10px; }
   .brs-summary > div { grid-template-columns: minmax(86px, 1fr) minmax(0, 1.35fr); gap: 10px; }
 }
