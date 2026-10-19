@@ -5,6 +5,7 @@ import App from './App'
 import './styles.css'
 import './themes.css'
 import './ui.css'
+import './lamplight.css'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

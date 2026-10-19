@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react'
 
 /** Colour themes; the palettes themselves live in themes.css. */
 export const APP_THEMES = [
+  { id: 'lamplight', zh: '灯下', en: 'Lamplight', noteZh: '暖灯照着孔雀蓝桌布，拉丝黄铜高光', noteEn: 'Petrol-teal cloth under a warm lamp, brushed brass' },
   { id: 'felt', zh: '墨绿', en: 'Green felt', noteZh: '经典绿桌布，鼠尾草绿高光', noteEn: 'Classic green cloth, sage highlights' },
   { id: 'midnight', zh: '午夜蓝', en: 'Midnight', noteZh: '深蓝桌布，黄铜色高光', noteEn: 'Navy cloth, brass highlights' },
   { id: 'bordeaux', zh: '勃艮第', en: 'Bordeaux', noteZh: '酒红丝绒，香槟金高光', noteEn: 'Wine velvet, champagne highlights' },
@@ -12,7 +13,7 @@ export type AppThemeId = typeof APP_THEMES[number]['id']
 
 // Also read by the pre-paint script in index.html; keep the key in sync.
 const STORAGE_KEY = 'gto.theme'
-const DEFAULT_THEME: AppThemeId = 'felt'
+const DEFAULT_THEME: AppThemeId = 'lamplight'
 const listeners = new Set<() => void>()
 const valid = (value: unknown): AppThemeId => APP_THEMES.find(theme => theme.id === value)?.id ?? DEFAULT_THEME
 
@@ -21,9 +22,7 @@ let current: AppThemeId = (() => {
 })()
 
 function apply(theme: AppThemeId) {
-  if (typeof document === 'undefined') return
-  if (theme === DEFAULT_THEME) delete document.documentElement.dataset.theme
-  else document.documentElement.dataset.theme = theme
+  if (typeof document !== 'undefined') document.documentElement.dataset.theme = theme
 }
 apply(current)
 

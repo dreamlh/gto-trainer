@@ -4,7 +4,8 @@ import { ACTION_COLORS, ACTION_LABELS, handFreqs, type Spot } from '../poker/ran
 import { useLanguage } from '../battle/i18n'
 import { actionName, translatePokerText } from '../poker/presentation'
 
-const FOLD_BG = 'rgba(92, 124, 186, 0.35)'
+// Themes may retune the recessive fold cell (see lamplight.css); the default matches --fold at 35%.
+const FOLD_BG = 'var(--fold-cell, rgba(92, 124, 186, 0.35))'
 
 // weights：每手牌类的到达权重（翻后范围受限时用；无则视为全牌等权=组合数）
 function weightOf(weights: Map<string, number> | undefined, hand: string): number {

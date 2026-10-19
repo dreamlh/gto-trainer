@@ -8,14 +8,26 @@
  *   --felt-h / --felt-tint  the poker table cloth and card backs
  * Action colours (raise / call / fold), suits, chips and win/loss stay fixed.
  */
+/* Default — Lamplight: a smoky warm room, petrol-teal cloth under a pendant
+   lamp, brushed-brass highlights. Lighting and textures live in lamplight.css. */
 :root,
+[data-theme="lamplight"] {
+  --hue: 62;
+  --tint: .55;
+  --accent-h: 80;
+  --accent-c: 1.85;
+  --felt-h: 208;
+  --felt-tint: 1.55;
+}
+
+/* The original sage-on-green palette. */
 [data-theme="felt"] {
   --hue: 150;
   --tint: 1;
   --accent-h: 148;
   --accent-c: 1;
-  --felt-h: var(--hue);
-  --felt-tint: var(--tint);
+  --felt-h: 150;
+  --felt-tint: 1;
 }
 
 /* Navy cloth, brass highlights. */

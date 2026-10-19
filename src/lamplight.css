@@ -1,0 +1,161 @@
+/*
+ * Lamplight — the default theme's lighting and materials.
+ * Colour comes from themes.css; this layer adds what flat tokens cannot:
+ * a pendant lamp over the room, a petrol-teal cloth with real weave,
+ * a leather rail with a brass inlay, brushed-brass controls and oxblood card backs.
+ * Everything here is scoped to html[data-theme="lamplight"].
+ */
+html[data-theme="lamplight"] {
+  /* Fold cells stay cool and recessive, nudged toward the cloth so the matrix sits in the room. */
+  --fold-cell: oklch(0.5 0.065 222 / .42);
+  --lamp: oklch(0.78 0.11 72);
+  --brass-hi: oklch(0.93 0.07 88);
+  --brass: oklch(0.82 0.105 80);
+  --brass-lo: oklch(0.68 0.12 70);
+  --brass-ink: oklch(0.24 0.035 60);
+  --oxblood: oklch(0.37 0.11 22);
+  --oxblood-lo: oklch(0.3 0.09 22);
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ---------- The room: a lamp overhead, cloth light bouncing up from below ---------- */
+html[data-theme="lamplight"] body {
+  background:
+    radial-gradient(70% 520px at 50% -140px, oklch(0.5 0.09 70 / .3) 0%, oklch(0.4 0.07 65 / .1) 45%, transparent 75%),
+    radial-gradient(60% 420px at 50% calc(100% + 160px), oklch(0.42 0.07 208 / .18), transparent 75%),
+    var(--bg);
+  background-attachment: fixed;
+}
+html[data-theme="lamplight"] body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--grain);
+  opacity: .045;
+}
+
+/* Brass hairline under the header that fades out at both ends. */
+html[data-theme="lamplight"] .app .app-header {
+  border-bottom: 1px solid transparent;
+  border-image: linear-gradient(90deg, transparent, oklch(0.78 0.09 78 / .45) 30%, oklch(0.78 0.09 78 / .45) 70%, transparent) 1;
+}
+html[data-theme="lamplight"] .app-brand .logo-suit,
+html[data-theme="lamplight"] .battle-setup-suit {
+  background: linear-gradient(170deg, var(--brass-hi) 15%, var(--brass-lo) 85%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+html[data-theme="lamplight"] .app-header .tab-active { background: oklch(0.82 0.1 80 / .1); }
+
+/* ---------- Brushed brass ---------- */
+html[data-theme="lamplight"] :is(.battle-button-gold, .ba-action-primary, .app:not(.app-battle) .primary-btn) {
+  border-color: oklch(0.86 0.09 84);
+  background: linear-gradient(180deg, var(--brass-hi) 0%, var(--brass) 48%, var(--brass-lo) 100%);
+  color: var(--brass-ink);
+  text-shadow: 0 1px 0 oklch(1 0 0 / .35);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / .55), inset 0 -1px 0 oklch(0.5 0.1 65 / .45), 0 10px 24px -14px oklch(0.75 0.13 72 / .9);
+}
+html[data-theme="lamplight"] :is(.battle-button-gold, .ba-action-primary, .app:not(.app-battle) .primary-btn):hover:not(:disabled) {
+  border-color: oklch(0.9 0.08 86);
+  background: linear-gradient(180deg, oklch(0.96 0.05 90) 0%, oklch(0.87 0.095 82) 50%, oklch(0.74 0.115 72) 100%);
+}
+html[data-theme="lamplight"] .seat-count-picker button[aria-pressed="true"],
+html[data-theme="lamplight"] .battle-page .seat-count-picker button[aria-pressed="true"] {
+  background: linear-gradient(180deg, var(--brass-hi), var(--brass-lo));
+  color: var(--brass-ink);
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / .5);
+}
+
+/* ---------- Panels catch a little warm light along their top edge ---------- */
+html[data-theme="lamplight"] :is(.app:not(.app-battle) .panel, .battle-setup-card, .battle-sidebar-panel) {
+  box-shadow: inset 0 1px 0 oklch(0.85 0.08 80 / .09), 0 28px 60px -34px #000e;
+}
+html[data-theme="lamplight"] .battle-table-panel {
+  background:
+    radial-gradient(60% 55% at 50% 38%, oklch(0.36 0.045 70 / .38), transparent 72%),
+    var(--surface);
+  box-shadow: inset 0 1px 0 oklch(0.85 0.08 80 / .08);
+}
+
+/* ---------- The table ---------- */
+html[data-theme="lamplight"] .battle-felt {
+  border-color: oklch(0.6 0.08 78 / .55);
+  background:
+    var(--grain),
+    radial-gradient(ellipse 58% 54% at 50% 40%, oklch(0.44 0.078 205) 0%, oklch(0.36 0.072 208) 42%, oklch(0.265 0.055 213) 100%);
+  background-size: 160px 160px, auto;
+  background-blend-mode: soft-light, normal;
+  box-shadow:
+    0 0 0 7px oklch(0.23 0.028 48),
+    0 0 0 8px oklch(0.7 0.09 78 / .5),
+    0 0 0 13px oklch(0.17 0.022 45),
+    0 34px 70px -24px #000,
+    inset 0 0 0 1px oklch(0.75 0.08 80 / .14),
+    inset 0 -18px 60px oklch(0.14 0.04 220 / .55);
+}
+html[data-theme="lamplight"] .battle-felt::after { border-color: oklch(0.78 0.08 80 / .16); }
+html[data-theme="lamplight"] .battle-board-empty { border-color: oklch(0.85 0.06 200 / .22); background: oklch(0.2 0.05 212 / .25); }
+html[data-theme="lamplight"] .battle-pot strong { color: var(--brass-hi); text-shadow: 0 1px 10px oklch(0.6 0.1 75 / .35); }
+html[data-theme="lamplight"] .battle-pot > span, html[data-theme="lamplight"] .battle-pot small { color: oklch(0.82 0.04 200); }
+
+/* Oxblood card backs with a brass lattice. */
+html[data-theme="lamplight"] .battle-card-back {
+  border-color: oklch(0.72 0.09 78 / .75);
+  color: oklch(0.8 0.08 80 / .85);
+  background:
+    repeating-linear-gradient(45deg, oklch(0.75 0.09 78 / .16) 0 1px, transparent 1px 5px),
+    repeating-linear-gradient(-45deg, oklch(0.75 0.09 78 / .16) 0 1px, transparent 1px 5px),
+    linear-gradient(160deg, var(--oxblood), var(--oxblood-lo));
+  box-shadow: inset 0 0 0 1px oklch(0.2 0.05 20 / .6);
+}
+
+/* Seats sit on the rail like leather pads. */
+html[data-theme="lamplight"] .battle-seat-box {
+  background: linear-gradient(180deg, oklch(0.27 0.016 62 / .96), oklch(0.22 0.014 60 / .96));
+  box-shadow: 0 6px 16px -8px #000c, inset 0 1px 0 oklch(0.9 0.05 80 / .07);
+}
+html[data-theme="lamplight"] .battle-seat-acting .battle-seat-box {
+  border-color: var(--brass);
+  background: linear-gradient(180deg, oklch(0.33 0.035 75), oklch(0.27 0.028 70));
+  box-shadow: 0 0 0 3px oklch(0.82 0.1 80 / .16), 0 0 26px -4px oklch(0.8 0.12 78 / .45);
+}
+html[data-theme="lamplight"] .battle-seat-folded .battle-seat-box { background: oklch(0.19 0.01 60 / .9); }
+
+/* ---------- Study pages ---------- */
+html[data-theme="lamplight"] .page-intro h2 { letter-spacing: -.5px; }
+html[data-theme="lamplight"] .eq-split-a { background: linear-gradient(90deg, var(--brass-lo), var(--brass)); }
+html[data-theme="lamplight"] .eq-split-b { background: oklch(0.45 0.07 208); }
+html[data-theme="lamplight"] .run-progress > span { background: linear-gradient(90deg, var(--brass-lo), var(--brass-hi)); }
+
+@media (max-width: 600px) {
+  html[data-theme="lamplight"] .battle-felt {
+    box-shadow: 0 0 0 5px oklch(0.23 0.028 48), 0 0 0 6px oklch(0.7 0.09 78 / .5), 0 0 0 9px oklch(0.17 0.022 45), 0 20px 40px -18px #000, inset 0 -12px 40px oklch(0.14 0.04 220 / .55);
+  }
+}
+
+/* Setup hero under the lamp. */
+html[data-theme="lamplight"] .setup-hero-felt {
+  background:
+    var(--grain),
+    radial-gradient(ellipse 52% 40% at 50% 24%, oklch(0.47 0.08 204), oklch(0.34 0.07 208) 60%, oklch(0.26 0.055 213));
+  background-size: 160px 160px, auto;
+  background-blend-mode: soft-light, normal;
+  box-shadow: 0 0 0 7px oklch(0.23 0.028 48), 0 0 0 8px oklch(0.7 0.09 78 / .55), 0 0 0 12px oklch(0.17 0.022 45), 0 -14px 50px -12px oklch(0.6 0.1 72 / .35);
+}
+html[data-theme="lamplight"] .setup-hero::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -40px;
+  width: 420px;
+  height: 220px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, oklch(0.85 0.09 80 / .2), transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+html[data-theme="lamplight"] .setup-hero-chips i { background: linear-gradient(180deg, var(--brass-hi), var(--brass-lo)); }
+html[data-theme="lamplight"] .setup-hero-chips i:nth-child(even) { background: linear-gradient(180deg, oklch(0.45 0.12 22), var(--oxblood-lo)); }

@@ -19,6 +19,7 @@ import { TrainerFeedback } from './TrainerFeedback'
 import { PokerDialog } from './PokerDialog'
 import { usePokerTableViewport } from './usePokerTableViewport'
 import { PokerSettingSwitch } from './PokerSettingSwitch'
+import { SetupHero } from './SetupHero'
 import './trainer.css'
 
 const TABLE_SIZES = [2, 3, 4, 5, 6, 7, 8, 9]
@@ -198,7 +199,8 @@ export function Trainer({ active = true }: { active?: boolean }) {
   </>
 
   if (!started) return <section className="battle-page trainer-page">
-    <div className="battle-setup">
+    <div className="battle-setup has-hero">
+      <SetupHero cards={[[12, 0], [11, 1]]} />
       <div className="battle-setup-intro"><span className="battle-setup-suit" aria-hidden="true">♠</span><h2>{t('开始训练', 'Start training')}</h2><p>{t('无限注德州扑克 · GTO 决策训练', 'No-limit Hold’em · GTO decision training')}</p></div>
       <form className="battle-setup-card" onSubmit={event => { event.preventDefault(); startTraining() }}>
         {setupFields(tableSize, preflopOnly, setTableSize, setPreflopOnly)}

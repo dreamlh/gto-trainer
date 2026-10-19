@@ -9,7 +9,8 @@
     <title>GTO Hold'em</title>
     <script>
       // Apply the saved colour theme before first paint (see src/appTheme.ts).
-      try { var t = localStorage.getItem('gto.theme'); if (t && t !== 'felt') document.documentElement.dataset.theme = t } catch (e) {}
+      var t = 'lamplight'; try { t = localStorage.getItem('gto.theme') || t } catch (e) {}
+      document.documentElement.dataset.theme = t
     </script>
   </head>
   <body>
