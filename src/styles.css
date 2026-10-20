@@ -79,12 +79,23 @@ html, body { overscroll-behavior: none; }
 :root { --standalone-top-gap: 0px; }
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
-    :root { --standalone-top-gap: 16px; }
+    :root { --standalone-top-gap: 0px; }
   }
 }
+/* Experimental: WebKit skips that blur when a fixed box with a background sits on the top
+   edge. background-clip: text with no text keeps the strip itself invisible. If the blur
+   comes back on some iOS version, raise --standalone-top-gap above to keep the header clear.
+   See https://tips.ojapp.app/en/ios-27-pwa-top-blur-workaround-2/ */
+.ios-edge-strip { display: none; }
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
+    .ios-edge-strip { display: block; position: fixed; inset: 0 0 auto; height: 11px; z-index: 1; pointer-events: none; background: var(--bg); background-clip: text; -webkit-background-clip: text; }
+  }
+}
+html.ios-home-screen .ios-edge-strip { display: block; position: fixed; inset: 0 0 auto; height: 11px; z-index: 1; pointer-events: none; background: var(--bg); background-clip: text; -webkit-background-clip: text; }
 /* Set in index.html via navigator.standalone, which catches home-screen launches the
    display-mode query misses. */
-html.ios-home-screen { --standalone-top-gap: 16px; }
+html.ios-home-screen { --standalone-top-gap: 0px; }
 /* Safe areas (needs viewport-fit=cover). Bottom: lift bars above the rounded corners and
    most of the home indicator, but not the full inset, since table height is precious.
    These are 0 on desktop, older iPhones and most browser tabs. */
