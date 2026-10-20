@@ -160,7 +160,7 @@
   gap: 3px;
   width: 210px;
   max-width: calc(100vw - 48px);
-  max-height: max(80px, calc(var(--app-viewport-height, 100dvh) - 90px - var(--standalone-top-gap)));
+  max-height: max(80px, calc(var(--app-viewport-height, 100dvh) - 90px - var(--safe-top) - var(--safe-bottom)));
   overflow-y: auto;
   padding: 6px;
   border: 1px solid oklch(0.475 calc(0.0408 * var(--tint)) calc(var(--hue) + 2.3));
@@ -177,7 +177,7 @@
 .app-nav-compact .app-header .app-language-switch button { min-width: 30px; min-height: 30px; padding: 3px 5px; }
 .app-nav-compact .app-header .app-audio-control .battle-audio-toggle { width: 30px; height: 36px; }
 .app-nav-compact .app-header .app-audio-settings-trigger { width: 23px; height: 36px; }
-.app-nav-compact .app-header .app-audio-popover { position: absolute; top: calc(100% + 7px); max-height: max(80px, calc(var(--app-viewport-height, 100dvh) - 76px - var(--standalone-top-gap))); overflow-y: auto; }
+.app-nav-compact .app-header .app-audio-popover { position: absolute; top: calc(100% + 7px); max-height: max(80px, calc(var(--app-viewport-height, 100dvh) - 76px - var(--safe-top) - var(--safe-bottom))); overflow-y: auto; }
 @media (max-width: 600px) {
   .app.app-nav-compact .app-header { gap: 6px; }
   .app-nav-compact .app-brand-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }

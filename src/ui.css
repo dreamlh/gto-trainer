@@ -408,7 +408,7 @@
 .theme-swatch b { position: absolute; right: 4px; bottom: 4px; width: 9px; height: 9px; border-radius: 50%; background: oklch(0.85 calc(0.049 * var(--accent-c)) var(--accent-h)); box-shadow: 0 0 0 1.5px oklch(0.2 calc(0.016 * var(--tint)) var(--hue)); }
 @media (max-width: 600px) {
   .theme-picker-trigger { width: 28px; height: 36px; }
-  .theme-popover { position: fixed; top: calc(49px + var(--standalone-top-gap)); right: 10px; }
+  .theme-popover { position: fixed; top: calc(49px + var(--safe-top)); right: 10px; }
 }
 
 /* ---------- Setup hero: the near edge of a table, seen from your seat ---------- */

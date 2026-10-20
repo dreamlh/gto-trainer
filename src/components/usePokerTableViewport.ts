@@ -8,7 +8,8 @@ export function usePokerTableViewport(pageRef: RefObject<HTMLElement>, active: b
     window.scrollTo({ top: 0 })
     const measure = () => {
       const app = page.closest('.app')
-      const bottomPadding = app ? parseFloat(getComputedStyle(app).paddingBottom) : 8
+      // The body's bottom padding is the home-indicator lift (--safe-bottom in styles.css).
+      const bottomPadding = (app ? parseFloat(getComputedStyle(app).paddingBottom) : 8) + (parseFloat(getComputedStyle(document.body).paddingBottom) || 0)
       const available = (window.visualViewport?.height ?? window.innerHeight) - (page.getBoundingClientRect().top + window.scrollY) - bottomPadding
       page.style.setProperty('--battle-available-height', `${Math.max(380, available)}px`)
       page.classList.toggle('battle-short-height', available < 650)

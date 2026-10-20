@@ -79,13 +79,20 @@ html, body { overscroll-behavior: none; }
 :root { --standalone-top-gap: 0px; }
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
-    :root { --standalone-top-gap: 10px; }
+    :root { --standalone-top-gap: 12px; }
   }
 }
 /* Set in index.html via navigator.standalone, which catches home-screen launches the
    display-mode query misses. */
-html.ios-home-screen { --standalone-top-gap: 10px; }
-body { padding-top: var(--standalone-top-gap); }
+html.ios-home-screen { --standalone-top-gap: 12px; }
+/* Safe areas (needs viewport-fit=cover). Bottom: lift bars above the rounded corners and
+   most of the home indicator, but not the full inset, since table height is precious.
+   These are 0 on desktop, older iPhones and most browser tabs. */
+:root {
+  --safe-top: calc(env(safe-area-inset-top, 0px) + var(--standalone-top-gap));
+  --safe-bottom: max(0px, env(safe-area-inset-bottom, 0px) - 14px);
+}
+body { padding: var(--safe-top) env(safe-area-inset-right, 0px) var(--safe-bottom) env(safe-area-inset-left, 0px); }
 
 ::selection { background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.302); color: #fff; }
 
@@ -93,10 +100,10 @@ body { padding-top: var(--standalone-top-gap); }
   max-width: 1120px;
   margin: 0 auto;
   padding: 16px;
-  min-height: calc(100vh - var(--standalone-top-gap));
+  min-height: calc(100vh - var(--safe-top) - var(--safe-bottom));
   /* 100vh can include the status bar in an iOS home-screen app, making a page that fits
      scroll by a few points; dvh is the height actually visible. */
-  min-height: calc(100dvh - var(--standalone-top-gap));
+  min-height: calc(100dvh - var(--safe-top) - var(--safe-bottom));
   display: flex;
   flex-direction: column;
 }
