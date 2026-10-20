@@ -69,6 +69,9 @@ body {
 
 /* No double-tap zoom anywhere on touch screens; scrolling is unaffected. */
 html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+/* No rubber-band bounce: a page that fits the screen stays put, and one that overflows
+   still scrolls normally, just without the elastic overshoot at either end. */
+html, body { overscroll-behavior: none; }
 
 /* iOS 26+ draws a Liquid Glass blur ramp just below the status bar in home-screen web apps,
    and no page CSS can switch it off. Keep the header out of the ramp. -webkit-touch-callout
@@ -76,12 +79,12 @@ html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adj
 :root { --standalone-top-gap: 0px; }
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
-    :root { --standalone-top-gap: 40px; }
+    :root { --standalone-top-gap: 24px; }
   }
 }
 /* Set in index.html via navigator.standalone, which catches home-screen launches the
    display-mode query misses. */
-html.ios-home-screen { --standalone-top-gap: 40px; }
+html.ios-home-screen { --standalone-top-gap: 24px; }
 body { padding-top: var(--standalone-top-gap); }
 
 ::selection { background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.302); color: #fff; }
@@ -91,6 +94,9 @@ body { padding-top: var(--standalone-top-gap); }
   margin: 0 auto;
   padding: 16px;
   min-height: calc(100vh - var(--standalone-top-gap));
+  /* 100vh can include the status bar in an iOS home-screen app, making a page that fits
+     scroll by a few points; dvh is the height actually visible. */
+  min-height: calc(100dvh - var(--standalone-top-gap));
   display: flex;
   flex-direction: column;
 }

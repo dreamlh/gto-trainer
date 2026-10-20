@@ -237,7 +237,9 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
     if (!active || session) return
     const form = setupForm.current
     const field = mode === 'join' && form?.querySelector<HTMLInputElement>('[name="nickname"]')?.value.trim() ? 'room' : 'nickname'
-    form?.querySelector<HTMLInputElement>(`[name="${field}"]`)?.focus()
+    // Phones and tablets: focusing would pop the keyboard over the page on entry, so the
+    // player taps the field when ready. Keyboard-and-mouse users still land in the field.
+    if (!window.matchMedia('(pointer: coarse)').matches) form?.querySelector<HTMLInputElement>(`[name="${field}"]`)?.focus()
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== 'Enter' || event.defaultPrevented || event.isComposing || event.keyCode === 229 || event.repeat || event.ctrlKey || event.metaKey || event.altKey || busyRef.current) return
       // Inputs and buttons retain native keyboard behavior; Enter also works on the page background.
