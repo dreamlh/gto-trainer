@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "test": "tsx scripts/test-logic.ts && tsx scripts/test-stats.ts && npm run -s test:analysis && npm run -s test:battle:chat && npm run -s test:battle && npm run -s test:battle:api && npm run -s test:battle:actions && npm run -s test:battle:pre-action && npm run -s test:battle:winning-cards && npm run -s test:battle:layout && npm run -s test:battle:stats && npm run -s test:battle:room && npm run -s test:battle:presentation && npm run -s test:battle:visuals && npm run -s test:battle:audio && npm run -s test:poker:presentation && npm run -s test:trainer:presentation && npm run -s test:trainer:events && npm run -s test:trainer:session && npm run -s test:trainer:feedback && npm run -s test:postflop:availability",
+    "test": "tsx scripts/test-logic.ts && tsx scripts/test-stats.ts && npm run -s test:analysis && npm run -s test:battle:chat && npm run -s test:battle && npm run -s test:battle:api && npm run -s test:battle:actions && npm run -s test:battle:pre-action && npm run -s test:battle:winning-cards && npm run -s test:battle:layout && npm run -s test:battle:stats && npm run -s test:battle:room && npm run -s test:battle:presentation && npm run -s test:battle:visuals && npm run -s test:battle:audio && npm run -s test:poker:presentation && npm run -s test:trainer:presentation && npm run -s test:trainer:events && npm run -s test:trainer:session && npm run -s test:trainer:feedback && npm run -s test:postflop:availability && npm run -s test:invite",
     "test:analysis": "node --import tsx scripts/test-analysis.ts",
     "test:battle:chat": "node --import tsx scripts/test-table-chat.ts",
     "dev": "vite",
@@ -28,11 +28,14 @@
     "test:trainer:events": "node --import tsx scripts/test-trainer-events.ts",
     "test:trainer:session": "node --import tsx scripts/test-trainer-session.ts",
     "test:trainer:feedback": "node --import tsx scripts/test-trainer-feedback.ts",
-    "test:postflop:availability": "node --import tsx scripts/test-postflop-availability.ts"
+    "test:postflop:availability": "node --import tsx scripts/test-postflop-availability.ts",
+    "test:invite": "node --import tsx scripts/test-invite-code.ts"
   },
   "dependencies": {
+    "jsqr": "^1.4.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "uqr": "^0.1.3"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261001.1",

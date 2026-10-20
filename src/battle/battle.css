@@ -179,7 +179,7 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
 .battle-dialog-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
 .battle-seat-menu-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
 .battle-seat-menu-actions:empty { display: none; }
-.battle-invite-code { font-size: 30px; letter-spacing: 6px; font-weight: 600; padding: 12px 0 26px; }
+.battle-invite-code { font-size: 30px; letter-spacing: 6px; font-weight: 600; padding: 12px 0 26px; text-align: center; }
 .battle-settings-summary { margin-bottom: 20px; }
 .battle-settings-summary > div { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; gap: 16px; }
 .battle-settings-summary dt { color: oklch(0.683 calc(0.0296 * var(--tint)) calc(var(--hue) + 3.6)); font-size: 12px; }
@@ -332,6 +332,10 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
 .battle-panel-bar > button > span { margin-left: auto; color: oklch(0.609 calc(0.0438 * var(--tint)) calc(var(--hue) + 3.9)); }
 .battle-unread-badge { min-width: 16px; height: 16px; border-radius: 8px; background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1)); color: oklch(0.269 calc(0.0315 * var(--tint)) calc(var(--hue) + 6.7)); font-size: 10px; padding: 0 4px; display: inline-flex; align-items: center; justify-content: center; }
 .battle-sidebar-tabs .battle-unread-badge { margin-left: 4px; }
+/* The panel bar stays put on phones so opening a panel never moves the action dock; tap
+   the active entry again to collapse. On wide screens the docked sidebar has its own tabs. */
+@media (min-width: 921px) { .battle-panel-open ~ .battle-panel-bar { display: none; } }
+@media (max-width: 920px) { .battle-in-room .battle-sidebar-tabs { display: none; } }
 .battle-sidebar-tabs .battle-panel-close { flex: 0 0 30px; padding: 2px; font-size: 20px; color: oklch(0.652 calc(0.0324 * var(--tint)) calc(var(--hue) + 7.5)); border-bottom: 0; }
 .battle-record-select { display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid oklch(0.332 calc(0.0264 * var(--tint)) calc(var(--hue) + 5.5)); flex: none; }
 .battle-record-select label { font-size: 11px; color: oklch(0.704 calc(0.0319 * var(--accent-c)) calc(var(--accent-h) + 6.4)); }
@@ -616,3 +620,22 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
 /* Cards, seat boxes and the central board each retain their own vertical lane. */
 .battle-in-room .battle-table { --poker-table-base-height: 320px; min-height: max(var(--poker-table-base-height), var(--poker-table-min-height, 0px)); }
 @media (max-width: 920px) { .battle-in-room .battle-table { --poker-table-base-height: 300px; } }
+
+/* ---------- Invite QR code and scan-to-join ---------- */
+.battle-invite-qr { display: block; width: 176px; height: 176px; margin: 6px auto 8px; border-radius: 8px; background: #fff; }
+.battle-invite-qr-note { max-width: 300px; margin: 0 auto 2px; text-align: center; font-size: 11px; line-height: 1.6; color: oklch(0.65 calc(0.0263 * var(--tint)) calc(var(--hue) + 8.8)); }
+.battle-field > label { cursor: default; }
+.battle-code-row { display: flex; gap: 8px; }
+.battle-code-row input { flex: 1; }
+.battle-scan-button { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 42px; padding: 0 12px; border: 1px solid oklch(0.432 calc(0.0337 * var(--tint)) calc(var(--hue) + 4.3)); border-radius: 4px; background: oklch(0.24 calc(0.0195 * var(--tint)) calc(var(--hue) + 4.2)); color: oklch(0.88 calc(0.04 * var(--accent-c)) calc(var(--accent-h) - 6)); font: inherit; font-size: 13px; cursor: pointer; touch-action: manipulation; }
+.battle-scan-button svg { width: 18px; height: 18px; }
+.battle-scan-button:hover:not(:disabled) { border-color: oklch(0.608 calc(0.0481 * var(--tint)) calc(var(--hue) - 1.1)); }
+.battle-scan-button:disabled { opacity: .55; cursor: default; }
+.battle-qr-scanner { display: flex; flex-direction: column; gap: 10px; }
+.battle-qr-viewfinder { position: relative; width: min(100%, 320px); aspect-ratio: 1; margin: 0 auto; overflow: hidden; border-radius: 10px; background: #000; }
+.battle-qr-viewfinder video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.battle-qr-frame { position: absolute; inset: 18%; border: 2px solid oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / .9); border-radius: 12px; box-shadow: 0 0 0 999px #0006; pointer-events: none; }
+.battle-qr-status { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 20px; text-align: center; font-size: 12px; line-height: 1.6; color: oklch(0.85 0.02 80); }
+.battle-qr-scanner .battle-dialog-caption { text-align: center; margin: 0; }
+.battle-qr-pick { position: relative; align-self: center; overflow: hidden; cursor: pointer; }
+.battle-qr-pick input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }

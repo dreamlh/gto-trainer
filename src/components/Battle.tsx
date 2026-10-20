@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useId, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react'
 import { SetupHero } from './SetupHero'
 import { OptionSlider } from './OptionSlider'
 import { BattleApiError, createRoom, getRoom, joinRoom, savedSession, saveSession, sendCommand } from '../battle/client'
@@ -18,6 +18,7 @@ import type { OpenAnalysis } from '../analysis/types'
 import { ChatMessageContent } from './ChatSticker'
 import type { ChatEmojiPickerState } from './ChatEmojiPicker'
 import { ChatComposer, type ChatComposerHandle } from './ChatComposer'
+import { canScanQr } from '../battle/inviteCode'
 import { battleResultSummary, playerDisplayName, handPosition, playerActionLabel, playerShowdownLabel } from '../battle/presentation'
 import { CardFace } from './CardFace'
 import { PokerHoleCard } from './PokerHoleCard'
@@ -45,6 +46,9 @@ type Command = (command: RoomCommand) => Promise<void>
 const streets: Record<string, [string, string]> = { preflop: ['翻前', 'Preflop'], flop: ['翻牌', 'Flop'], turn: ['转牌', 'Turn'], river: ['河牌', 'River'] }
 const translated = (map: Record<string, [string, string]>, key: string, t: Translate) => map[key] ? t(...map[key]) : key
 function initialNickname() { try { return (localStorage.getItem('gto.battle.nickname') || '').slice(0, 16) } catch { return '' } }
+// QR rendering and scanning load on first use, keeping them out of the main bundle.
+const QrCode = lazy(() => import('./QrCode').then(module => ({ default: module.QrCode })))
+const QrScanner = lazy(() => import('./QrScanner').then(module => ({ default: module.QrScanner })))
 function roomFromUrl() { return new URLSearchParams(window.location.search).get('room')?.trim().toUpperCase() ?? '' }
 function inviteLink(code: string) { const url = new URL(window.location.href); url.search = ''; url.hash = ''; url.searchParams.set('room', code); return url.toString() }
 function useNow() { const [now, setNow] = useState(Date.now()); useEffect(() => { const id = window.setInterval(() => setNow(Date.now()), 250); return () => clearInterval(id) }, []); return now }
@@ -211,6 +215,9 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
   const [mode, setMode] = useState<'create' | 'join'>(() => roomFromUrl() ? 'join' : 'create')
   const [nickname, setNickname] = useState(initialNickname)
   const [code, setCode] = useState(roomFromUrl)
+  const [showScanner, setShowScanner] = useState(false)
+  const scannedJoin = useRef(false)
+  const codeFieldId = useId()
   const [capacity, setCapacity] = useState(6)
   const [initialStack, setInitialStack] = useState(100)
   const [actionSeconds, setActionSeconds] = useState(30)
@@ -350,6 +357,14 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
       else setError(failure instanceof Error ? failure.message : t('操作失败，请重试。', 'Action failed. Try again.'))
     } finally { busyRef.current = false; setBusy(false) }
   }
+  // A scanned invite joins straight away; without a nickname yet, say what is missing.
+  useEffect(() => {
+    if (!scannedJoin.current || mode !== 'join') return
+    scannedJoin.current = false
+    if (!nickname.trim()) { setError(t(`已识别房间 ${code}，填写昵称后即可加入。`, `Room ${code} scanned. Enter a nickname to join.`)); return }
+    setupForm.current?.requestSubmit()
+  }, [code, mode, nickname, t])
+  const acceptScannedCode = (value: string) => { setShowScanner(false); setError(''); setMode('join'); setCode(value); scannedJoin.current = true }
   const openInvite = () => { setCopyStatus(''); setShowInvite(true) }
   // Copy only when asked; the confirmation reverts so the button can be used again.
   const copyInvite = async () => {
@@ -389,10 +404,11 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
             tickLabel={n => n === 0 ? t('开赛', 'Start') : String(n)} />}
         </div>
         {roomMode === 'tournament' && <p className="battle-tournament-setup-note">{registrationRaises === 0 ? t('开赛即截止报名和重购。升盲从下一手生效。', 'Entry and rebuys close at the start. Blind increases apply to the next hand.') : t(`开赛后 ${registrationRaises * blindIntervalMinutes} 分钟内可报名、重购；截止后淘汰制继续。`, `Late entry and rebuys are open for ${registrationRaises * blindIntervalMinutes} minutes. After that, play continues as a freezeout.`)}</p>}
-      </> : <label className="battle-field">{t('房间码', 'Room code')}<input className="battle-code-input" autoComplete="off" name="room" maxLength={8} value={code} onChange={event => setCode(event.target.value.toUpperCase().replace(/\s/g, ''))} required disabled={busy} /></label>}
+      </> : <div className="battle-field"><label htmlFor={codeFieldId}>{t('房间码', 'Room code')}</label><div className="battle-code-row"><input id={codeFieldId} className="battle-code-input" autoComplete="off" name="room" maxLength={8} value={code} onChange={event => setCode(event.target.value.toUpperCase().replace(/\s/g, ''))} required disabled={busy} />{canScanQr() && <button type="button" className="battle-scan-button" disabled={busy} onClick={() => setShowScanner(true)} aria-label={t('扫码加入', 'Scan to join')} title={t('扫码加入', 'Scan to join')}><ScanIcon /><span>{t('扫码', 'Scan')}</span></button>}</div></div>}
       {error && <div className="battle-error" role="alert">{error}</div>}
       <button className="battle-button battle-button-gold battle-connect" disabled={busy} type="submit">{busy ? t('正在连接…', 'Connecting…') : mode === 'create' ? t('创建房间', 'Create room') : t('加入房间', 'Join room')} <span aria-hidden="true">→</span></button>
     </form>
+    {showScanner && <BattleDialog title={t('扫码加入房间', 'Scan to join')} onClose={() => setShowScanner(false)}><Suspense fallback={<p className="battle-dialog-caption">{t('正在打开相机…', 'Opening camera…')}</p>}><QrScanner onCode={acceptScannedCode} /></Suspense></BattleDialog>}
   </section>
   if (!room) return <section className="battle-page battle-loading"><span className="battle-loading-suit">♠</span><h2>{connection === 'retrying' ? t('正在重新连接…', 'Reconnecting…') : t('正在恢复房间…', 'Restoring room…')}</h2><p className="battle-muted">{t('房间', 'Room')} {session.code}</p><button className="battle-button battle-button-subtle" onClick={() => resetSession()}>{t('返回房间入口', 'Back')}</button></section>
   const host = room.hostId === room.selfId
@@ -472,9 +488,9 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
         <div className="battle-sidebar-content" role="tabpanel">{sidebarTab === 'history' ? <BattleHandLog room={room} active={active} onOpenAnalysis={onOpenAnalysis} /> : sidebarTab === 'chat' ? <RoomChat room={room} busy={disabled} onCommand={command} /> : <div className="battle-room-players"><div className="battle-sidebar-title"><span>{t(`${members.length} 位玩家`, `${members.length} players`)}</span><span>{tournament ? t('筹码', 'Chips') : t('净赢 / BB', 'Net / BB')}</span></div><div className="battle-score-list">{members.map(player => <button type="button" className={`battle-score-row ${player.id === room.selfId ? 'battle-score-self' : ''} ${player.leaving ? 'battle-member-left' : ''}`} key={player.id} onClick={() => { setStatsId(player.id); setSeatMenu(null) }}><div className="battle-score-name"><strong title={playerDisplayName(player, t)}>{playerDisplayName(player, t)}{player.id === room.selfId ? t(' · 你', ' · You') : ''}</strong><span className={`battle-member-state ${player.leaving ? 'is-left' : player.seat !== null ? 'is-seated' : 'is-watching'}`}>{memberStatus(player, t)}</span></div><strong className={player.score > 0 ? 'battle-positive' : player.score < 0 ? 'battle-negative' : ''}>{tournament ? bb(player.stack) : signed(player.score)}</strong></button>)}</div></div>}</div>
       </div></aside>}
     </div>
-    {!panelOpen && <nav className="battle-panel-bar" aria-label={t('打开房间面板', 'Open room panel')}>{(['history', 'players', 'chat'] as const).map(tab => <button key={tab} aria-expanded={panelOpen && sidebarTab === tab} aria-controls="battle-room-panel" onClick={() => { setSidebarTab(tab); setPanelOpen(open => sidebarTab === tab ? !open : true) }}>{tab === 'history' ? t('记录', 'Records') : tab === 'players' ? t('房间玩家', 'Players') : t('聊天', 'Chat')}{tab === 'chat' && unreadChat > 0 && <b className="battle-unread-badge">{unreadChat > 99 ? '99+' : unreadChat}</b>}<span aria-hidden="true">{panelOpen && sidebarTab === tab ? '⌄' : '⌃'}</span></button>)}</nav>}
+    <nav className="battle-panel-bar" aria-label={t('房间面板', 'Room panels')}>{(['history', 'players', 'chat'] as const).map(tab => <button key={tab} aria-expanded={panelOpen && sidebarTab === tab} aria-controls="battle-room-panel" onClick={() => { setSidebarTab(tab); setPanelOpen(open => sidebarTab === tab ? !open : true) }}>{tab === 'history' ? t('记录', 'Records') : tab === 'players' ? t('房间玩家', 'Players') : t('聊天', 'Chat')}{tab === 'chat' && unreadChat > 0 && <b className="battle-unread-badge">{unreadChat > 99 ? '99+' : unreadChat}</b>}<span aria-hidden="true">{panelOpen && sidebarTab === tab ? '⌄' : '⌃'}</span></button>)}</nav>
     {showRules && <BattleRules onClose={() => setShowRules(false)} />}
-    {showInvite && <BattleDialog title={t('邀请好友', 'Invite friends')} onClose={() => setShowInvite(false)}><p className="battle-dialog-caption">{t('分享链接或房间码，即可加入房间。', 'Share the link or room code to join the room.')}</p><div className="battle-invite-code">{room.code}</div><label className="battle-field">{t('邀请链接', 'Invite link')}<input readOnly value={inviteLink(room.code)} onFocus={event => event.currentTarget.select()} /></label><button className="battle-button battle-button-gold battle-connect" onClick={() => void copyInvite()}>{copyStatus || t('复制链接', 'Copy link')}</button></BattleDialog>}
+    {showInvite && <BattleDialog title={t('邀请好友', 'Invite friends')} onClose={() => setShowInvite(false)}><p className="battle-dialog-caption">{t('分享链接、房间码或二维码，即可加入房间。', 'Share the link, room code or QR code to join the room.')}</p><Suspense fallback={<div className="battle-invite-qr" />}><QrCode className="battle-invite-qr" value={inviteLink(room.code)} label={t(`房间 ${room.code} 的邀请二维码`, `Invite QR code for room ${room.code}`)} /></Suspense><p className="battle-invite-qr-note">{t('相机扫码会在浏览器中打开；已添加到主屏幕的 app 可在「加入房间」中点「扫码」直接加入。', 'A phone camera opens it in the browser; in the home-screen app, use Scan under Join room to join directly.')}</p><div className="battle-invite-code">{room.code}</div><label className="battle-field">{t('邀请链接', 'Invite link')}<input readOnly value={inviteLink(room.code)} onFocus={event => event.currentTarget.select()} /></label><button className="battle-button battle-button-gold battle-connect" onClick={() => void copyInvite()}>{copyStatus || t('复制链接', 'Copy link')}</button></BattleDialog>}
     {(seatMenu !== null || statsPlayer) && <BattleDialog title={statsPlayer ? playerDisplayName(statsPlayer, t) : t(`座位 ${seatMenu! + 1}`, `Seat ${seatMenu! + 1}`)} onClose={closePlayer}>
       {statsPlayer && <p className="battle-dialog-caption">{memberStatus(statsPlayer, t)}{statsPlayer.id === room.hostId ? t(' · 房主', ' · Host') : ''}</p>}
       {seatActions}
@@ -489,6 +505,14 @@ export function Battle({ active = true, onRoomUpdate, onOpenAnalysis }: { active
     </BattleDialog>}
     {confirmLeave && <BattleDialog title={t('退出房间？', 'Leave this room?')} onClose={() => setConfirmLeave(false)}><p className="battle-dialog-caption">{tournamentLocked && (self?.tournamentStatus === 'active' || self?.tournamentStatus === 'rebuy') ? t('本手仍正常结算；若比赛尚未结束，你将弃赛，不能重新参赛。', 'This hand still settles normally. If the tournament continues, you forfeit and cannot re-enter.') : t('用同一昵称回来可继续本场数据。最后一位真人离开后，房间关闭。', 'Rejoin with the same nickname to continue. The room closes when the last human leaves.')}</p><div className="battle-dialog-buttons"><button className="battle-button battle-button-subtle" disabled={busy} onClick={() => setConfirmLeave(false)}>{t('取消', 'Cancel')}</button><button className="battle-button battle-danger" disabled={busy} onClick={() => void command({ type: 'leave' })}>{t('退出房间', 'Leave room')}</button></div></BattleDialog>}
   </section>
+}
+
+/** Viewfinder corners around a QR-like glyph. */
+function ScanIcon() {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16" />
+    <rect x="8" y="8" width="3" height="3" rx=".4" fill="currentColor" stroke="none" /><rect x="13" y="8" width="3" height="3" rx=".4" fill="currentColor" stroke="none" /><rect x="8" y="13" width="3" height="3" rx=".4" fill="currentColor" stroke="none" /><path d="M13.5 14.5h2v2" />
+  </svg>
 }
 
 /** A chair: "take this seat", distinct from the "+ Bot" control below it. */

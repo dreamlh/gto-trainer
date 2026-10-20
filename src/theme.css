@@ -79,3 +79,5 @@
 .viewer-category-toggle:hover { background:oklch(0.279 calc(0.0221 * var(--tint)) calc(var(--hue) + 5.5)); }
 .viewer-category-content { padding:0 12px 12px; }
 .viewer-category-content[hidden] { display:none; }
+/* Phones: pull the bottom-left note in a little so it clears the rounded screen corners. */
+@media (max-width: 600px) { .app:not(.app-battle) footer.app-footer { padding-left: 8px; padding-right: 8px; } }
