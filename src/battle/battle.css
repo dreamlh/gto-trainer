@@ -335,7 +335,14 @@ button.battle-seat-target:hover .battle-seat-box { background: oklch(0.333 calc(
 /* The panel bar stays put on phones so opening a panel never moves the action dock; tap
    the active entry again to collapse. On wide screens the docked sidebar has its own tabs. */
 @media (min-width: 921px) { .battle-panel-open ~ .battle-panel-bar { display: none; } }
-@media (max-width: 920px) { .battle-in-room .battle-sidebar-tabs { display: none; } }
+/* Phones: the bar switches panels, so the panel header shows just the open panel's name and
+   a close button at the top right (a second way to collapse besides re-tapping the bar). */
+@media (max-width: 920px) {
+  .battle-in-room .battle-sidebar-tabs { height: 40px; }
+  .battle-in-room .battle-sidebar-tabs [role="tab"]:not(.selected) { display: none; }
+  .battle-in-room .battle-sidebar-tabs [role="tab"].selected { flex: 1; display: flex; align-items: center; justify-content: flex-start; padding-left: 14px; border-bottom-color: transparent; pointer-events: none; }
+  .battle-in-room .battle-sidebar-tabs .battle-panel-close { flex: 0 0 44px; }
+}
 .battle-sidebar-tabs .battle-panel-close { flex: 0 0 30px; padding: 2px; font-size: 20px; color: oklch(0.652 calc(0.0324 * var(--tint)) calc(var(--hue) + 7.5)); border-bottom: 0; }
 .battle-record-select { display: flex; align-items: center; gap: 8px; padding: 12px; border-bottom: 1px solid oklch(0.332 calc(0.0264 * var(--tint)) calc(var(--hue) + 5.5)); flex: none; }
 .battle-record-select label { font-size: 11px; color: oklch(0.704 calc(0.0319 * var(--accent-c)) calc(var(--accent-h) + 6.4)); }

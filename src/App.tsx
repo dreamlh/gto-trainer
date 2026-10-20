@@ -160,6 +160,8 @@ export default function App() {
         </div>
         {tab !== 'battle' && <BattleTurnNotice turn={battleTurn} onReturn={() => setTab('battle')} />}
       </header>
+      {/* On touch screens this is the scroll region, so the header above never moves (styles.css). */}
+      <div className="app-scroll">
       <main className="app-main">
         {/* 全部保持挂载，切 tab 不丢状态 */}
         <div style={{ display: tab === 'trainer' ? undefined : 'none' }}>
@@ -187,6 +189,7 @@ export default function App() {
             'Two-stage CFR: preflop 169-hand abstraction and equity-realization model (2–9 seats); heads-up postflop CFR+. Approximate solutions for study.')}</p>
         </details>
       </footer>}
+      </div>
     </div>
   )
 }

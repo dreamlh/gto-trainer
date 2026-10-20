@@ -81,3 +81,5 @@
 .viewer-category-content[hidden] { display:none; }
 /* Phones: pull the bottom-left note in a little so it clears the rounded screen corners. */
 @media (max-width: 600px) { .app:not(.app-battle) footer.app-footer { padding-left: 8px; padding-right: 8px; } }
+/* Once a training session is running, the table needs the room; the model note stays on the setup screen. */
+.app[data-page="trainer"]:has(.trainer-page.battle-in-room) .app-footer { display: none; }

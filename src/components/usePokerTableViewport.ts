@@ -6,6 +6,7 @@ export function usePokerTableViewport(pageRef: RefObject<HTMLElement>, active: b
     const page = pageRef.current
     if (!page || !active) return
     window.scrollTo({ top: 0 })
+    page.closest('.app-scroll')?.scrollTo({ top: 0 })
     const measure = () => {
       const app = page.closest('.app')
       // The body's bottom padding is the home-indicator lift (--safe-bottom in styles.css).

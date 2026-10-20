@@ -112,6 +112,17 @@ body { padding: var(--safe-top) env(safe-area-inset-right, 0px) var(--safe-botto
   flex: 1;
 }
 
+/* Desktop: the wrapper is layout-transparent and the document scrolls as before. */
+.app-scroll { display: contents; }
+/* Touch screens and narrow windows: the app is exactly one screen tall and only the content
+   under the header scrolls, so the navigation stays put. */
+@media (max-width: 920px), (pointer: coarse) {
+  .app { height: calc(100dvh - var(--safe-top) - var(--safe-bottom)); min-height: 0; overflow: hidden; }
+  .app-scroll { display: flex; flex-direction: column; flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: none; -webkit-overflow-scrolling: touch; }
+  .app-scroll > .app-main { flex: 1 0 auto; }
+  .app-scroll > .app-footer { flex: none; }
+}
+
 .app-footer {
   padding: 20px 0 8px;
   text-align: center;
