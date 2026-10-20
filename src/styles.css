@@ -70,13 +70,24 @@ body {
 /* No double-tap zoom anywhere on touch screens; scrolling is unaffected. */
 html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 
+/* iOS 26+ draws a Liquid Glass blur ramp just below the status bar in home-screen web apps,
+   and no page CSS can switch it off. Keep the header out of the ramp. -webkit-touch-callout
+   is only supported by iOS/iPadOS WebKit, so desktop and Android installs get no gap. */
+:root { --standalone-top-gap: 0px; }
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
+    :root { --standalone-top-gap: 40px; }
+  }
+}
+body { padding-top: var(--standalone-top-gap); }
+
 ::selection { background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.302); color: #fff; }
 
 .app {
   max-width: 1120px;
   margin: 0 auto;
   padding: 16px;
-  min-height: 100vh;
+  min-height: calc(100vh - var(--standalone-top-gap));
   display: flex;
   flex-direction: column;
 }
