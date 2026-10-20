@@ -79,12 +79,12 @@ html, body { overscroll-behavior: none; }
 :root { --standalone-top-gap: 0px; }
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
-    :root { --standalone-top-gap: 12px; }
+    :root { --standalone-top-gap: 14px; }
   }
 }
 /* Set in index.html via navigator.standalone, which catches home-screen launches the
    display-mode query misses. */
-html.ios-home-screen { --standalone-top-gap: 12px; }
+html.ios-home-screen { --standalone-top-gap: 14px; }
 /* Safe areas (needs viewport-fit=cover). Bottom: lift bars above the rounded corners and
    most of the home indicator, but not the full inset, since table height is precious.
    These are 0 on desktop, older iPhones and most browser tabs. */
