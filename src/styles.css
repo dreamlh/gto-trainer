@@ -67,6 +67,9 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* No double-tap zoom anywhere on touch screens; scrolling is unaffected. */
+html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
 ::selection { background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.302); color: #fff; }
 
 .app {
