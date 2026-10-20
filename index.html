@@ -19,6 +19,11 @@
       if (navigator.maxTouchPoints > 0 && matchMedia('(pointer: coarse)').matches) {
         document.addEventListener('gesturestart', function (e) { e.preventDefault() }, { passive: false })
       }
+      // Home-screen web app on iOS/iPadOS (see --standalone-top-gap in src/styles.css).
+      // navigator.standalone only exists on iOS WebKit; the display-mode check is a fallback.
+      var ios = /iP(hone|ad|od)/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
+      var homeScreen = navigator.standalone === true || matchMedia('(display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui)').matches
+      if (ios && homeScreen) document.documentElement.classList.add('ios-home-screen')
     </script>
   </head>
   <body>

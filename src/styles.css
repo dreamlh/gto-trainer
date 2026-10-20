@@ -79,6 +79,9 @@ html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adj
     :root { --standalone-top-gap: 40px; }
   }
 }
+/* Set in index.html via navigator.standalone, which catches home-screen launches the
+   display-mode query misses. */
+html.ios-home-screen { --standalone-top-gap: 40px; }
 body { padding-top: var(--standalone-top-gap); }
 
 ::selection { background: oklch(0.85 calc(0.0489 * var(--accent-c)) calc(var(--accent-h) - 0.1) / 0.302); color: #fff; }
