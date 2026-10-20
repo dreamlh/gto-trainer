@@ -73,29 +73,22 @@ html { touch-action: manipulation; -webkit-text-size-adjust: 100%; text-size-adj
    still scrolls normally, just without the elastic overshoot at either end. */
 html, body { overscroll-behavior: none; }
 
-/* iOS 26+ draws a Liquid Glass blur ramp just below the status bar in home-screen web apps,
-   and no page CSS can switch it off. Keep the header out of the ramp. -webkit-touch-callout
-   is only supported by iOS/iPadOS WebKit, so desktop and Android installs get no gap. */
+/* iOS 26+ draws a Liquid Glass blur ramp just below the status bar in home-screen web apps.
+   There is no switch for it, but WebKit skips it when a fixed box with a background sits on
+   the top edge, so .ios-edge-strip (in index.html) is that box: background-clip: text with no
+   text keeps it invisible. Confirmed on an iPhone home-screen install (Oct 2026); it relies on
+   undocumented WebKit behaviour. If a later iOS brings the blur back, set the gap below to
+   ~16px to keep the header clear of it. -webkit-touch-callout is iOS/iPadOS WebKit only, and
+   html.ios-home-screen (set from navigator.standalone) catches launches display-mode misses. */
 :root { --standalone-top-gap: 0px; }
-@supports (-webkit-touch-callout: none) {
-  @media (display-mode: standalone) {
-    :root { --standalone-top-gap: 0px; }
-  }
-}
-/* Experimental: WebKit skips that blur when a fixed box with a background sits on the top
-   edge. background-clip: text with no text keeps the strip itself invisible. If the blur
-   comes back on some iOS version, raise --standalone-top-gap above to keep the header clear.
-   See https://tips.ojapp.app/en/ios-27-pwa-top-blur-workaround-2/ */
 .ios-edge-strip { display: none; }
 @supports (-webkit-touch-callout: none) {
   @media (display-mode: standalone) {
-    .ios-edge-strip { display: block; position: fixed; inset: 0 0 auto; height: 11px; z-index: 1; pointer-events: none; background: var(--bg); background-clip: text; -webkit-background-clip: text; }
+    .ios-edge-strip { display: block; }
   }
 }
-html.ios-home-screen .ios-edge-strip { display: block; position: fixed; inset: 0 0 auto; height: 11px; z-index: 1; pointer-events: none; background: var(--bg); background-clip: text; -webkit-background-clip: text; }
-/* Set in index.html via navigator.standalone, which catches home-screen launches the
-   display-mode query misses. */
-html.ios-home-screen { --standalone-top-gap: 0px; }
+html.ios-home-screen .ios-edge-strip { display: block; }
+.ios-edge-strip { position: fixed; inset: 0 0 auto; height: 11px; z-index: 1; pointer-events: none; background: var(--bg); -webkit-background-clip: text; background-clip: text; }
 /* Safe areas (needs viewport-fit=cover). Bottom: lift bars above the rounded corners and
    most of the home indicator, but not the full inset, since table height is precious.
    These are 0 on desktop, older iPhones and most browser tabs. */
